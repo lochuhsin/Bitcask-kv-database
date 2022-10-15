@@ -65,6 +65,7 @@ func toDisk() error {
 		return err
 	}
 
+	
 	defer file.Close()
 	for k, v := range m.memo {
 		line := fmt.Sprintf("%v,%v\n", k, v)

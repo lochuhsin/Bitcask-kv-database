@@ -8,4 +8,5 @@ type memoryMap struct {
 type diskMap struct {
 	bytePositionMap map[string]int
 	byteLengthMap   map[string]int
+	byteFileLength int
 }

@@ -9,10 +9,13 @@ func Get(k string) (v string, status bool) {
 	if val, ok := m.keyvalue[k]; ok {
 		return val, true
 	}
-	if val, ok := isKeyInDisk(k, &d); ok {
+	if val, ok := isKeyInSegment(k, &d); ok {
 		return val, true
 	}
 
+	if val, ok := isKeyInSegments(k, &s); ok {
+		return val, true
+	}
 	return "", false
 }
 func Set(k string, v string) error {

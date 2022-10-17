@@ -8,29 +8,34 @@ import (
 
 // TODO: Convert this to env file
 var m memoryMap
-var d diskMap
+var d CurrentSegmentMap
+var s DiskSegmentMap
 var LOGFOLDER = "./log/"
-var NEXTLOGNo = 0
+var SEGMENTFOLDER = "seg/"
+var MEMORYLIMIT = 2
+var FILEBYTELIMIT = 2
 
 func init() {
 	// create log storage folder
 
 	// TODO: Convert this to env file
 	_ = os.RemoveAll(LOGFOLDER)
-	_ = os.MkdirAll(LOGFOLDER, 0700)
+	_ = os.MkdirAll(fmt.Sprintf("%v%v", LOGFOLDER, SEGMENTFOLDER), 0700)
 	initMaps()
 }
 
 func initMaps() {
 	m.keyvalue = make(map[string]string)
-	m.memoLimit = 2
 	d.bytePositionMap = make(map[string]int)
 	d.byteLengthMap = make(map[string]int)
 	d.byteFileLength = 0
+	d.CurrentSegmentNo = 0
+	s.memo = []CurrentSegmentMap{}
+
 }
 
-func toDisk(m *memoryMap, d *diskMap) error {
-	filepath := fmt.Sprintf("%v/%v.log", LOGFOLDER, NEXTLOGNo)
+func toDisk(m *memoryMap, d *CurrentSegmentMap) error {
+	filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, d.CurrentSegmentNo)
 	file, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
 	if err != nil {
 		return err
@@ -52,6 +57,31 @@ func toDisk(m *memoryMap, d *diskMap) error {
 		d.bytePositionMap[k] = byteHeadPosition
 
 		byteHeadPosition += bytes
+
+		// TODO: Decouple this function
+		if byteHeadPosition > FILEBYTELIMIT {
+			// close file
+			file.Close()
+
+			// write diskmap to map
+			splitSegment(*d, &s)
+
+			// create new obj
+			*d = CurrentSegmentMap{
+				bytePositionMap:  make(map[string]int),
+				byteLengthMap:    make(map[string]int),
+				byteFileLength:   0,
+				CurrentSegmentNo: d.CurrentSegmentNo + 1,
+			}
+
+			// open new file
+			filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, d.CurrentSegmentNo)
+			fmt.Println(d.CurrentSegmentNo)
+			file, err = os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
+
+			// new bytehead
+			byteHeadPosition = d.byteFileLength
+		}
 	}
 
 	d.byteFileLength = byteHeadPosition
@@ -59,29 +89,30 @@ func toDisk(m *memoryMap, d *diskMap) error {
 	return nil
 }
 
-func splitSegment() {
-
+// copy CurrentSegmentMap
+func splitSegment(d CurrentSegmentMap, s *DiskSegmentMap) {
+	s.memo = append(s.memo, d)
 }
 
-func isKeyInDisk(k string, d *diskMap) (v string, status bool) {
+func isKeyInSegment(k string, d *CurrentSegmentMap) (v string, status bool) {
 
 	if _, ok := d.bytePositionMap[k]; !ok {
 		return "", false
 	}
 
-	filepath := fmt.Sprintf("%v/%v.log", LOGFOLDER, NEXTLOGNo)
+	filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, d.CurrentSegmentNo)
 	bytePos, _ := d.bytePositionMap[k]
 	byteLen, _ := d.byteLengthMap[k]
 
 	file, err := os.Open(filepath)
 	defer file.Close()
 	if err != nil {
-		return "Something went wrong while reading file", false
+		return "Something went wrong while opening file", false
 	}
 
 	_, err = file.Seek(int64(bytePos), io.SeekStart)
 	if err != nil {
-		panic("Something went wrong while reading file")
+		panic("Something went wrong while seeking file")
 	}
 
 	readByte := make([]byte, byteLen)
@@ -94,6 +125,16 @@ func isKeyInDisk(k string, d *diskMap) (v string, status bool) {
 	return string(readByte), true
 }
 
+func isKeyInSegments(k string, s *DiskSegmentMap) (v string, status bool) {
+	for i := len(s.memo) - 1; i >= 0; i-- {
+		val, ok := isKeyInSegment(k, &s.memo[i])
+		if ok {
+			return val, true
+		}
+	}
+	return "", false
+}
+
 func isExceedMemoLimit(m *memoryMap) bool {
-	return len(m.keyvalue) >= m.memoLimit
+	return len(m.keyvalue) >= MEMORYLIMIT
 }

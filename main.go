@@ -2,28 +2,7 @@ package rebitcask
 
 import (
 	"fmt"
-	"os"
 )
-
-var m memoryMap
-var d diskMap
-var LOGFOLDER = "./log/"
-var NEXTLOGNo = 0
-
-func init() {
-	// create log folder
-	_ = os.RemoveAll(LOGFOLDER)
-	_ = os.MkdirAll(LOGFOLDER, 0700)
-	initMaps()
-}
-
-func initMaps() {
-	m.keyvalue = make(map[string]string)
-	m.memoLimit = 2
-	d.bytePositionMap = make(map[string]int)
-	d.byteLengthMap = make(map[string]int)
-	d.byteFileLength = 0
-}
 
 func Get(k string) (v string, status bool) {
 
@@ -52,6 +31,5 @@ func GetLength() int {
 }
 
 func GetAllInMemory() map[string]string {
-	memoryMap := m.keyvalue
-	return memoryMap
+	return m.keyvalue
 }

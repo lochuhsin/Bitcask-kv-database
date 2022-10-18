@@ -1,6 +1,7 @@
 package internal
 
 import (
+	"errors"
 	"fmt"
 	"os"
 )
@@ -11,13 +12,11 @@ var d CurrentSegmentMap
 var s DiskSegmentMap
 var LOGFOLDER = "./log/"
 var SEGMENTFOLDER = "seg/"
-var MEMORYLIMIT = 2
-var FILEBYTELIMIT = 2
-var TOMBSTONE = "!@#$% "
+var MEMORYLIMIT = 10
+var FILEBYTELIMIT = 10
+var TOMBSTONE = "@@@@@@"
 
 func init() {
-	// create log storage folder
-
 	// TODO: Convert this to env file
 	_ = os.RemoveAll(LOGFOLDER)
 	_ = os.MkdirAll(fmt.Sprintf("%v%v", LOGFOLDER, SEGMENTFOLDER), 0700)
@@ -36,19 +35,29 @@ func initMaps() {
 
 func Get(k string) (v string, status bool) {
 
-	if val, ok := m.keyvalue[k]; ok {
+	if val, ok := m.keyvalue[k]; ok && (val != TOMBSTONE) {
+		fmt.Println("memo")
+
 		return val, true
 	}
 	if val, ok := isKeyInSegment(k, &d); ok {
+		fmt.Println("current")
+
 		return val, true
 	}
 	if val, ok := isKeyInSegments(k, &s); ok {
+		fmt.Println("history")
+
 		return val, true
 	}
 	return "", false
 }
 
 func Set(k string, v string) error {
+	if k == TOMBSTONE {
+		return errors.New("invalid input")
+	}
+
 	m.keyvalue[k] = v
 	if isExceedMemoLimit(&m) {
 		err := toDisk(&m, &d)
@@ -57,6 +66,7 @@ func Set(k string, v string) error {
 			return err
 		}
 	}
+
 	return nil
 }
 

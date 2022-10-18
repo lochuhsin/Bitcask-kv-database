@@ -1,4 +1,4 @@
-package rebitcask
+package internal
 
 type memoryMap struct {
 	keyvalue map[string]string

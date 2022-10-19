@@ -93,9 +93,6 @@ func isKeyInSegment(k string, d *CurrentSegmentMap) (v string, status bool) {
 		panic("Something went wrong while reading file")
 	}
 
-	if string(readByte) == TOMBSTONE {
-		return "", false
-	}
 	return string(readByte), true
 }
 
@@ -105,11 +102,6 @@ func isKeyInSegments(k string, s *DiskSegmentMap) (v string, status bool) {
 	for i := len(s.memo) - 1; i >= 0; i-- {
 		val, ok := isKeyInSegment(k, &s.memo[i])
 		if ok {
-			//fmt.Println("number of segments", i)
-			//fmt.Println(s.memo[i].byteLengthMap)
-			//fmt.Println(s.memo[i].bytePositionMap)
-			//fmt.Println(s.memo[i].CurrentSegmentNo)
-			fmt.Println(s.memo)
 			return val, true
 		}
 	}

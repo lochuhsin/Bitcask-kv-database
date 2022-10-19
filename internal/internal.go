@@ -12,9 +12,9 @@ var d CurrentSegmentMap
 var s DiskSegmentMap
 var LOGFOLDER = "./log/"
 var SEGMENTFOLDER = "seg/"
-var MEMORYLIMIT = 10
-var FILEBYTELIMIT = 10
-var TOMBSTONE = "@@@@@@"
+var MEMORYLIMIT = 10000
+var FILEBYTELIMIT = 10000
+var TOMBSTONE = "!@#$%^&*()_+"
 
 func init() {
 	// TODO: Convert this to env file
@@ -35,21 +35,30 @@ func initMaps() {
 
 func Get(k string) (v string, status bool) {
 
-	if val, ok := m.keyvalue[k]; ok && (val != TOMBSTONE) {
-		fmt.Println("memo")
-
+	// check if is value in memory
+	if val, ok := m.keyvalue[k]; ok {
+		if val == TOMBSTONE {
+			return "", false
+		}
 		return val, true
 	}
+
+	// check in current segment
 	if val, ok := isKeyInSegment(k, &d); ok {
-		fmt.Println("current")
-
+		if val == TOMBSTONE {
+			return "", false
+		}
 		return val, true
 	}
+
+	// check in history segment
 	if val, ok := isKeyInSegments(k, &s); ok {
-		fmt.Println("history")
-
+		if val == TOMBSTONE {
+			return "", false
+		}
 		return val, true
 	}
+
 	return "", false
 }
 
@@ -66,7 +75,6 @@ func Set(k string, v string) error {
 			return err
 		}
 	}
-
 	return nil
 }
 

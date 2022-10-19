@@ -3,6 +3,7 @@ package rebitcask
 import (
 	"fmt"
 	"math/rand"
+	"os"
 	"rebitcask/rebitcask"
 	"testing"
 	"time"
@@ -10,70 +11,99 @@ import (
 
 var LETTERS = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-func generate_data() []string {
+func generatePureRandomData() map[string]string {
 	rand.Seed(time.Now().UnixNano())
-	var ans []string
-	for i := 0; i < 10; i++ {
-		b := make([]rune, 5)
-		for i := range b {
-			b[i] = LETTERS[rand.Intn(len(LETTERS))]
+	ans := make(map[string]string)
+	for i := 0; i < 100000; i++ {
+		k := make([]rune, rand.Intn(30))
+		for i := range k {
+			k[i] = LETTERS[rand.Intn(len(LETTERS))]
 		}
-		ans = append(ans, string(b))
+		v := make([]rune, rand.Intn(30))
+		for i := range v {
+			v[i] = LETTERS[rand.Intn(len(LETTERS))]
+		}
+		ans[string(k)] = string(v)
 	}
 	return ans
 }
 
-//func TestGetSet(t *testing.T) {
-//	s := time.Now()
-//	ans := generate_data()
-//	for _, v := range ans {
-//		err := rebitcask.Set(v, v)
-//		if err != nil {
-//			t.Fatal("Something went wrong while setting")
-//		}
-//	}
-//
-//	for _, v := range ans {
-//		res, _ := rebitcask.Get(v)
-//
-//		if res != v {
-//			t.Fatal("Get value error")
-//		}
-//	}
-//	timeLength := time.Since(s)
-//	fmt.Println("test finished")
-//	fmt.Printf("Cost: %v", timeLength)
-//}
-
-func TestDelete(t *testing.T) {
+func TestGetSetPureRandom(t *testing.T) {
+	ans := generatePureRandomData()
 	s := time.Now()
-	ans := generate_data()
-	for i, v := range ans {
-		err := rebitcask.Set(v, v)
+	fmt.Println(s)
+	for k, v := range ans {
+		err := rebitcask.Set(k, v)
+
+		if err != nil {
+			t.Fatal("Something went wrong while setting")
+		}
+	}
+	fmt.Println("done set")
+	for k, v := range ans {
+		res, _ := rebitcask.Get(k)
+
+		if res != v {
+			t.Fatal("Get value error")
+		}
+	}
+	timeLength := time.Since(s)
+	fmt.Println("test finished")
+	fmt.Printf("Cost: %v", timeLength)
+
+}
+
+func TestGetSetFixValue(t *testing.T) {
+	ans := generatePureRandomData()
+	s := time.Now()
+	fmt.Println(s)
+	for k, _ := range ans {
+		err := rebitcask.Set(k, "@@@@@@@")
+
 		if err != nil {
 			t.Fatal("Something went wrong while setting")
 		}
 
-		err = rebitcask.Delete(v)
-		if err != nil {
-			t.Fatal("Something went wrong while deleting")
-		}
+		res, _ := rebitcask.Get(k)
 
-		val, status := rebitcask.Get(v)
-		if status != false {
-			fmt.Println(i, val)
+		if res != "@@@@@@@" {
+			t.Error("Get value error")
 		}
 	}
-
-	//for _, v := range ans {
-	//	val, status := rebitcask.Get(v)
-	//
-	//	if status != false {
-	//		t.Error("Delete not clear", val)
-	//		fmt.Println(rebitcask.GetAllInMemory())
-	//	}
-	//}
 	timeLength := time.Since(s)
 	fmt.Println("test finished")
 	fmt.Printf("Cost: %v", timeLength)
+
+}
+
+func TestDelete(t *testing.T) {
+	s := time.Now()
+	ans := generatePureRandomData()
+
+	for k, v := range ans {
+		err := rebitcask.Set(k, v)
+		if err != nil {
+			t.Fatal("Something went wrong while setting")
+		}
+
+		err = rebitcask.Delete(k)
+		if err != nil {
+			t.Fatal("Something went wrong while deleting")
+		}
+		val, status := rebitcask.Get(k)
+		if status != false {
+			fmt.Println(v, val)
+			t.Error("Get value error")
+		}
+	}
+	timeLength := time.Since(s)
+	fmt.Println("test finished")
+	fmt.Printf("Cost: %v", timeLength)
+}
+
+func TestRemoveLogFile(t *testing.T) {
+	err := os.RemoveAll("./log/")
+	if err != nil {
+		t.Fatal(err)
+	}
 }

@@ -31,7 +31,7 @@ func toDisk(m *memoryMap, d *CurrentSegmentMap) error {
 		byteHeadPosition += bytes
 
 		// TODO: Decouple this function
-		if byteHeadPosition > FILEBYTELIMIT {
+		if byteHeadPosition >= FILEBYTELIMIT {
 			// close file
 			file.Close()
 
@@ -39,16 +39,15 @@ func toDisk(m *memoryMap, d *CurrentSegmentMap) error {
 			splitSegment(*d, &s)
 
 			// create new obj
+			currentSegmentNo := d.CurrentSegmentNo
 			*d = CurrentSegmentMap{
 				bytePositionMap:  make(map[string]int),
 				byteLengthMap:    make(map[string]int),
 				byteFileLength:   0,
-				CurrentSegmentNo: d.CurrentSegmentNo + 1,
+				CurrentSegmentNo: currentSegmentNo + 1,
 			}
-
 			// open new file
 			filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, d.CurrentSegmentNo)
-			fmt.Println(d.CurrentSegmentNo)
 			file, err = os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
 
 			// new bytehead
@@ -94,9 +93,6 @@ func isKeyInSegment(k string, d *CurrentSegmentMap) (v string, status bool) {
 		panic("Something went wrong while reading file")
 	}
 
-	if string(readByte) == TOMBSTONE {
-		return "", false
-	}
 	return string(readByte), true
 }
 
@@ -112,6 +108,7 @@ func isKeyInSegments(k string, s *DiskSegmentMap) (v string, status bool) {
 	return "", false
 }
 
+// TODO: Convert to using total byte
 func isExceedMemoLimit(m *memoryMap) bool {
 	return len(m.keyvalue) >= MEMORYLIMIT
 }

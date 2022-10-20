@@ -46,7 +46,7 @@ func toDisk(memory *memoryMap, currSeg *CurrentSegmentMap, segContainer *Segment
 				byteFileLength:   0,
 				CurrentSegmentNo: currentSegmentNo + 1,
 			}
-			// open new file
+			// open new file                                                // TODO: add this to notes, about changing pointer with changing value
 			filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, currSeg.CurrentSegmentNo)
 			file, err = os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
 

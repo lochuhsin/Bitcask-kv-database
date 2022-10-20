@@ -6,8 +6,8 @@ import (
 	"os"
 )
 
-func toDisk(m *memoryMap, d *CurrentSegmentMap) error {
-	filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, d.CurrentSegmentNo)
+func toDisk(memory *memoryMap, currSeg *CurrentSegmentMap, segContainer *SegmentContainer) error {
+	filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, currSeg.CurrentSegmentNo)
 	file, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
 	if err != nil {
 		return err
@@ -15,8 +15,8 @@ func toDisk(m *memoryMap, d *CurrentSegmentMap) error {
 
 	defer file.Close()
 
-	byteHeadPosition := d.byteFileLength
-	for k, v := range m.keyvalue {
+	byteHeadPosition := currSeg.byteFileLength
+	for k, v := range memory.keyvalue {
 
 		byteValue := []byte(v)
 		bytes, err := file.Write(byteValue)
@@ -25,8 +25,8 @@ func toDisk(m *memoryMap, d *CurrentSegmentMap) error {
 			panic("Something went wrong while writing to disk")
 		}
 
-		d.byteLengthMap[k] = bytes
-		d.bytePositionMap[k] = byteHeadPosition
+		currSeg.byteLengthMap[k] = bytes
+		currSeg.bytePositionMap[k] = byteHeadPosition
 
 		byteHeadPosition += bytes
 
@@ -36,44 +36,39 @@ func toDisk(m *memoryMap, d *CurrentSegmentMap) error {
 			file.Close()
 
 			// write diskmap to map
-			splitSegment(*d, &s)
+			segContainer.memo = append(segContainer.memo, *currSeg)
 
 			// create new obj
-			currentSegmentNo := d.CurrentSegmentNo
-			*d = CurrentSegmentMap{
+			currentSegmentNo := currSeg.CurrentSegmentNo
+			*currSeg = CurrentSegmentMap{
 				bytePositionMap:  make(map[string]int),
 				byteLengthMap:    make(map[string]int),
 				byteFileLength:   0,
 				CurrentSegmentNo: currentSegmentNo + 1,
 			}
 			// open new file
-			filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, d.CurrentSegmentNo)
+			filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, currSeg.CurrentSegmentNo)
 			file, err = os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
 
 			// new bytehead
-			byteHeadPosition = d.byteFileLength
+			byteHeadPosition = 0
 		}
 	}
 
-	d.byteFileLength = byteHeadPosition
-	m.keyvalue = make(map[string]string)
+	currSeg.byteFileLength = byteHeadPosition
+	memory.keyvalue = make(map[string]string)
 	return nil
 }
 
-// copy CurrentSegmentMap
-func splitSegment(d CurrentSegmentMap, s *DiskSegmentMap) {
-	s.memo = append(s.memo, d)
-}
+func isKeyInSegment(k string, currSeg *CurrentSegmentMap) (v string, status bool) {
 
-func isKeyInSegment(k string, d *CurrentSegmentMap) (v string, status bool) {
-
-	if _, ok := d.bytePositionMap[k]; !ok {
+	if _, ok := currSeg.bytePositionMap[k]; !ok {
 		return "", false
 	}
 
-	filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, d.CurrentSegmentNo)
-	bytePos, _ := d.bytePositionMap[k]
-	byteLen, _ := d.byteLengthMap[k]
+	filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, currSeg.CurrentSegmentNo)
+	bytePos, _ := currSeg.bytePositionMap[k]
+	byteLen, _ := currSeg.byteLengthMap[k]
 
 	file, err := os.Open(filepath)
 	defer file.Close()
@@ -96,11 +91,11 @@ func isKeyInSegment(k string, d *CurrentSegmentMap) (v string, status bool) {
 	return string(readByte), true
 }
 
-func isKeyInSegments(k string, s *DiskSegmentMap) (v string, status bool) {
+func isKeySegmentContainer(k string, segContainer *SegmentContainer) (v string, status bool) {
 
 	// read backwards since SegNo. bigger means later
-	for i := len(s.memo) - 1; i >= 0; i-- {
-		val, ok := isKeyInSegment(k, &s.memo[i])
+	for i := len(segContainer.memo) - 1; i >= 0; i-- {
+		val, ok := isKeyInSegment(k, &segContainer.memo[i])
 		if ok {
 			return val, true
 		}

@@ -13,6 +13,6 @@ type CurrentSegmentMap struct {
 
 // Array used as hashmap
 // index is segment file No.
-type DiskSegmentMap struct {
+type SegmentContainer struct {
 	memo []CurrentSegmentMap
 }

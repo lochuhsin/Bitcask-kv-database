@@ -7,9 +7,9 @@ import (
 )
 
 // TODO: Convert this to env file
-var m memoryMap
-var d CurrentSegmentMap
-var s DiskSegmentMap
+var memory memoryMap
+var currentSeg CurrentSegmentMap
+var segContainer SegmentContainer
 var LOGFOLDER = "./log/"
 var SEGMENTFOLDER = "seg/"
 var MEMORYLIMIT = 10000
@@ -24,19 +24,19 @@ func init() {
 }
 
 func initMaps() {
-	m.keyvalue = make(map[string]string)
-	d.bytePositionMap = make(map[string]int)
-	d.byteLengthMap = make(map[string]int)
-	d.byteFileLength = 0
-	d.CurrentSegmentNo = 0
-	s.memo = []CurrentSegmentMap{}
+	memory.keyvalue = make(map[string]string)
+	currentSeg.bytePositionMap = make(map[string]int)
+	currentSeg.byteLengthMap = make(map[string]int)
+	currentSeg.byteFileLength = 0
+	currentSeg.CurrentSegmentNo = 0
+	segContainer.memo = []CurrentSegmentMap{}
 
 }
 
 func Get(k string) (v string, status bool) {
 
 	// check if is value in memory
-	if val, ok := m.keyvalue[k]; ok {
+	if val, ok := memory.keyvalue[k]; ok {
 		if val == TOMBSTONE {
 			return "", false
 		}
@@ -44,7 +44,7 @@ func Get(k string) (v string, status bool) {
 	}
 
 	// check in current segment
-	if val, ok := isKeyInSegment(k, &d); ok {
+	if val, ok := isKeyInSegment(k, &currentSeg); ok {
 		if val == TOMBSTONE {
 			return "", false
 		}
@@ -52,7 +52,7 @@ func Get(k string) (v string, status bool) {
 	}
 
 	// check in history segment
-	if val, ok := isKeyInSegments(k, &s); ok {
+	if val, ok := isKeySegmentContainer(k, &segContainer); ok {
 		if val == TOMBSTONE {
 			return "", false
 		}
@@ -67,9 +67,9 @@ func Set(k string, v string) error {
 		return errors.New("invalid input")
 	}
 
-	m.keyvalue[k] = v
-	if isExceedMemoLimit(&m) {
-		err := toDisk(&m, &d)
+	memory.keyvalue[k] = v
+	if isExceedMemoLimit(&memory) {
+		err := toDisk(&memory, &currentSeg, &segContainer)
 		if err != nil {
 			fmt.Println(err)
 			return err
@@ -83,9 +83,9 @@ func Delete(k string) error {
 }
 
 func GetLength() int {
-	return len(m.keyvalue)
+	return len(memory.keyvalue)
 }
 
 func GetAllInMemory() map[string]string {
-	return m.keyvalue
+	return memory.keyvalue
 }

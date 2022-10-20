@@ -36,7 +36,7 @@ func TestGetSetPureRandom(t *testing.T) {
 		err := rebitcask.Set(k, v)
 
 		if err != nil {
-			t.Fatal("Something went wrong while setting")
+			t.Error("Something went wrong while setting")
 		}
 	}
 	fmt.Println("done set")
@@ -44,7 +44,7 @@ func TestGetSetPureRandom(t *testing.T) {
 		res, _ := rebitcask.Get(k)
 
 		if res != v {
-			t.Fatal("Get value error")
+			t.Error("Get value error")
 		}
 	}
 	timeLength := time.Since(s)

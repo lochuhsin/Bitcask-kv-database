@@ -77,5 +77,89 @@ func isKeyInSegment(k string, segment *SegmentMap) (v []byte, status bool) {
 		panic("Something went wrong while reading file")
 	}
 
-	return string(readByte), true
+	return readByte, true
+}
+
+type keyPosPair struct {
+	key string
+	pos int
+}
+
+func compressSegments(segments []SegmentMap) (newSegments []SegmentMap) {
+	keyValue := make(map[string][]byte)
+
+	// reading reverse order
+	for segIndex := len(segments) - 1; segIndex >= 0; segIndex-- {
+		segment := segments[segIndex]
+
+		// Sort segment hashmap by byte position
+		// since we need to read everything reverse, so the order is extremely important
+		bytePositionMap := segment.bytePositionMap
+
+		// using struct is way more efficient than other datatype
+		keyPosPairArr := make([]keyPosPair, len(bytePositionMap))
+		i := 0
+		for key, pos := range bytePositionMap {
+			keyPosPairArr[i] = keyPosPair{key: key, pos: pos}
+		}
+
+		sort.Slice(keyPosPairArr, func(i int, j int) bool {
+			return keyPosPairArr[i].pos > keyPosPairArr[j].pos
+		})
+
+		// Since the key, pos is sort with reverse order,
+		// we can loop everything and write it in to temprary memory
+		filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, segment.CurrentSegmentNo)
+		file, _ := os.Open(filepath)
+		for _, pair := range keyPosPairArr {
+			pos := pair.pos
+			key := pair.key
+
+			if _, ok := keyValue[key]; ok {
+				continue
+			}
+
+			_, err := file.Seek(int64(pos), io.SeekStart)
+			if err != nil {
+				panic("Something went wrong while seeking file")
+			}
+
+			readByte := make([]byte, segment.byteLengthMap[key])
+
+			_, err = file.Read(readByte)
+			if err != nil {
+				panic("Something went wrong while seeking file")
+			}
+
+			keyValue[key] = readByte
+		}
+		//TODO: Remove segment folder after finish reading file
+	}
+
+	//keyvalue contains all values, create a start looping and create a new segment
+	memoMap := memoryMap{keyvalue: keyValue}
+	newSegContainer := SegmentContainer{
+		memo: []SegmentMap{},
+	}
+	tempSegment := SegmentMap{
+		bytePositionMap:  make(map[string]int),
+		byteLengthMap:    make(map[string]int),
+		byteFileLength:   0,
+		CurrentSegmentNo: 0,
+	}
+	// Since we are compressing
+	// the maximum segment number will be less than currentSegNo (for worst case)
+	// the key in each segment will be unique, so the order of writing
+	// to disk is irrelevant
+
+	err := toDisk(&memoMap, &tempSegment, &newSegContainer)
+	if err != nil {
+		panic("something went wrong while compressing")
+	}
+	// add the temp Segment to newSegContainer if length is not zero
+	// we cannot ensure there are no segment left.
+	if tempSegment.byteFileLength != 0 {
+		newSegContainer.memo = append(newSegContainer.memo, tempSegment)
+	}
+	return newSegContainer.memo
 }

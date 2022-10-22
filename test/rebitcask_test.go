@@ -127,3 +127,33 @@ func TestSetRemoveLogFile(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestSmallVal(t *testing.T) {
+	rebitcask.Set("z", "b")
+	rebitcask.Set("z", "c")
+	rebitcask.Set("z", "d")
+	//rebitcask.Set("x", "e")
+	//rebitcask.Set("x", "f")
+	//rebitcask.Set("x", "g")
+	//rebitcask.Set("a", "h")
+	//rebitcask.Set("a", "i")
+	//rebitcask.Set("a", "j")
+
+	res, _ := rebitcask.Get("z")
+	if res != "d" {
+		fmt.Println(res)
+		t.Error("")
+	}
+
+	//res, _ = rebitcask.Get("x")
+	//if res != "g" {
+	//	fmt.Println(res)
+	//	t.Error("")
+	//}
+	//res, _ = rebitcask.Get("a")
+	//if res != "j" {
+	//	fmt.Println(res)
+	//	t.Error("")
+	//}
+
+}

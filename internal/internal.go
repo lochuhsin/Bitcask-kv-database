@@ -12,8 +12,8 @@ var currentSeg SegmentMap
 var segContainer SegmentContainer
 var LOGFOLDER = "./log/"
 var SEGMENTFOLDER = "seg/"
-var MEMORYLIMIT = 10000
-var FILEBYTELIMIT = 10000
+var MEMORYLIMIT = 20000
+var FILEBYTELIMIT = 20000
 var SEGFILECOUNTLIMIT = 20
 var TOMBSTONE = "!@#$%^&*()_+"
 
@@ -72,6 +72,10 @@ func Set(k string, v string) error {
 			return err
 		}
 		memory.keyvalue = make(map[string][]byte)
+	}
+	if isSegFileMultiple(len(segContainer.memo)) {
+		newSegments := compressSegments(segContainer.memo)
+		segContainer.memo = newSegments
 	}
 	return nil
 }

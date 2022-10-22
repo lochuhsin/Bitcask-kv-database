@@ -28,6 +28,23 @@ func generatePureRandomData() map[string]string {
 	return ans
 }
 
+func generateKeyDuplicateRandomData() map[string]string {
+	rand.Seed(time.Now().UnixNano())
+	ans := make(map[string]string)
+	for i := 0; i < 100000; i++ {
+		k := make([]rune, 2)
+		for i := range k {
+			k[i] = LETTERS[rand.Intn(len(LETTERS))]
+		}
+		v := make([]rune, rand.Intn(30))
+		for i := range v {
+			v[i] = LETTERS[rand.Intn(len(LETTERS))]
+		}
+		ans[string(k)] = string(v)
+	}
+	return ans
+}
+
 func TestGetSetPureRandom(t *testing.T) {
 	ans := generatePureRandomData()
 	s := time.Now()
@@ -53,6 +70,30 @@ func TestGetSetPureRandom(t *testing.T) {
 
 }
 
+func TestGetSetKeyDuplicateRandom(t *testing.T) {
+	ans := generateKeyDuplicateRandomData()
+	s := time.Now()
+	fmt.Println(s)
+	for k, v := range ans {
+		err := rebitcask.Set(k, v)
+
+		if err != nil {
+			t.Error("Something went wrong while setting")
+		}
+	}
+	fmt.Println("done set")
+	for k, v := range ans {
+		res, _ := rebitcask.Get(k)
+
+		if res != v {
+			t.Error("Get value error")
+		}
+	}
+	timeLength := time.Since(s)
+	fmt.Println("test finished")
+	fmt.Printf("Cost: %v", timeLength)
+}
+
 func TestGetSetFixValue(t *testing.T) {
 	ans := generatePureRandomData()
 	s := time.Now()
@@ -76,7 +117,7 @@ func TestGetSetFixValue(t *testing.T) {
 
 }
 
-func TestGetSetDiffValue(t *testing.T) {
+func TestGetSetFixKey(t *testing.T) {
 	ans := generatePureRandomData()
 	s := time.Now()
 	fmt.Println(s)
@@ -90,7 +131,6 @@ func TestGetSetDiffValue(t *testing.T) {
 		}
 		lastVal = v
 	}
-
 	if res, _ := rebitcask.Get(sameKey); res != lastVal {
 		t.Fatal("final assertion error")
 	}
@@ -121,9 +161,26 @@ func TestDelete(t *testing.T) {
 	fmt.Printf("Cost: %v", timeLength)
 }
 
-func TestSetRemoveLogFile(t *testing.T) {
-	err := os.RemoveAll("./log/")
-	if err != nil {
-		t.Fatal(err)
+// for debug purpose
+func TestSmallVal(t *testing.T) {
+	rebitcask.Set("a", "a")
+	rebitcask.Set("b", "b")
+	rebitcask.Set("c", "c")
+	rebitcask.Set("d", "d")
+
+	res, _ := rebitcask.Get("a")
+	if res != "a" {
+		fmt.Println(res)
+		t.Error("xxxxxxx")
 	}
+
+	res, _ = rebitcask.Get("b")
+	if res != "b" {
+		fmt.Println(res)
+		t.Error("asdfasdf")
+	}
+}
+
+func TestRemoveLog(t *testing.T) {
+	os.RemoveAll("./log/")
 }

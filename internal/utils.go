@@ -25,8 +25,9 @@ func isExceedMemoLimit(memoSize int) bool {
 	return memoSize >= MEMORYLIMIT
 }
 
-func isExceedSegFileLimit(fileCount int) bool {
-	return fileCount >= SEGFILECOUNTLIMIT
+// TODO: find a better condition
+func isSegFileMultiple(fileCount int) bool {
+	return (fileCount % SEGFILECOUNTLIMIT) == 0
 }
 
 func filterTombStone(val string) (value string, status bool) {

@@ -134,6 +134,7 @@ func compressSegments(segments []SegmentMap) (newSegments []SegmentMap) {
 			keyValue[key] = readByte
 		}
 		//TODO: Remove segment folder after finish reading file
+		os.Remove(filepath)
 	}
 
 	//keyvalue contains all values, create a start looping and create a new segment

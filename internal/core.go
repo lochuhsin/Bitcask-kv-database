@@ -62,7 +62,7 @@ func isKeyInSegment(k string, segment *SegmentMap) (v []byte, status bool) {
 	file, err := os.Open(filepath)
 	defer file.Close()
 	if err != nil {
-		return []byte("Something went wrong while opening file"), false
+		panic("Something went wrong while opening file")
 	}
 
 	_, err = file.Seek(int64(bytePos), io.SeekStart)
@@ -101,6 +101,7 @@ func compressSegments(segments []SegmentMap) (newSegments []SegmentMap) {
 		i := 0
 		for key, pos := range bytePositionMap {
 			keyPosPairArr[i] = keyPosPair{key: key, pos: pos}
+			i += 1
 		}
 
 		sort.Slice(keyPosPairArr, func(i int, j int) bool {

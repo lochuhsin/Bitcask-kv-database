@@ -64,13 +64,14 @@ func Set(k string, v string) error {
 		return errors.New("invalid input")
 	}
 
-	memory.keyvalue[k] = v
+	memory.keyvalue[k] = []byte(v)
 	if isExceedMemoLimit(len(memory.keyvalue)) {
 		err := toDisk(&memory, &currentSeg, &segContainer)
 		if err != nil {
 			fmt.Println(err)
 			return err
 		}
+		memory.keyvalue = make(map[string][]byte)
 	}
 	return nil
 }

@@ -18,6 +18,6 @@ func GetLength() int {
 	return internal.GetLength()
 }
 
-func GetAllInMemory() map[string]string {
+func GetAllInMemory() map[string][]byte {
 	return internal.GetAllInMemory()
 }

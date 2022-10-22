@@ -14,6 +14,7 @@ var LOGFOLDER = "./log/"
 var SEGMENTFOLDER = "seg/"
 var MEMORYLIMIT = 10000
 var FILEBYTELIMIT = 10000
+var SEGFILECOUNTLIMIT = 20
 var TOMBSTONE = "!@#$%^&*()_+"
 
 func init() {
@@ -24,7 +25,7 @@ func init() {
 }
 
 func initMaps() {
-	memory.keyvalue = make(map[string]string)
+	memory.keyvalue = make(map[string][]byte)
 	currentSeg.bytePositionMap = make(map[string]int)
 	currentSeg.byteLengthMap = make(map[string]int)
 	currentSeg.byteFileLength = 0
@@ -37,19 +38,22 @@ func Get(k string) (v string, status bool) {
 
 	// check if is value in memory
 	if val, ok := memory.keyvalue[k]; ok {
-		return filterTombStone(val)
+		str := string(val)
+		return filterTombStone(str)
 	}
 
 	// check in current segment
 	if val, ok := isKeyInSegment(k, &currentSeg); ok {
-		return filterTombStone(val)
+		str := string(val)
+		return filterTombStone(str)
 	}
 
 	// check previous segments read backwards since SegNo. bigger means later
 	for i := len(segContainer.memo) - 1; i >= 0; i-- {
 		val, ok := isKeyInSegment(k, &segContainer.memo[i])
+		str := string(val)
 		if ok {
-			return filterTombStone(val)
+			return filterTombStone(str)
 		}
 	}
 	return "", false
@@ -79,6 +83,6 @@ func GetLength() int {
 	return len(memory.keyvalue)
 }
 
-func GetAllInMemory() map[string]string {
+func GetAllInMemory() map[string][]byte {
 	return memory.keyvalue
 }

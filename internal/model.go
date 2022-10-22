@@ -1,18 +1,16 @@
 package internal
 
 type memoryMap struct {
-	keyvalue map[string]string
+	keyvalue map[string][]byte
 }
 
 type SegmentMap struct {
 	bytePositionMap  map[string]int
 	byteLengthMap    map[string]int
 	byteFileLength   int
-	CurrentSegmentNo int
+	CurrentSegmentNo int // for file naming
 }
 
-// Array used as hashmap
-// index is segment file No.
 type SegmentContainer struct {
 	memo []SegmentMap
 }

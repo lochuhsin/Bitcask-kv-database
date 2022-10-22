@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"sort"
 )
 
 func toDisk(memory *memoryMap, currSeg *SegmentMap, segContainer *SegmentContainer) error {
@@ -16,7 +17,7 @@ func toDisk(memory *memoryMap, currSeg *SegmentMap, segContainer *SegmentContain
 	byteHeadPosition := currSeg.byteFileLength
 	for k, v := range memory.keyvalue {
 
-		byteValue := []byte(v)
+		byteValue := v
 		bytes, err := file.Write(byteValue)
 
 		if err != nil {
@@ -43,17 +44,15 @@ func toDisk(memory *memoryMap, currSeg *SegmentMap, segContainer *SegmentContain
 			byteHeadPosition = 0
 		}
 	}
-
 	currSeg.byteFileLength = byteHeadPosition
-	memory.keyvalue = make(map[string]string)
 	file.Close()
 	return nil
 }
 
-func isKeyInSegment(k string, segment *SegmentMap) (v string, status bool) {
+func isKeyInSegment(k string, segment *SegmentMap) (v []byte, status bool) {
 
 	if _, ok := segment.bytePositionMap[k]; !ok {
-		return "", false
+		return []byte(""), false
 	}
 
 	filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, segment.CurrentSegmentNo)
@@ -63,7 +62,7 @@ func isKeyInSegment(k string, segment *SegmentMap) (v string, status bool) {
 	file, err := os.Open(filepath)
 	defer file.Close()
 	if err != nil {
-		return "Something went wrong while opening file", false
+		return []byte("Something went wrong while opening file"), false
 	}
 
 	_, err = file.Seek(int64(bytePos), io.SeekStart)

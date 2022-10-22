@@ -76,6 +76,26 @@ func TestGetSetFixValue(t *testing.T) {
 
 }
 
+func TestGetSetDiffValue(t *testing.T) {
+	ans := generatePureRandomData()
+	s := time.Now()
+	fmt.Println(s)
+
+	sameKey := "Same"
+	var lastVal string
+	for _, v := range ans {
+		err := rebitcask.Set(sameKey, v)
+		if err != nil {
+			t.Fatal("Something went wrong while setting")
+		}
+		lastVal = v
+	}
+
+	if res, _ := rebitcask.Get(sameKey); res != lastVal {
+		t.Fatal("final assertion error")
+	}
+}
+
 func TestDelete(t *testing.T) {
 	s := time.Now()
 	ans := generatePureRandomData()
@@ -101,7 +121,7 @@ func TestDelete(t *testing.T) {
 	fmt.Printf("Cost: %v", timeLength)
 }
 
-func TestRemoveLogFile(t *testing.T) {
+func TestSetRemoveLogFile(t *testing.T) {
 	err := os.RemoveAll("./log/")
 	if err != nil {
 		t.Fatal(err)

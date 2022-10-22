@@ -8,7 +8,7 @@ import (
 
 // TODO: Convert this to env file
 var memory memoryMap
-var currentSeg CurrentSegmentMap
+var currentSeg SegmentMap
 var segContainer SegmentContainer
 var LOGFOLDER = "./log/"
 var SEGMENTFOLDER = "seg/"
@@ -29,7 +29,7 @@ func initMaps() {
 	currentSeg.byteLengthMap = make(map[string]int)
 	currentSeg.byteFileLength = 0
 	currentSeg.CurrentSegmentNo = 0
-	segContainer.memo = []CurrentSegmentMap{}
+	segContainer.memo = []SegmentMap{}
 
 }
 
@@ -37,28 +37,21 @@ func Get(k string) (v string, status bool) {
 
 	// check if is value in memory
 	if val, ok := memory.keyvalue[k]; ok {
-		if val == TOMBSTONE {
-			return "", false
-		}
-		return val, true
+		return filterTombStone(val)
 	}
 
 	// check in current segment
 	if val, ok := isKeyInSegment(k, &currentSeg); ok {
-		if val == TOMBSTONE {
-			return "", false
-		}
-		return val, true
+		return filterTombStone(val)
 	}
 
-	// check in history segment
-	if val, ok := isKeySegmentContainer(k, &segContainer); ok {
-		if val == TOMBSTONE {
-			return "", false
+	// check previous segments read backwards since SegNo. bigger means later
+	for i := len(segContainer.memo) - 1; i >= 0; i-- {
+		val, ok := isKeyInSegment(k, &segContainer.memo[i])
+		if ok {
+			return filterTombStone(val)
 		}
-		return val, true
 	}
-
 	return "", false
 }
 
@@ -68,7 +61,7 @@ func Set(k string, v string) error {
 	}
 
 	memory.keyvalue[k] = v
-	if isExceedMemoLimit(&memory) {
+	if isExceedMemoLimit(len(memory.keyvalue)) {
 		err := toDisk(&memory, &currentSeg, &segContainer)
 		if err != nil {
 			fmt.Println(err)

@@ -4,7 +4,7 @@ type memoryMap struct {
 	keyvalue map[string]string
 }
 
-type CurrentSegmentMap struct {
+type SegmentMap struct {
 	bytePositionMap  map[string]int
 	byteLengthMap    map[string]int
 	byteFileLength   int
@@ -14,5 +14,5 @@ type CurrentSegmentMap struct {
 // Array used as hashmap
 // index is segment file No.
 type SegmentContainer struct {
-	memo []CurrentSegmentMap
+	memo []SegmentMap
 }

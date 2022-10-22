@@ -6,14 +6,12 @@ import (
 	"os"
 )
 
-func toDisk(memory *memoryMap, currSeg *CurrentSegmentMap, segContainer *SegmentContainer) error {
+func toDisk(memory *memoryMap, currSeg *SegmentMap, segContainer *SegmentContainer) error {
 	filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, currSeg.CurrentSegmentNo)
 	file, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
 	if err != nil {
 		return err
 	}
-
-	defer file.Close()
 
 	byteHeadPosition := currSeg.byteFileLength
 	for k, v := range memory.keyvalue {
@@ -30,25 +28,16 @@ func toDisk(memory *memoryMap, currSeg *CurrentSegmentMap, segContainer *Segment
 
 		byteHeadPosition += bytes
 
-		// TODO: Decouple this function
 		if byteHeadPosition >= FILEBYTELIMIT {
 			// close file
 			file.Close()
 
-			// write diskmap to map
+			// store segment
 			segContainer.memo = append(segContainer.memo, *currSeg)
 
-			// create new obj
-			currentSegmentNo := currSeg.CurrentSegmentNo
-			*currSeg = CurrentSegmentMap{
-				bytePositionMap:  make(map[string]int),
-				byteLengthMap:    make(map[string]int),
-				byteFileLength:   0,
-				CurrentSegmentNo: currentSegmentNo + 1,
-			}
-			// open new file                                                // TODO: add this to notes, about changing pointer with changing value
-			filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, currSeg.CurrentSegmentNo)
-			file, err = os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
+			// create new segment
+			newSegmentNo := currSeg.CurrentSegmentNo + 1
+			file, *currSeg = createNewSegment(newSegmentNo)
 
 			// new bytehead
 			byteHeadPosition = 0
@@ -57,18 +46,19 @@ func toDisk(memory *memoryMap, currSeg *CurrentSegmentMap, segContainer *Segment
 
 	currSeg.byteFileLength = byteHeadPosition
 	memory.keyvalue = make(map[string]string)
+	file.Close()
 	return nil
 }
 
-func isKeyInSegment(k string, currSeg *CurrentSegmentMap) (v string, status bool) {
+func isKeyInSegment(k string, segment *SegmentMap) (v string, status bool) {
 
-	if _, ok := currSeg.bytePositionMap[k]; !ok {
+	if _, ok := segment.bytePositionMap[k]; !ok {
 		return "", false
 	}
 
-	filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, currSeg.CurrentSegmentNo)
-	bytePos, _ := currSeg.bytePositionMap[k]
-	byteLen, _ := currSeg.byteLengthMap[k]
+	filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, segment.CurrentSegmentNo)
+	bytePos, _ := segment.bytePositionMap[k]
+	byteLen, _ := segment.byteLengthMap[k]
 
 	file, err := os.Open(filepath)
 	defer file.Close()
@@ -89,21 +79,4 @@ func isKeyInSegment(k string, currSeg *CurrentSegmentMap) (v string, status bool
 	}
 
 	return string(readByte), true
-}
-
-func isKeySegmentContainer(k string, segContainer *SegmentContainer) (v string, status bool) {
-
-	// read backwards since SegNo. bigger means later
-	for i := len(segContainer.memo) - 1; i >= 0; i-- {
-		val, ok := isKeyInSegment(k, &segContainer.memo[i])
-		if ok {
-			return val, true
-		}
-	}
-	return "", false
-}
-
-// TODO: Convert to using total byte
-func isExceedMemoLimit(m *memoryMap) bool {
-	return len(m.keyvalue) >= MEMORYLIMIT
 }

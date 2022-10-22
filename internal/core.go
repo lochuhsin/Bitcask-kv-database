@@ -30,13 +30,10 @@ func toDisk(memory *memoryMap, currSeg *SegmentMap, segContainer *SegmentContain
 		byteHeadPosition += bytes
 
 		if byteHeadPosition >= FILEBYTELIMIT {
-			// close file
 			file.Close()
 
-			// store segment
 			segContainer.memo = append(segContainer.memo, *currSeg)
 
-			// create new segment
 			newSegmentNo := currSeg.CurrentSegmentNo + 1
 			file, *currSeg = createNewSegment(newSegmentNo)
 
@@ -88,7 +85,7 @@ type keyPosPair struct {
 func compressSegments(segments []SegmentMap) (newSegments []SegmentMap) {
 	keyValue := make(map[string][]byte)
 
-	// reading reverse order
+	// reading in reverse order, since the larger the later
 	for segIndex := len(segments) - 1; segIndex >= 0; segIndex-- {
 		segment := segments[segIndex]
 
@@ -108,8 +105,6 @@ func compressSegments(segments []SegmentMap) (newSegments []SegmentMap) {
 			return keyPosPairArr[i].pos > keyPosPairArr[j].pos
 		})
 
-		// Since the key, pos is sort with reverse order,
-		// we can loop everything and write it in to temprary memory
 		filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, segment.CurrentSegmentNo)
 		file, _ := os.Open(filepath)
 		for _, pair := range keyPosPairArr {
@@ -131,10 +126,8 @@ func compressSegments(segments []SegmentMap) (newSegments []SegmentMap) {
 			if err != nil {
 				panic("Something went wrong while seeking file")
 			}
-
 			keyValue[key] = readByte
 		}
-		//TODO: Remove segment folder after finish reading file
 		os.Remove(filepath)
 	}
 

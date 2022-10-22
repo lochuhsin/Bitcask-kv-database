@@ -36,3 +36,7 @@ func filterTombStone(val string) (value string, status bool) {
 	}
 	return val, true
 }
+
+func seekFile(filepath string, byteHead int, byteLen int) {
+
+}

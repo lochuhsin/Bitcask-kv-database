@@ -36,7 +36,6 @@ func initMaps() {
 
 func Get(k string) (v string, status bool) {
 
-	// check if is value in memory
 	if val, ok := memory.keyvalue[k]; ok {
 		str := string(val)
 		return filterTombStone(str)

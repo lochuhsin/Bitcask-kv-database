@@ -188,6 +188,7 @@ func TestSmallVal(t *testing.T) {
 	fmt.Printf("Cost: %v", timeLength)
 }
 
+// used for removing all log files after tests are done
 func TestRemoveLog(t *testing.T) {
 	os.RemoveAll("./log/")
 	fmt.Println("success remove")

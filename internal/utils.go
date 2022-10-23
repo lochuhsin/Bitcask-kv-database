@@ -64,7 +64,7 @@ func initGlobalEnvVar(envPath string) {
 	}
 	err := godotenv.Load(envPath)
 	if err != nil {
-		fmt.Println("env file doesn't exists")
+		fmt.Println("env file doesn't exist")
 		fmt.Println("using default setting")
 		fmt.Println(envVar)
 	} else {
@@ -75,7 +75,7 @@ func initGlobalEnvVar(envPath string) {
 		if tombstone := os.Getenv("TOMBSTONE"); tombstone != "" {
 			envVar.tombstone = tombstone
 		}
-		if memoryKeyCountLimit := os.Getenv("MEMORY_LIMIT"); memoryKeyCountLimit != "" {
+		if memoryKeyCountLimit := os.Getenv("MEMORY_KEY_COUNT_LIMIT"); memoryKeyCountLimit != "" {
 			limit, err := strconv.Atoi(memoryKeyCountLimit)
 			if err != nil {
 				panic("something went wrong with getting MEMORY_LIMIT")

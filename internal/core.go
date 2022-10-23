@@ -116,15 +116,14 @@ func compressSegments(segments []SegmentMap) (newSegments []SegmentMap) {
 		CurrentSegmentNo: 0,
 	}
 	// Since we are compressing
-	// the maximum segment number will be less than currentSegNo (for worst case)
+	// the maximum segment number will be less than currentSegNo (even in worst case)
 	// the key in each segment will be unique, so the order of writing
 	// to disk is irrelevant
-
 	err := toDisk(&memoMap, &tempSegment, &newSegContainer)
 	if err != nil {
 		panic("something went wrong while compressing")
 	}
-	// if length is not zero we cannot ensure there are no segment left.
+	// we cannot ensure there are no segment left.
 	if tempSegment.byteFileLength != 0 {
 		newSegContainer.memo = append(newSegContainer.memo, tempSegment)
 	}

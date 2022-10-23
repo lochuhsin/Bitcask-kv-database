@@ -163,6 +163,7 @@ func TestDelete(t *testing.T) {
 
 // for debug purpose
 func TestSmallVal(t *testing.T) {
+	s := time.Now()
 	rebitcask.Set("a", "a")
 	rebitcask.Set("b", "b")
 	rebitcask.Set("c", "c")
@@ -179,8 +180,12 @@ func TestSmallVal(t *testing.T) {
 		fmt.Println(res)
 		t.Error("asdfasdf")
 	}
+	timeLength := time.Since(s)
+	fmt.Println("test finished")
+	fmt.Printf("Cost: %v", timeLength)
 }
 
 func TestRemoveLog(t *testing.T) {
 	os.RemoveAll("./log/")
+	fmt.Println("success remove")
 }

@@ -2,7 +2,6 @@ package internal
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"sort"
 )
@@ -57,23 +56,11 @@ func isKeyInSegment(k string, segment *SegmentMap) (v []byte, status bool) {
 	byteLen, _ := segment.byteLengthMap[k]
 
 	file, err := os.Open(filepath)
-	defer file.Close()
 	if err != nil {
 		panic("Something went wrong while opening file")
 	}
-
-	_, err = file.Seek(int64(bytePos), io.SeekStart)
-	if err != nil {
-		panic("Something went wrong while seeking file")
-	}
-
-	readByte := make([]byte, byteLen)
-
-	_, err = file.Read(readByte)
-	if err != nil {
-		panic("Something went wrong while reading file")
-	}
-
+	readByte := seekFile(file, bytePos, byteLen)
+	file.Close()
 	return readByte, true
 }
 
@@ -108,25 +95,11 @@ func compressSegments(segments []SegmentMap) (newSegments []SegmentMap) {
 		filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, segment.CurrentSegmentNo)
 		file, _ := os.Open(filepath)
 		for _, pair := range keyPosPairArr {
-			pos := pair.pos
-			key := pair.key
-
+			pos, key := pair.pos, pair.key
 			if _, ok := keyValue[key]; ok {
 				continue
 			}
-
-			_, err := file.Seek(int64(pos), io.SeekStart)
-			if err != nil {
-				panic("Something went wrong while seeking file")
-			}
-
-			readByte := make([]byte, segment.byteLengthMap[key])
-
-			_, err = file.Read(readByte)
-			if err != nil {
-				panic("Something went wrong while seeking file")
-			}
-			keyValue[key] = readByte
+			keyValue[key] = seekFile(file, pos, segment.byteLengthMap[key])
 		}
 		os.Remove(filepath)
 	}
@@ -151,8 +124,7 @@ func compressSegments(segments []SegmentMap) (newSegments []SegmentMap) {
 	if err != nil {
 		panic("something went wrong while compressing")
 	}
-	// add the temp Segment to newSegContainer if length is not zero
-	// we cannot ensure there are no segment left.
+	// if length is not zero we cannot ensure there are no segment left.
 	if tempSegment.byteFileLength != 0 {
 		newSegContainer.memo = append(newSegContainer.memo, tempSegment)
 	}

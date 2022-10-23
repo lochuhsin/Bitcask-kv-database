@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"io"
 	"os"
 )
 
@@ -37,6 +38,17 @@ func filterTombStone(val string) (value string, status bool) {
 	return val, true
 }
 
-func seekFile(filepath string, byteHead int, byteLen int) {
+func seekFile(file *os.File, byteHead int, byteLen int) (bytes []byte) {
+	_, err := file.Seek(int64(byteHead), io.SeekStart)
+	if err != nil {
+		panic("Something went wrong while seeking file")
+	}
 
+	readByte := make([]byte, byteLen)
+
+	_, err = file.Read(readByte)
+	if err != nil {
+		panic("Something went wrong while seeking file")
+	}
+	return readByte
 }

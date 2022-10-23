@@ -1,6 +1,8 @@
-package rebitcask
+package src
 
-import "rebitcask/internal"
+import (
+	"rebitcask/internal"
+)
 
 func Get(k string) (v string, status bool) {
 	return internal.Get(k)

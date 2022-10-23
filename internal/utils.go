@@ -30,7 +30,7 @@ func isExceedMemoLimit(memoSize int) bool {
 
 // TODO: find a better condition
 func isSegFileMultiple(fileCount int) bool {
-	return (fileCount % envVar.segFileCountLimit) == 0
+	return (fileCount%envVar.segFileCountLimit) == 0 && fileCount != 0
 }
 
 func filterTombStone(val string) (value string, status bool) {

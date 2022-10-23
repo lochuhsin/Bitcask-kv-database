@@ -1,10 +1,10 @@
-package rebitcask
+package test
 
 import (
 	"fmt"
 	"math/rand"
 	"os"
-	"rebitcask/rebitcask"
+	"rebitcask/src"
 	"testing"
 	"time"
 )
@@ -50,7 +50,7 @@ func TestGetSetPureRandom(t *testing.T) {
 	s := time.Now()
 	fmt.Println(s)
 	for k, v := range ans {
-		err := rebitcask.Set(k, v)
+		err := src.Set(k, v)
 
 		if err != nil {
 			t.Error("Something went wrong while setting")
@@ -58,7 +58,7 @@ func TestGetSetPureRandom(t *testing.T) {
 	}
 	fmt.Println("done set")
 	for k, v := range ans {
-		res, _ := rebitcask.Get(k)
+		res, _ := src.Get(k)
 
 		if res != v {
 			t.Error("Get value error")
@@ -75,7 +75,7 @@ func TestGetSetKeyDuplicateRandom(t *testing.T) {
 	s := time.Now()
 	fmt.Println(s)
 	for k, v := range ans {
-		err := rebitcask.Set(k, v)
+		err := src.Set(k, v)
 
 		if err != nil {
 			t.Error("Something went wrong while setting")
@@ -83,7 +83,7 @@ func TestGetSetKeyDuplicateRandom(t *testing.T) {
 	}
 	fmt.Println("done set")
 	for k, v := range ans {
-		res, _ := rebitcask.Get(k)
+		res, _ := src.Get(k)
 
 		if res != v {
 			t.Error("Get value error")
@@ -99,13 +99,13 @@ func TestGetSetFixValue(t *testing.T) {
 	s := time.Now()
 	fmt.Println(s)
 	for k, _ := range ans {
-		err := rebitcask.Set(k, "@@@@@@@")
+		err := src.Set(k, "@@@@@@@")
 
 		if err != nil {
 			t.Fatal("Something went wrong while setting")
 		}
 
-		res, _ := rebitcask.Get(k)
+		res, _ := src.Get(k)
 
 		if res != "@@@@@@@" {
 			t.Error("Get value error")
@@ -125,13 +125,13 @@ func TestGetSetFixKey(t *testing.T) {
 	sameKey := "Same"
 	var lastVal string
 	for _, v := range ans {
-		err := rebitcask.Set(sameKey, v)
+		err := src.Set(sameKey, v)
 		if err != nil {
 			t.Fatal("Something went wrong while setting")
 		}
 		lastVal = v
 	}
-	if res, _ := rebitcask.Get(sameKey); res != lastVal {
+	if res, _ := src.Get(sameKey); res != lastVal {
 		t.Fatal("final assertion error")
 	}
 }
@@ -141,16 +141,16 @@ func TestDelete(t *testing.T) {
 	ans := generatePureRandomData()
 
 	for k, v := range ans {
-		err := rebitcask.Set(k, v)
+		err := src.Set(k, v)
 		if err != nil {
 			t.Fatal("Something went wrong while setting")
 		}
 
-		err = rebitcask.Delete(k)
+		err = src.Delete(k)
 		if err != nil {
 			t.Fatal("Something went wrong while deleting")
 		}
-		val, status := rebitcask.Get(k)
+		val, status := src.Get(k)
 		if status != false {
 			fmt.Println(v, val)
 			t.Error("Get value error")
@@ -166,19 +166,19 @@ func TestSmallVal(t *testing.T) {
 
 	s := time.Now()
 	for _, val := range []string{"a", "b", "c", "d"} {
-		err := rebitcask.Set(val, val)
+		err := src.Set(val, val)
 		if err != nil {
 			t.Fatal("Set function failed")
 		}
 	}
 
-	res, _ := rebitcask.Get("a")
+	res, _ := src.Get("a")
 	if res != "a" {
 		fmt.Println(res)
 		t.Error("")
 	}
 
-	res, _ = rebitcask.Get("b")
+	res, _ = src.Get("b")
 	if res != "b" {
 		fmt.Println(res)
 		t.Error("")

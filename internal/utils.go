@@ -43,9 +43,7 @@ func seekFile(file *os.File, byteHead int, byteLen int) (bytes []byte) {
 	if err != nil {
 		panic("Something went wrong while seeking file")
 	}
-
 	readByte := make([]byte, byteLen)
-
 	_, err = file.Read(readByte)
 	if err != nil {
 		panic("Something went wrong while seeking file")

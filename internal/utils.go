@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"io"
 	"os"
 )
 
@@ -16,7 +17,7 @@ func createNewSegment(newSegmentNo int) (file *os.File, segmentMap SegmentMap) {
 	file, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
 
 	if err != nil {
-
+		panic("something wrong with opening file")
 	}
 	return file, segmentMap
 }
@@ -35,4 +36,19 @@ func filterTombStone(val string) (value string, status bool) {
 		return "", false
 	}
 	return val, true
+}
+
+func seekFile(file *os.File, byteHead int, byteLen int) (bytes []byte) {
+	_, err := file.Seek(int64(byteHead), io.SeekStart)
+	if err != nil {
+		panic("Something went wrong while seeking file")
+	}
+
+	readByte := make([]byte, byteLen)
+
+	_, err = file.Read(readByte)
+	if err != nil {
+		panic("Something went wrong while seeking file")
+	}
+	return readByte
 }

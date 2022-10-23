@@ -163,24 +163,32 @@ func TestDelete(t *testing.T) {
 
 // for debug purpose
 func TestSmallVal(t *testing.T) {
-	rebitcask.Set("a", "a")
-	rebitcask.Set("b", "b")
-	rebitcask.Set("c", "c")
-	rebitcask.Set("d", "d")
+
+	s := time.Now()
+	for _, val := range []string{"a", "b", "c", "d"} {
+		err := rebitcask.Set(val, val)
+		if err != nil {
+			t.Fatal("Set function failed")
+		}
+	}
 
 	res, _ := rebitcask.Get("a")
 	if res != "a" {
 		fmt.Println(res)
-		t.Error("xxxxxxx")
+		t.Error("")
 	}
 
 	res, _ = rebitcask.Get("b")
 	if res != "b" {
 		fmt.Println(res)
-		t.Error("asdfasdf")
+		t.Error("")
 	}
+	timeLength := time.Since(s)
+	fmt.Println("test finished")
+	fmt.Printf("Cost: %v", timeLength)
 }
 
 func TestRemoveLog(t *testing.T) {
 	os.RemoveAll("./log/")
+	fmt.Println("success remove")
 }

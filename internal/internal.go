@@ -10,17 +10,13 @@ import (
 var memory memoryMap
 var currentSeg SegmentMap
 var segContainer SegmentContainer
-var LOGFOLDER = "./log/"
-var SEGMENTFOLDER = "seg/"
-var MEMORYLIMIT = 20000
-var FILEBYTELIMIT = 20000
-var SEGFILECOUNTLIMIT = 20
-var TOMBSTONE = "!@#$%^&*()_+"
+var envVar envVariables
+var ENVPATH = "./rebitcask.env"
 
 func init() {
-	// TODO: Convert this to env file
-	_ = os.RemoveAll(LOGFOLDER)
-	_ = os.MkdirAll(fmt.Sprintf("%v%v", LOGFOLDER, SEGMENTFOLDER), 0700)
+	initGlobalEnvVar(ENVPATH)
+	_ = os.RemoveAll(envVar.logFolder)
+	_ = os.MkdirAll(fmt.Sprintf("%v%v", envVar.logFolder, envVar.segmentFolder), 0700)
 	initMaps()
 }
 
@@ -59,7 +55,7 @@ func Get(k string) (v string, status bool) {
 }
 
 func Set(k string, v string) error {
-	if k == TOMBSTONE {
+	if k == envVar.tombstone {
 		return errors.New("invalid input")
 	}
 
@@ -80,7 +76,7 @@ func Set(k string, v string) error {
 }
 
 func Delete(k string) error {
-	return Set(k, TOMBSTONE)
+	return Set(k, envVar.tombstone)
 }
 
 func GetLength() int {

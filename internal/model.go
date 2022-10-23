@@ -14,3 +14,12 @@ type SegmentMap struct {
 type SegmentContainer struct {
 	memo []SegmentMap
 }
+
+type envVariables struct {
+	logFolder           string
+	segmentFolder       string
+	tombstone           string
+	memoryKeyCountLimit int
+	fileByteLimit       int
+	segFileCountLimit   int
+}

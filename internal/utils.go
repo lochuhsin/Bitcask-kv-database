@@ -17,7 +17,7 @@ func createNewSegment(newSegmentNo int) (file *os.File, segmentMap SegmentMap) {
 	file, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
 
 	if err != nil {
-
+		panic("something wrong with opening file")
 	}
 	return file, segmentMap
 }

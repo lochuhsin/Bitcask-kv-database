@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"github.com/joho/godotenv"
 	"io"
 	"os"
 )
@@ -13,7 +14,7 @@ func createNewSegment(newSegmentNo int) (file *os.File, segmentMap SegmentMap) {
 		byteFileLength:   0,
 		CurrentSegmentNo: newSegmentNo,
 	}
-	filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, newSegmentNo)
+	filepath := fmt.Sprintf("%v%v/%v.log", envVar.logFolder, envVar.segmentFolder, newSegmentNo)
 	file, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
 
 	if err != nil {
@@ -23,16 +24,16 @@ func createNewSegment(newSegmentNo int) (file *os.File, segmentMap SegmentMap) {
 }
 
 func isExceedMemoLimit(memoSize int) bool {
-	return memoSize >= MEMORYLIMIT
+	return memoSize >= envVar.memoryLimit
 }
 
 // TODO: find a better condition
 func isSegFileMultiple(fileCount int) bool {
-	return (fileCount % SEGFILECOUNTLIMIT) == 0
+	return (fileCount % envVar.segFileCountLimit) == 0
 }
 
 func filterTombStone(val string) (value string, status bool) {
-	if val == TOMBSTONE {
+	if val == envVar.tombstone {
 		return "", false
 	}
 	return val, true
@@ -49,4 +50,22 @@ func seekFile(file *os.File, byteHead int, byteLen int) (bytes []byte) {
 		panic("Something went wrong while seeking file")
 	}
 	return readByte
+}
+
+func initGlobalVar(envPath string) {
+	err := godotenv.Load(envPath)
+	if err != nil {
+		fmt.Println("env file doesn't exists")
+		fmt.Println("create with default")
+		envVar = envVariables{
+			logFolder:         "./log/",
+			segmentFolder:     "seg/",
+			tombstone:         "!@#$%^&*()_+",
+			memoryLimit:       20000,
+			fileByteLimit:     20000,
+			segFileCountLimit: 20,
+		}
+	} else {
+
+	}
 }

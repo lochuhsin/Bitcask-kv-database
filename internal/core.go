@@ -7,7 +7,7 @@ import (
 )
 
 func toDisk(memory *memoryMap, currSeg *SegmentMap, segContainer *SegmentContainer) error {
-	filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, currSeg.CurrentSegmentNo)
+	filepath := fmt.Sprintf("%v%v/%v.log", envVar.logFolder, envVar.segmentFolder, currSeg.CurrentSegmentNo)
 	file, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
 	if err != nil {
 		return err
@@ -28,7 +28,7 @@ func toDisk(memory *memoryMap, currSeg *SegmentMap, segContainer *SegmentContain
 
 		byteHeadPosition += bytes
 
-		if byteHeadPosition >= FILEBYTELIMIT {
+		if byteHeadPosition >= envVar.fileByteLimit {
 			file.Close()
 
 			segContainer.memo = append(segContainer.memo, *currSeg)
@@ -51,7 +51,7 @@ func isKeyInSegment(k string, segment *SegmentMap) (v []byte, status bool) {
 		return []byte(""), false
 	}
 
-	filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, segment.CurrentSegmentNo)
+	filepath := fmt.Sprintf("%v%v/%v.log", envVar.logFolder, envVar.segmentFolder, segment.CurrentSegmentNo)
 	bytePos, _ := segment.bytePositionMap[k]
 	byteLen, _ := segment.byteLengthMap[k]
 
@@ -92,7 +92,7 @@ func compressSegments(segments []SegmentMap) (newSegments []SegmentMap) {
 			return keyPosPairArr[i].pos > keyPosPairArr[j].pos
 		})
 
-		filepath := fmt.Sprintf("%v%v/%v.log", LOGFOLDER, SEGMENTFOLDER, segment.CurrentSegmentNo)
+		filepath := fmt.Sprintf("%v%v/%v.log", envVar.logFolder, envVar.segmentFolder, segment.CurrentSegmentNo)
 		file, _ := os.Open(filepath)
 		for _, pair := range keyPosPairArr {
 			pos, key := pair.pos, pair.key

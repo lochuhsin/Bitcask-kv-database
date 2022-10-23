@@ -14,9 +14,7 @@ var envVar envVariables
 var ENVPATH = "./rebitcask.env"
 
 func init() {
-	initGlobalVar(ENVPATH)
-
-	// TODO: Convert this to env file
+	initGlobalEnvVar(ENVPATH)
 	_ = os.RemoveAll(envVar.logFolder)
 	_ = os.MkdirAll(fmt.Sprintf("%v%v", envVar.logFolder, envVar.segmentFolder), 0700)
 	initMaps()

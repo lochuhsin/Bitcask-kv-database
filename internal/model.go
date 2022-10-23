@@ -16,10 +16,10 @@ type SegmentContainer struct {
 }
 
 type envVariables struct {
-	logFolder         string
-	segmentFolder     string
-	tombstone         string
-	memoryLimit       int
-	fileByteLimit     int
-	segFileCountLimit int
+	logFolder           string
+	segmentFolder       string
+	tombstone           string
+	memoryKeyCountLimit int
+	fileByteLimit       int
+	segFileCountLimit   int
 }

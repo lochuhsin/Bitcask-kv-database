@@ -4,19 +4,23 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sync"
 )
 
-// TODO: Convert this to env file
+// TODO Convert this to singleton
 var memory memoryMap
 var currentSeg SegmentMap
 var segContainer SegmentContainer
-var envVar envVariables
-var ENVPATH = "./rebitcask.env"
+var ENVVAR envVariables
+
+const ENVPATH = "./rebitcask.env"
+
+var mu = sync.Mutex{}
 
 func init() {
 	initGlobalEnvVar(ENVPATH)
-	_ = os.RemoveAll(envVar.logFolder)
-	_ = os.MkdirAll(fmt.Sprintf("%v%v", envVar.logFolder, envVar.segmentFolder), 0700)
+	_ = os.RemoveAll(ENVVAR.logFolder)
+	_ = os.MkdirAll(fmt.Sprintf("%v%v", ENVVAR.logFolder, ENVVAR.segmentFolder), 0700)
 	initMaps()
 }
 
@@ -54,8 +58,11 @@ func Get(k string) (v string, status bool) {
 	return "", false
 }
 
+// Set TODO: Optimize this lock mechanism, this dramatically lower down the write performance
 func Set(k string, v string) error {
-	if k == envVar.tombstone {
+	mu.Lock()
+	defer mu.Unlock()
+	if k == ENVVAR.tombstone {
 		return errors.New("invalid input")
 	}
 
@@ -75,8 +82,10 @@ func Set(k string, v string) error {
 	return nil
 }
 
+// Delete : This doesn't need lock, since Set function already contains lock
 func Delete(k string) error {
-	return Set(k, envVar.tombstone)
+	err := Set(k, ENVVAR.tombstone)
+	return err
 }
 
 func GetLength() int {

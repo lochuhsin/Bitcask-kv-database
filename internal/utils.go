@@ -15,7 +15,7 @@ func createNewSegment(newSegmentNo int) (file *os.File, segmentMap SegmentMap) {
 		byteFileLength:   0,
 		CurrentSegmentNo: newSegmentNo,
 	}
-	filepath := fmt.Sprintf("%v%v/%v.log", envVar.logFolder, envVar.segmentFolder, newSegmentNo)
+	filepath := fmt.Sprintf("%v%v/%v.log", ENVVAR.logFolder, ENVVAR.segmentFolder, newSegmentNo)
 	file, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
 
 	if err != nil {
@@ -25,16 +25,16 @@ func createNewSegment(newSegmentNo int) (file *os.File, segmentMap SegmentMap) {
 }
 
 func isExceedMemoLimit(memoSize int) bool {
-	return memoSize >= envVar.memoryKeyCountLimit
+	return memoSize >= ENVVAR.memoryKeyCountLimit
 }
 
 // TODO: find a better condition
 func isSegFileMultiple(fileCount int) bool {
-	return (fileCount%envVar.segFileCountLimit) == 0 && fileCount != 0
+	return (fileCount%ENVVAR.segFileCountLimit) == 0 && fileCount != 0
 }
 
 func filterTombStone(val string) (value string, status bool) {
-	if val == envVar.tombstone {
+	if val == ENVVAR.tombstone {
 		return "", false
 	}
 	return val, true
@@ -54,7 +54,7 @@ func seekFile(file *os.File, byteHead int, byteLen int) (bytes []byte) {
 }
 
 func initGlobalEnvVar(envPath string) {
-	envVar = envVariables{
+	ENVVAR = envVariables{
 		logFolder:           "./log",
 		segmentFolder:       "/seg/",
 		tombstone:           "!@#$%^&*()_+",
@@ -66,38 +66,38 @@ func initGlobalEnvVar(envPath string) {
 	if err != nil {
 		fmt.Println("env file doesn't exist")
 		fmt.Println("using default setting")
-		fmt.Println(envVar)
+		fmt.Println(ENVVAR)
 	} else {
 
 		if logFolder := os.Getenv("LOG_FOLDER_PATH"); logFolder != "" {
-			envVar.logFolder = logFolder
+			ENVVAR.logFolder = logFolder
 		}
 		if tombstone := os.Getenv("TOMBSTONE"); tombstone != "" {
-			envVar.tombstone = tombstone
+			ENVVAR.tombstone = tombstone
 		}
 		if memoryKeyCountLimit := os.Getenv("MEMORY_KEY_COUNT_LIMIT"); memoryKeyCountLimit != "" {
 			limit, err := strconv.Atoi(memoryKeyCountLimit)
 			if err != nil {
 				panic("something went wrong with getting MEMORY_LIMIT")
 			}
-			envVar.memoryKeyCountLimit = limit
+			ENVVAR.memoryKeyCountLimit = limit
 		}
 		if fileByteLimit := os.Getenv("FILE_BYTE_LIMIT"); fileByteLimit != "" {
 			limit, err := strconv.Atoi(fileByteLimit)
 			if err != nil {
 				panic("something went wrong with getting FILE_BYTE_LIMIT")
 			}
-			envVar.fileByteLimit = limit
+			ENVVAR.fileByteLimit = limit
 		}
 		if segFileCountLimit := os.Getenv("SEGMENT_FILE_COUNT_LIMIT"); segFileCountLimit != "" {
 			limit, err := strconv.Atoi(segFileCountLimit)
 			if err != nil {
 				panic("something went wrong with getting SEGMENT_FILE_COUNT_LIMIT")
 			}
-			envVar.segFileCountLimit = limit
+			ENVVAR.segFileCountLimit = limit
 		}
 	}
 
 	fmt.Println("env setting done")
-	fmt.Println(envVar)
+	fmt.Println(ENVVAR)
 }

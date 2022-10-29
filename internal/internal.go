@@ -4,11 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"rebitcask/internal/models"
 	"sync"
 )
 
 // TODO Convert this to singleton
-var memory memoryMap
+var memory models.MemoryMap
 var currentSeg SegmentMap
 var segContainer SegmentContainer
 var ENVVAR envVariables
@@ -25,7 +26,7 @@ func init() {
 }
 
 func initMaps() {
-	memory.keyvalue = make(map[string][]byte)
+	memory.Init()
 	currentSeg.bytePositionMap = make(map[string]int)
 	currentSeg.byteLengthMap = make(map[string]int)
 	currentSeg.byteFileLength = 0
@@ -36,7 +37,7 @@ func initMaps() {
 
 func Get(k string) (v string, status bool) {
 
-	if val, ok := memory.keyvalue[k]; ok {
+	if val, ok := memory.Get(&k); ok {
 		str := string(val)
 		return filterTombStone(str)
 	}
@@ -66,14 +67,15 @@ func Set(k string, v string) error {
 		return errors.New("invalid input")
 	}
 
-	memory.keyvalue[k] = []byte(v)
-	if isExceedMemoLimit(len(memory.keyvalue)) {
+	b := []byte(v)
+	memory.Set(k, b)
+	if isExceedMemoLimit(memory.GetSize()) {
 		err := toDisk(&memory, &currentSeg, &segContainer)
 		if err != nil {
 			fmt.Println(err)
 			return err
 		}
-		memory.keyvalue = make(map[string][]byte)
+		memory.Init()
 	}
 	if isSegFileMultiple(len(segContainer.memo)) {
 		newSegments := compressSegments(segContainer.memo)
@@ -86,12 +88,4 @@ func Set(k string, v string) error {
 func Delete(k string) error {
 	err := Set(k, ENVVAR.tombstone)
 	return err
-}
-
-func GetLength() int {
-	return len(memory.keyvalue)
-}
-
-func GetAllInMemory() map[string][]byte {
-	return memory.keyvalue
 }

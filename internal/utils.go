@@ -58,9 +58,9 @@ func initGlobalEnvVar(envPath string) {
 		logFolder:           "./log",
 		segmentFolder:       "/seg/",
 		tombstone:           "!@#$%^&*()_+",
-		memoryKeyCountLimit: 20000,
-		fileByteLimit:       20000,
-		segFileCountLimit:   20,
+		memoryKeyCountLimit: 40000,
+		fileByteLimit:       400000,
+		segFileCountLimit:   100,
 	}
 	err := godotenv.Load(envPath)
 	if err != nil {

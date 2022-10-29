@@ -9,7 +9,7 @@ import (
 )
 
 // TODO Convert this to singleton
-var memory models.MemoryMap
+var memory models.Hash
 var currentSeg SegmentMap
 var segContainer SegmentContainer
 var ENVVAR envVariables
@@ -77,9 +77,8 @@ func Set(k string, v string) error {
 		}
 		memory.Init()
 	}
-	if isSegFileMultiple(len(segContainer.memo)) {
-		newSegments := compressSegments(segContainer.memo)
-		segContainer.memo = newSegments
+	if isSegFileMultiple(segContainer.segCount) {
+		segContainer = compressSegments(&segContainer)
 	}
 	return nil
 }

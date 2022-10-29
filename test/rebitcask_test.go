@@ -9,21 +9,21 @@ import (
 )
 
 func TestGetSetPureRandom(t *testing.T) {
-	ans := generatePureRandomData()
+	keys, vals := generateLowDuplicateRandomData()
 	s := time.Now()
 	fmt.Println(s)
-	for k, v := range ans {
-		err := src.Set(k, v)
+	for i, k := range keys {
+		err := src.Set(k, vals[i])
 
 		if err != nil {
 			t.Error("Something went wrong while setting")
 		}
 	}
 	fmt.Println("done set")
-	for k, v := range ans {
+	for i, k := range keys {
 		res, _ := src.Get(k)
 
-		if res != v {
+		if res != vals[i] {
 			t.Error("Get value error")
 		}
 	}
@@ -34,18 +34,21 @@ func TestGetSetPureRandom(t *testing.T) {
 }
 
 func TestGetSetKeyDuplicateRandom(t *testing.T) {
-	ans := generateKeyDuplicateRandomData()
+	keys, vals := generateHighDuplicateRandom()
+	lastValMap := make(map[string]string)
+
 	s := time.Now()
 	fmt.Println(s)
-	for k, v := range ans {
-		err := src.Set(k, v)
+	for i, k := range keys {
+		err := src.Set(k, vals[i])
 
 		if err != nil {
 			t.Error("Something went wrong while setting")
 		}
+		lastValMap[k] = vals[i]
 	}
 	fmt.Println("done set")
-	for k, v := range ans {
+	for k, v := range lastValMap {
 		res, _ := src.Get(k)
 
 		if res != v {
@@ -58,10 +61,10 @@ func TestGetSetKeyDuplicateRandom(t *testing.T) {
 }
 
 func TestGetSetFixValue(t *testing.T) {
-	ans := generatePureRandomData()
+	keys, _ := generateLowDuplicateRandomData()
 	s := time.Now()
 	fmt.Println(s)
-	for k, _ := range ans {
+	for _, k := range keys {
 		err := src.Set(k, "@@@@@@@")
 
 		if err != nil {
@@ -81,13 +84,13 @@ func TestGetSetFixValue(t *testing.T) {
 }
 
 func TestGetSetFixKey(t *testing.T) {
-	ans := generatePureRandomData()
+	_, vals := generateLowDuplicateRandomData()
 	s := time.Now()
 	fmt.Println(s)
 
 	sameKey := "Same"
 	var lastVal string
-	for _, v := range ans {
+	for _, v := range vals {
 		err := src.Set(sameKey, v)
 		if err != nil {
 			t.Fatal("Something went wrong while setting")
@@ -101,10 +104,10 @@ func TestGetSetFixKey(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	s := time.Now()
-	ans := generatePureRandomData()
+	keys, vals := generateLowDuplicateRandomData()
 
-	for k, v := range ans {
-		err := src.Set(k, v)
+	for i, k := range keys {
+		err := src.Set(k, vals[i])
 		if err != nil {
 			t.Fatal("Something went wrong while setting")
 		}
@@ -115,7 +118,7 @@ func TestDelete(t *testing.T) {
 		}
 		val, status := src.Get(k)
 		if status != false {
-			fmt.Println(v, val)
+			fmt.Println(vals[i], val)
 			t.Error("Get value error")
 		}
 	}

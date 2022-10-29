@@ -7,27 +7,34 @@ import (
 
 var LETTERS = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-func generatePureRandomData() map[string]string {
+func generateLowDuplicateRandomData() ([]string, []string) {
 	rand.Seed(time.Now().UnixNano())
-	ans := make(map[string]string)
-	for i := 0; i < 100000; i++ {
-		k := make([]rune, rand.Intn(30))
-		for i := range k {
-			k[i] = LETTERS[rand.Intn(len(LETTERS))]
+	const size = 100000
+	keys := make([]string, size)
+	vals := make([]string, size)
+	count := 0
+	for i := 0; i < size; i++ {
+		k := make([]rune, 30)
+		for j, _ := range k {
+			k[j] = LETTERS[rand.Intn(len(LETTERS))]
 		}
 		v := make([]rune, rand.Intn(30))
-		for i := range v {
-			v[i] = LETTERS[rand.Intn(len(LETTERS))]
+		for m, _ := range v {
+			v[m] = LETTERS[rand.Intn(len(LETTERS))]
 		}
-		ans[string(k)] = string(v)
+		keys = append(keys, string(k))
+		vals = append(vals, string(v))
+		count += 1
 	}
-	return ans
+	return keys, vals
 }
 
-func generateKeyDuplicateRandomData() map[string]string {
+func generateHighDuplicateRandom() ([]string, []string) {
 	rand.Seed(time.Now().UnixNano())
-	ans := make(map[string]string)
-	for i := 0; i < 1000000; i++ {
+	const size = 100000
+	keys := make([]string, size)
+	vals := make([]string, size)
+	for i := 0; i < size; i++ {
 		k := make([]rune, 2)
 		for i := range k {
 			k[i] = LETTERS[rand.Intn(len(LETTERS))]
@@ -36,7 +43,9 @@ func generateKeyDuplicateRandomData() map[string]string {
 		for i := range v {
 			v[i] = LETTERS[rand.Intn(len(LETTERS))]
 		}
-		ans[string(k)] = string(v)
+
+		keys = append(keys, string(k))
+		vals = append(vals, string(v))
 	}
-	return ans
+	return keys, vals
 }

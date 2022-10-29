@@ -14,7 +14,7 @@ on linux environment.
 
 If still, doesn't work, needs to implement a buffer to handle this situation...etc
 */
-func toDisk(memory *models.MemoryMap, currSeg *SegmentMap, segContainer *SegmentContainer) error {
+func toDisk(memory *models.Hash, currSeg *SegmentMap, segContainer *SegmentContainer) error {
 	filepath := fmt.Sprintf("%v%v/%v.log", ENVVAR.logFolder, ENVVAR.segmentFolder, currSeg.CurrentSegmentNo)
 	file, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
 	if err != nil {
@@ -41,6 +41,7 @@ func toDisk(memory *models.MemoryMap, currSeg *SegmentMap, segContainer *Segment
 			file.Close()
 
 			segContainer.memo = append(segContainer.memo, *currSeg)
+			segContainer.segCount++
 
 			newSegmentNo := currSeg.CurrentSegmentNo + 1
 			file, *currSeg = createNewSegment(newSegmentNo)
@@ -79,12 +80,12 @@ type keyPosPair struct {
 	pos int
 }
 
-func compressSegments(segments []SegmentMap) (newSegments []SegmentMap) {
+func compressSegments(segContainer *SegmentContainer) (newSegContainer SegmentContainer) {
 	keyValue := make(map[string][]byte)
 
 	// reading in reverse order, since the larger the later
-	for segIndex := len(segments) - 1; segIndex >= 0; segIndex-- {
-		segment := segments[segIndex]
+	for segIndex := segContainer.segCount - 1; segIndex >= 0; segIndex-- {
+		segment := segContainer.memo[segIndex]
 
 		// Sort segment hashmap by byte position
 		// since we need to read everything reverse, so the order is extremely important
@@ -115,12 +116,13 @@ func compressSegments(segments []SegmentMap) (newSegments []SegmentMap) {
 	}
 
 	//keyvalue contains all values, create a start looping and create a new segment
-	var newMemoMap models.MemoryMap
+	var newMemoMap models.Hash
 	newMemoMap.Init()
-	newMemoMap.SetMap(keyValue)
+	newMemoMap.SetMemory(keyValue)
 
-	newSegContainer := SegmentContainer{
-		memo: []SegmentMap{},
+	newSegContainer = SegmentContainer{
+		memo:     []SegmentMap{},
+		segCount: 0,
 	}
 	tempSegment := SegmentMap{
 		bytePositionMap:  make(map[string]int),
@@ -139,6 +141,7 @@ func compressSegments(segments []SegmentMap) (newSegments []SegmentMap) {
 	// we cannot ensure there are no segment left.
 	if tempSegment.byteFileLength != 0 {
 		newSegContainer.memo = append(newSegContainer.memo, tempSegment)
+		newSegContainer.segCount++
 	}
-	return newSegContainer.memo
+	return newSegContainer
 }

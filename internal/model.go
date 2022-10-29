@@ -8,7 +8,8 @@ type SegmentMap struct {
 }
 
 type SegmentContainer struct {
-	memo []SegmentMap
+	memo     []SegmentMap
+	segCount int
 }
 
 type envVariables struct {

@@ -7,11 +7,6 @@ type Hash struct {
 	keyvalue map[string][]byte
 }
 
-type KVPair struct {
-	Key string
-	Val []byte
-}
-
 func (m *Hash) Init() {
 	m.keyvalue = make(map[string][]byte)
 }
@@ -35,7 +30,7 @@ func (m *Hash) GetSize() int {
 
 // GetAll TODO: optimize this
 func (m *Hash) GetAll() *[]KVPair {
-	arr := make([]KVPair, len(m.keyvalue))
+	arr := make([]KVPair, 0, len(m.keyvalue))
 	for k, v := range m.keyvalue {
 		arr = append(arr, KVPair{
 			Key: k,

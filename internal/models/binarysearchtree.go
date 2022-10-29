@@ -11,8 +11,38 @@ type BinarySearchTree struct {
 	size int
 }
 
+func (bst *BinarySearchTree) Init() {
+	bst.size = 0
+}
+
 func (bst *BinarySearchTree) GetSize() int {
 	return bst.size
+}
+
+func (bst *BinarySearchTree) GetAll() []KVPair {
+	kvPair := make([]KVPair, 0, bst.size)
+	bst.inorder(bst.root, &kvPair)
+	return kvPair
+}
+
+func (bst *BinarySearchTree) inorder(root *bstnode, kvPair *[]KVPair) {
+	if root == nil {
+		return
+	}
+
+	if root.left != nil {
+		bst.inorder(root.left, kvPair)
+	}
+
+	*kvPair = append(*kvPair, KVPair{
+		Key: root.key,
+		Val: root.val,
+	})
+
+	if root.right != nil {
+		bst.inorder(root.right, kvPair)
+	}
+
 }
 
 func (bst *BinarySearchTree) Set(key string, val []byte) {
@@ -55,9 +85,11 @@ func (bst *BinarySearchTree) get(root *bstnode, key *string) (val *[]byte) {
 	if root == nil {
 		return nil
 	}
+
 	if root.key == *key {
 		return &root.val
 	}
+
 	if *key < root.key {
 		return bst.get(root.left, key)
 	} else {

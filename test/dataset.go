@@ -10,8 +10,8 @@ var LETTERS = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 func generateLowDuplicateRandomData() ([]string, []string) {
 	rand.Seed(time.Now().UnixNano())
 	const size = 100000
-	keys := make([]string, size)
-	vals := make([]string, size)
+	keys := make([]string, 0, size)
+	vals := make([]string, 0, size)
 	count := 0
 	for i := 0; i < size; i++ {
 		k := make([]rune, 30)
@@ -32,8 +32,8 @@ func generateLowDuplicateRandomData() ([]string, []string) {
 func generateHighDuplicateRandom() ([]string, []string) {
 	rand.Seed(time.Now().UnixNano())
 	const size = 100000
-	keys := make([]string, size)
-	vals := make([]string, size)
+	keys := make([]string, 0, size)
+	vals := make([]string, 0, size)
 	for i := 0; i < size; i++ {
 		k := make([]rune, 2)
 		for i := range k {

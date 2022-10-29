@@ -3,6 +3,7 @@ package test
 import (
 	"fmt"
 	"rebitcask/internal/models"
+	"sort"
 	"testing"
 )
 
@@ -21,6 +22,7 @@ func TestBinarySearchTreeSmall(t *testing.T) {
 func TestBinarySearchTreePureRandom(t *testing.T) {
 	testTimer(func(t *testing.T) {
 		var bst models.BinarySearchTree
+		bst.Init()
 		keys, vals := generateLowDuplicateRandomData()
 
 		for i, k := range keys {
@@ -41,6 +43,7 @@ func TestBinarySearchTreePureRandom(t *testing.T) {
 func TestBinarySearchTreeDuplicateKey(t *testing.T) {
 	testTimer(func(t *testing.T) {
 		var bst models.BinarySearchTree
+		bst.Init()
 		keys, vals := generateHighDuplicateRandom()
 		kvMap := make(map[string]string)
 		for i, _ := range keys {
@@ -59,29 +62,26 @@ func TestBinarySearchTreeDuplicateKey(t *testing.T) {
 	}, t)
 }
 
-func TestTemp(t *testing.T) {
-	tmpArr := make(map[int]int)
-
-	for i := 1; i <= 50; i++ {
-		tmpArr[i] = i
-		if len(tmpArr) != i {
-			println(len(tmpArr))
+func TestBinarySearchTreeALL(t *testing.T) {
+	testTimer(func(t *testing.T) {
+		keys, _ := generateLowDuplicateRandomData()
+		var bst models.BinarySearchTree
+		bst.Init()
+		for _, key := range keys {
+			bst.Set(key, []byte(key))
 		}
-	}
 
-	fmt.Println(len(tmpArr))
-	fmt.Println(tmpArr)
-}
-
-func TestTemp2(t *testing.T) {
-	tmpArr := make([]int, 0)
-
-	for i := 1; i <= 50; i++ {
-		tmpArr = append(tmpArr, i)
-		if len(tmpArr) != i {
-			fmt.Println(len(tmpArr))
+		arr := make([]string, 0, len(keys))
+		for _, v := range bst.GetAll() {
+			arr = append(arr, v.Key)
 		}
-	}
-	fmt.Println(len(tmpArr))
-	fmt.Println(tmpArr)
+
+		sort.Strings(keys)
+
+		for i := 0; i < len(keys); i++ {
+			if arr[i] != keys[i] {
+				t.Error("two value is not the same", keys[i])
+			}
+		}
+	}, t)
 }

@@ -9,9 +9,7 @@ import (
 
 /*
 To be noticed, file.Sync() doesn't actually sync
-the file on MACOS system. This needs to be tested
-on linux environment.
-
+the file on MACOS system. This needs to be tested on linux environment.
 If still, doesn't work, needs to implement a buffer to handle this situation...etc
 */
 func toDisk(memory *models.Hash, currSeg *SegmentMap, segContainer *SegmentContainer) error {
@@ -138,6 +136,7 @@ func compressSegments(segContainer *SegmentContainer) (newSegContainer SegmentCo
 	if err != nil {
 		panic("something went wrong while compressing")
 	}
+
 	// we cannot ensure there are no segment left.
 	if tempSegment.byteFileLength != 0 {
 		newSegContainer.memo = append(newSegContainer.memo, tempSegment)

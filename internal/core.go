@@ -3,10 +3,18 @@ package internal
 import (
 	"fmt"
 	"os"
+	"rebitcask/internal/models"
 	"sort"
 )
 
-func toDisk(memory *memoryMap, currSeg *SegmentMap, segContainer *SegmentContainer) error {
+/*
+To be noticed, file.Sync() doesn't actually sync
+the file on MACOS system. This needs to be tested
+on linux environment.
+
+If still, doesn't work, needs to implement a buffer to handle this situation...etc
+*/
+func toDisk(memory *models.MemoryMap, currSeg *SegmentMap, segContainer *SegmentContainer) error {
 	filepath := fmt.Sprintf("%v%v/%v.log", ENVVAR.logFolder, ENVVAR.segmentFolder, currSeg.CurrentSegmentNo)
 	file, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
 	if err != nil {
@@ -14,9 +22,9 @@ func toDisk(memory *memoryMap, currSeg *SegmentMap, segContainer *SegmentContain
 	}
 
 	byteHeadPosition := currSeg.byteFileLength
-	for k, v := range memory.keyvalue {
-
-		byteValue := v
+	for _, pair := range *memory.GetAll() {
+		k := pair.Key
+		byteValue := pair.Val
 		bytes, err := file.Write(byteValue)
 
 		if err != nil {
@@ -29,6 +37,7 @@ func toDisk(memory *memoryMap, currSeg *SegmentMap, segContainer *SegmentContain
 		byteHeadPosition += bytes
 
 		if byteHeadPosition >= ENVVAR.fileByteLimit {
+			file.Sync()
 			file.Close()
 
 			segContainer.memo = append(segContainer.memo, *currSeg)
@@ -41,6 +50,7 @@ func toDisk(memory *memoryMap, currSeg *SegmentMap, segContainer *SegmentContain
 		}
 	}
 	currSeg.byteFileLength = byteHeadPosition
+	file.Sync()
 	file.Close()
 	return nil
 }
@@ -105,7 +115,10 @@ func compressSegments(segments []SegmentMap) (newSegments []SegmentMap) {
 	}
 
 	//keyvalue contains all values, create a start looping and create a new segment
-	memoMap := memoryMap{keyvalue: keyValue}
+	var newMemoMap models.MemoryMap
+	newMemoMap.Init()
+	newMemoMap.SetMap(keyValue)
+
 	newSegContainer := SegmentContainer{
 		memo: []SegmentMap{},
 	}
@@ -119,7 +132,7 @@ func compressSegments(segments []SegmentMap) (newSegments []SegmentMap) {
 	// the maximum segment number will be less than currentSegNo (even in worst case)
 	// the key in each segment will be unique, so the order of writing
 	// to disk is irrelevant
-	err := toDisk(&memoMap, &tempSegment, &newSegContainer)
+	err := toDisk(&newMemoMap, &tempSegment, &newSegContainer)
 	if err != nil {
 		panic("something went wrong while compressing")
 	}

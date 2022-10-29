@@ -27,7 +27,7 @@ func generatePureRandomData() map[string]string {
 func generateKeyDuplicateRandomData() map[string]string {
 	rand.Seed(time.Now().UnixNano())
 	ans := make(map[string]string)
-	for i := 0; i < 100000; i++ {
+	for i := 0; i < 1000000; i++ {
 		k := make([]rune, 2)
 		for i := range k {
 			k[i] = LETTERS[rand.Intn(len(LETTERS))]

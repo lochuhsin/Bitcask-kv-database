@@ -1,9 +1,5 @@
 package internal
 
-type memoryMap struct {
-	keyvalue map[string][]byte
-}
-
 type SegmentMap struct {
 	bytePositionMap  map[string]int
 	byteLengthMap    map[string]int

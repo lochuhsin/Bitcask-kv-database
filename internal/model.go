@@ -3,9 +3,9 @@ package internal
 import "rebitcask/internal/models"
 
 type SegmentMap struct {
-	segID   int    // for file naming
+	segID   string // for file naming
 	segHead string // since the Segment will be sorted, save segment head to speed up query
-	segEnd  string
+	//segEnd  string  TODO: To implement
 }
 
 type SegmentContainer struct {

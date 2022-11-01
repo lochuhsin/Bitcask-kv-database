@@ -32,25 +32,17 @@ func initMaps() {
 
 func Get(k string) (v string, status bool) {
 
-	if val, ok := memory.Get(k); ok {
-		str := string(val)
+	if item, ok := memory.Get(k); ok {
+		str := string(item.Val)
 		return filterTombStone(str)
 	}
 
 	// check in current segment
-	if val, ok := isKeyInSegment(k, &currentSeg); ok {
+	if val, ok := isKeyInSegments(&k, &segContainer); ok {
 		str := string(val)
 		return filterTombStone(str)
 	}
 
-	// check previous segments read backwards since SegNo. bigger means later
-	for i := len(segContainer.memo) - 1; i >= 0; i-- {
-		val, ok := isKeyInSegment(k, &segContainer.memo[i])
-		str := string(val)
-		if ok {
-			return filterTombStone(str)
-		}
-	}
 	return "", false
 }
 
@@ -62,7 +54,9 @@ func Set(k string, v string) error {
 		return errors.New("invalid input")
 	}
 
-	b := []byte(v)
+	b := models.Item{
+		Val: []byte(v),
+	}
 	memory.Set(k, b)
 	if isExceedMemoLimit(memory.GetSize()) {
 		err := toSegment(&memory, &segContainer)
@@ -71,9 +65,6 @@ func Set(k string, v string) error {
 			return err
 		}
 		memory.Init()
-	}
-	if isSegFileMultiple(segContainer.segCount) {
-		segContainer = compressSegments(&segContainer)
 	}
 	return nil
 }

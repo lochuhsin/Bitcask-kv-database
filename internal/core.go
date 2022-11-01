@@ -1,10 +1,12 @@
 package internal
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"rebitcask/internal/models"
 	"sort"
+	"strconv"
 )
 
 /*
@@ -12,65 +14,43 @@ To be noticed, file.Sync() doesn't actually sync
 the file on MACOS system. This needs to be tested on linux environment.
 If still, doesn't work, needs to implement a buffer to handle this situation...etc
 */
-func toDisk(memory *models.Hash, currSeg *SegmentMap, segContainer *SegmentContainer) error {
-	filepath := fmt.Sprintf("%v%v/%v.log", ENVVAR.logFolder, ENVVAR.segmentFolder, currSeg.CurrentSegmentNo)
+func toSegment(memory *models.BinarySearchTree, segContainer *SegmentContainer) error {
+	filepath := fmt.Sprintf("%v%v/%v.log", ENVVAR.logFolder, ENVVAR.segmentFolder)
 	file, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
+	writer := bufio.NewWriter(file)
+
 	if err != nil {
 		return err
 	}
 
-	byteHeadPosition := currSeg.byteFileLength
-	for _, pair := range *memory.GetAll() {
-		k := pair.Key
-		byteValue := pair.Val
-		bytes, err := file.Write(byteValue)
+	kvPairs := memory.GetAll()
 
+	// create new Segment
+	currentSeg := SegmentMap{segID: segContainer.segCount}
+	currentSeg.segHead = kvPairs[0].Key
+	currentSeg.segEnd = kvPairs[len(kvPairs)-1].Key
+
+	for _, pair := range memory.GetAll() {
+		key := pair.Key
+		val := pair.Val
+
+		// file structure for every line is key,val
+		line := fmt.Sprintf("%v,%v", key, val)
+		_, err := writer.WriteString(line + "\n")
 		if err != nil {
-			panic("Something went wrong while writing to disk")
-		}
-
-		currSeg.byteLengthMap[k] = bytes
-		currSeg.bytePositionMap[k] = byteHeadPosition
-
-		byteHeadPosition += bytes
-
-		if byteHeadPosition >= ENVVAR.fileByteLimit {
-			file.Sync()
-			file.Close()
-
-			segContainer.memo = append(segContainer.memo, *currSeg)
-			segContainer.segCount++
-
-			newSegmentNo := currSeg.CurrentSegmentNo + 1
-			file, *currSeg = createNewSegment(newSegmentNo)
-
-			// new bytehead
-			byteHeadPosition = 0
+			fmt.Println("Error while writing to segment !!!!!")
+			panic(1)
 		}
 	}
-	currSeg.byteFileLength = byteHeadPosition
+
+	segContainer.memo.Set(currentSeg.segHead, []byte(strconv.Itoa(currentSeg.segID)))
+	writer.Flush()
 	file.Sync()
 	file.Close()
 	return nil
 }
 
 func isKeyInSegment(k string, segment *SegmentMap) (v []byte, status bool) {
-
-	if _, ok := segment.bytePositionMap[k]; !ok {
-		return []byte(""), false
-	}
-
-	filepath := fmt.Sprintf("%v%v/%v.log", ENVVAR.logFolder, ENVVAR.segmentFolder, segment.CurrentSegmentNo)
-	bytePos, _ := segment.bytePositionMap[k]
-	byteLen, _ := segment.byteLengthMap[k]
-
-	file, err := os.Open(filepath)
-	if err != nil {
-		panic("Something went wrong while opening file")
-	}
-	readByte := seekFile(file, bytePos, byteLen)
-	file.Close()
-	return readByte, true
 }
 
 type keyPosPair struct {
@@ -78,6 +58,8 @@ type keyPosPair struct {
 	pos int
 }
 
+// currently, compress function will compress the entire history
+// this can be optimized
 func compressSegments(segContainer *SegmentContainer) (newSegContainer SegmentContainer) {
 	keyValue := make(map[string][]byte)
 
@@ -132,7 +114,7 @@ func compressSegments(segContainer *SegmentContainer) (newSegContainer SegmentCo
 	// the maximum segment number will be less than currentSegNo (even in worst case)
 	// the key in each segment will be unique, so the order of writing
 	// to disk is irrelevant
-	err := toDisk(&newMemoMap, &tempSegment, &newSegContainer)
+	err := toSegment(&newMemoMap, &tempSegment, &newSegContainer)
 	if err != nil {
 		panic("something went wrong while compressing")
 	}

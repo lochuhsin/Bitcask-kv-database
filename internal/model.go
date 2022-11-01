@@ -1,14 +1,15 @@
 package internal
 
+import "rebitcask/internal/models"
+
 type SegmentMap struct {
-	bytePositionMap  map[string]int
-	byteLengthMap    map[string]int
-	byteFileLength   int
-	CurrentSegmentNo int // for file naming
+	segID   int    // for file naming
+	segHead string // since the Segment will be sorted, save segment head to speed up query
+	segEnd  string
 }
 
 type SegmentContainer struct {
-	memo     []SegmentMap
+	memo     models.BinarySearchTree // key is head, values is Segment Map
 	segCount int
 }
 

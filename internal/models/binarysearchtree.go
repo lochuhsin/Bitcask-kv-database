@@ -81,6 +81,9 @@ func (bst *BinarySearchTree) set(root *bstnode, key *string, val *[]byte) *bstno
 	return nil
 }
 
+func (bst *BinarySearchTree) GetAllValueUnder(key *string) {}
+func (bst *BinarySearchTree) GetAllValueOver(key *string)  {}
+
 func (bst *BinarySearchTree) get(root *bstnode, key *string) (val *[]byte) {
 	if root == nil {
 		return nil

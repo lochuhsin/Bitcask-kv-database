@@ -9,7 +9,7 @@ import (
 )
 
 // TODO Convert this to singleton
-var memory models.Hash
+var memory models.BinarySearchTree
 var currentSeg SegmentMap
 var segContainer SegmentContainer
 var ENVVAR envVariables
@@ -27,17 +27,12 @@ func init() {
 
 func initMaps() {
 	memory.Init()
-	currentSeg.bytePositionMap = make(map[string]int)
-	currentSeg.byteLengthMap = make(map[string]int)
-	currentSeg.byteFileLength = 0
-	currentSeg.CurrentSegmentNo = 0
-	segContainer.memo = []SegmentMap{}
-
+	segContainer.segCount = 0
 }
 
 func Get(k string) (v string, status bool) {
 
-	if val, ok := memory.Get(&k); ok {
+	if val, ok := memory.Get(k); ok {
 		str := string(val)
 		return filterTombStone(str)
 	}
@@ -70,7 +65,7 @@ func Set(k string, v string) error {
 	b := []byte(v)
 	memory.Set(k, b)
 	if isExceedMemoLimit(memory.GetSize()) {
-		err := toDisk(&memory, &currentSeg, &segContainer)
+		err := toSegment(&memory, &segContainer)
 		if err != nil {
 			fmt.Println(err)
 			return err

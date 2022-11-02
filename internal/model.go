@@ -18,6 +18,6 @@ type envVariables struct {
 	segmentFolder       string
 	tombstone           string
 	memoryKeyCountLimit int
-	fileByteLimit       int
+	fileLineLimit       int
 	segFileCountLimit   int
 }

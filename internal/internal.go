@@ -27,6 +27,7 @@ func init() {
 
 func initMaps() {
 	memory.Init()
+	segContainer.segCount = 0
 }
 
 func Get(k string) (v string, status bool) {
@@ -64,10 +65,6 @@ func Set(k string, v string) error {
 			return err
 		}
 		memory.Init()
-	}
-
-	if isExceedFileCountLimit(segContainer.memo.GetSize()) {
-		segContainer = compressSegments(&segContainer)
 	}
 	return nil
 }

@@ -48,8 +48,8 @@ func (bst *BinarySearchTree) Set(key string, val Item) {
 	bst.root = bst.set(bst.root, &key, &val)
 }
 
-func (bst *BinarySearchTree) Get(key string) (val Item, status bool) {
-	if res := bst.get(bst.root, &key); res != nil {
+func (bst *BinarySearchTree) Get(key *string) (val Item, status bool) {
+	if res := bst.get(bst.root, key); res != nil {
 		return *res, true
 	}
 	return *new(Item), false

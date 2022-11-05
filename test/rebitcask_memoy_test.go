@@ -17,7 +17,7 @@ func TestBinarySearchTreeSmall(t *testing.T) {
 		bst.Set(val, models.Item{
 			Val: []byte(val),
 		})
-		v, _ := bst.Get(val)
+		v, _ := bst.Get(&val)
 		fmt.Println(string(v.Val))
 	}
 }
@@ -35,7 +35,7 @@ func TestBinarySearchTreePureRandom(t *testing.T) {
 		}
 		fmt.Println("done set")
 		for i, k := range keys {
-			res, _ := bst.Get(k)
+			res, _ := bst.Get(&k)
 
 			if string(res.Val) != vals[i] {
 				t.Error("Get value error")
@@ -59,7 +59,7 @@ func TestBinarySearchTreeDuplicateKey(t *testing.T) {
 		}
 		fmt.Println("done set")
 		for k, v := range kvMap {
-			res, _ := bst.Get(k)
+			res, _ := bst.Get(&k)
 			fmt.Println(res)
 			if string(res.Val) != v {
 				t.Error("Get value error")

@@ -8,7 +8,7 @@ type KVPair struct {
 // MemoryModel TODO convert internal memory model to interface
 type MemoryModel interface {
 	Init()
-	Get(string) (Item, bool)
+	Get(*string) (Item, bool)
 	Set(string, Item)
 	GetSize() int
 	GetAll() []KVPair

@@ -31,7 +31,7 @@ func initMaps() {
 
 func Get(k string) (v string, status bool) {
 
-	if item, ok := memory.Get(k); ok {
+	if item, ok := memory.Get(&k); ok {
 		str := string(item.Val)
 		return filterTombStone(str)
 	}

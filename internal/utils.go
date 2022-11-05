@@ -52,7 +52,7 @@ func initGlobalEnvVar(envPath string) {
 			}
 			ENVVAR.memoryKeyCountLimit = limit
 		}
-		if fileLineLimit := os.Getenv("FILE_BYTE_LIMIT"); fileLineLimit != "" {
+		if fileLineLimit := os.Getenv("FILE_LINE_LIMIT"); fileLineLimit != "" {
 			limit, err := strconv.Atoi(fileLineLimit)
 			if err != nil {
 				panic("something went wrong with getting FILE_BYTE_LIMIT")

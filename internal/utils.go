@@ -12,7 +12,7 @@ func isExceedMemoLimit(memoSize int) bool {
 }
 
 // TODO: find a better condition
-func isExceedFileCountLimit(fileCount int) bool {
+func isSegFileMultiple(fileCount int) bool {
 	return (fileCount%ENVVAR.segFileCountLimit) == 0 && fileCount != 0
 }
 
@@ -29,7 +29,7 @@ func initGlobalEnvVar(envPath string) {
 		segmentFolder:       "/seg/",
 		tombstone:           "!@#$%^&*()_+",
 		memoryKeyCountLimit: 40000,
-		fileLineLimit:       4000,
+		fileLineLimit:       400000,
 		segFileCountLimit:   100,
 	}
 	err := godotenv.Load(envPath)

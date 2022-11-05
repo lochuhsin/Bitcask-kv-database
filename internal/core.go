@@ -38,7 +38,7 @@ func toSegment(memory *models.BinarySearchTree, segContainer *SegmentContainer) 
 		item := pair.Val
 
 		// file structure for every line is key,val
-		line := fmt.Sprintf("%v,%v", key, string(item.Val))
+		line := fmt.Sprintf("%v,%v", key, item.Val)
 		_, err := writer.WriteString(line + "\n")
 		if err != nil {
 			fmt.Println("Error while writing to segment !!!!!")
@@ -85,6 +85,11 @@ func isKeyInSegments(k *string, segContainer *SegmentContainer) (v []byte, statu
 		}
 	}
 	return []byte(""), false
+}
+
+type keyPosPair struct {
+	key string
+	pos int
 }
 
 // currently, compress function will compress the entire history

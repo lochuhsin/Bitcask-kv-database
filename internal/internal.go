@@ -65,8 +65,7 @@ func Set(k string, v string) error {
 		}
 		memory.Init()
 	}
-
-	if isExceedFileCountLimit(segContainer.memo.GetSize()) {
+	if isSegFileMultiple(segContainer.memo.GetSize()) {
 		segContainer = compressSegments(&segContainer)
 	}
 	return nil

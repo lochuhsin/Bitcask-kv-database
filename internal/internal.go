@@ -10,7 +10,6 @@ import (
 
 // TODO Convert this to singleton
 var memory models.BinarySearchTree
-var currentSeg SegmentMap
 var segContainer SegmentContainer
 var ENVVAR envVariables
 
@@ -27,7 +26,7 @@ func init() {
 
 func initMaps() {
 	memory.Init()
-	segContainer.segCount = 0
+	segContainer.Init()
 }
 
 func Get(k string) (v string, status bool) {
@@ -65,6 +64,9 @@ func Set(k string, v string) error {
 			return err
 		}
 		memory.Init()
+	}
+	if isSegFileMultiple(segContainer.memo.GetSize()) {
+		segContainer = compressSegments(&segContainer)
 	}
 	return nil
 }

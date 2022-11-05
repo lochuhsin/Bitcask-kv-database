@@ -156,6 +156,6 @@ func TestSmallVal(t *testing.T) {
 
 // used for removing all log files after tests are done
 func TestRemoveLog(t *testing.T) {
-	os.RemoveAll("./log/")
+	_ = os.RemoveAll("./log/")
 	fmt.Println("success remove")
 }

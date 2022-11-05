@@ -29,7 +29,7 @@ func initGlobalEnvVar(envPath string) {
 		segmentFolder:       "/seg/",
 		tombstone:           "!@#$%^&*()_+",
 		memoryKeyCountLimit: 40000,
-		fileByteLimit:       400000,
+		fileLineLimit:       400000,
 		segFileCountLimit:   100,
 	}
 	err := godotenv.Load(envPath)
@@ -52,12 +52,12 @@ func initGlobalEnvVar(envPath string) {
 			}
 			ENVVAR.memoryKeyCountLimit = limit
 		}
-		if fileByteLimit := os.Getenv("FILE_BYTE_LIMIT"); fileByteLimit != "" {
-			limit, err := strconv.Atoi(fileByteLimit)
+		if fileLineLimit := os.Getenv("FILE_LINE_LIMIT"); fileLineLimit != "" {
+			limit, err := strconv.Atoi(fileLineLimit)
 			if err != nil {
 				panic("something went wrong with getting FILE_BYTE_LIMIT")
 			}
-			ENVVAR.fileByteLimit = limit
+			ENVVAR.fileLineLimit = limit
 		}
 		if segFileCountLimit := os.Getenv("SEGMENT_FILE_COUNT_LIMIT"); segFileCountLimit != "" {
 			limit, err := strconv.Atoi(segFileCountLimit)

@@ -2,15 +2,12 @@ package internal
 
 import "rebitcask/internal/models"
 
-type SegmentMap struct {
-	segID   string // for file naming
-	segHead string // since the Segment will be sorted, save segment head to speed up query
-	//segEnd  string  TODO: To implement
+type SegmentContainer struct {
+	memo models.MemoryModel // key is head, values is Segment Map
 }
 
-type SegmentContainer struct {
-	memo     models.BinarySearchTree // key is head, values is Segment Map
-	segCount int
+func (segContainer *SegmentContainer) Init() {
+	segContainer.memo = new(models.BinarySearchTree)
 }
 
 type envVariables struct {
@@ -18,6 +15,6 @@ type envVariables struct {
 	segmentFolder       string
 	tombstone           string
 	memoryKeyCountLimit int
-	fileByteLimit       int
+	fileLineLimit       int
 	segFileCountLimit   int
 }

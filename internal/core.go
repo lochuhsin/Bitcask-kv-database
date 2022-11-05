@@ -17,7 +17,7 @@ To be noticed, file.Sync() doesn't actually sync
 the file on MACOS system. This needs to be tested on linux environment.
 If still, doesn't work, needs to implement a buffer to handle this situation...etc
 */
-func toSegment(memory *models.BinarySearchTree, segContainer *SegmentContainer) error {
+func toSegment(memory models.MemoryModel, segContainer *SegmentContainer) error {
 
 	segID := uuid.New().String()
 
@@ -85,11 +85,6 @@ func isKeyInSegments(k *string, segContainer *SegmentContainer) (v []byte, statu
 		}
 	}
 	return []byte(""), false
-}
-
-type keyPosPair struct {
-	key string
-	pos int
 }
 
 // currently, compress function will compress the entire history

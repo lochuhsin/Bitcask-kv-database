@@ -10,7 +10,6 @@ import (
 
 // TODO Convert this to singleton
 var memory models.BinarySearchTree
-var currentSeg SegmentMap
 var segContainer SegmentContainer
 var ENVVAR envVariables
 
@@ -27,6 +26,7 @@ func init() {
 
 func initMaps() {
 	memory.Init()
+	segContainer.Init()
 }
 
 func Get(k string) (v string, status bool) {

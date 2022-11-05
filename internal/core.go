@@ -31,8 +31,7 @@ func toSegment(memory *models.BinarySearchTree, segContainer *SegmentContainer) 
 
 	// create new Segment
 	kvPairs := memory.GetAll()
-	currentSeg := SegmentMap{segID: segID}
-	currentSeg.segHead = kvPairs[0].Key // TODO: save seg end and store it in tree, performance will way better
+	segHead := kvPairs[0].Key // TODO: save seg end and store it in tree, performance will way better
 
 	for _, pair := range kvPairs {
 		key := pair.Key
@@ -49,7 +48,7 @@ func toSegment(memory *models.BinarySearchTree, segContainer *SegmentContainer) 
 
 	// this will cause performance issue,
 	// change all memory model to generic type or at least using interface
-	segContainer.memo.Set(currentSeg.segHead, models.Item{
+	segContainer.memo.Set(segHead, models.Item{
 		Val:        []byte(segID),
 		CreateTime: strconv.FormatInt(time.Now().UnixNano(), 2),
 	})
@@ -94,8 +93,10 @@ func isKeyInSegments(k *string, segContainer *SegmentContainer) (v []byte, statu
 func compressSegments(segContainer *SegmentContainer) (newSegContainer SegmentContainer) {
 	allKVPair := segContainer.memo.GetAll()
 
+	// initialize newSegContainer
+	newSegContainer.Init()
+
 	// Sort all KV pair by CreateTime, with backwords
-	//
 	sort.SliceStable(allKVPair, func(i, j int) bool {
 		return allKVPair[i].Val.CreateTime >= allKVPair[j].Val.CreateTime
 	})
@@ -137,8 +138,7 @@ func compressSegments(segContainer *SegmentContainer) (newSegContainer SegmentCo
 	segFile, _ := os.Create(segFilePath)
 	writer := bufio.NewWriter(segFile)
 
-	currentSeg := SegmentMap{segID: segID}
-	currentSeg.segHead = keyvalue[keyArr[0]]
+	segHead := keyArr[0]
 
 	for i, key := range keyArr {
 		val, _ := keyvalue[key]
@@ -159,10 +159,13 @@ func compressSegments(segContainer *SegmentContainer) (newSegContainer SegmentCo
 			segFile.Close()
 
 			// store new segment
-			newSegContainer.memo.Set(currentSeg.segHead, models.Item{
+			newSegContainer.memo.Set(segHead, models.Item{
 				Val:        []byte(segID),
 				CreateTime: strconv.FormatInt(time.Now().UnixNano(), 2),
 			})
+			if i < len(keyArr)-1 {
+				segHead = keyArr[i+1]
+			}
 
 			// Update new file
 			segFilePath = fmt.Sprintf("%v%v/%v.log", ENVVAR.logFolder, ENVVAR.segmentFolder, uuid.New().String())

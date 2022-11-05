@@ -8,12 +8,11 @@ type KVPair struct {
 // MemoryModel TODO convert internal memory model to interface
 type MemoryModel interface {
 	Init()
-	Get()
-	Set()
-	GetSize()
-	GetAll()
-	GetAllValueUnder()
-	GetAllValueOver()
+	Get(string) (Item, bool)
+	Set(string, Item)
+	GetSize() int
+	GetAll() []KVPair
+	GetAllValueUnder(*string) []KVPair
 }
 
 type Item struct {

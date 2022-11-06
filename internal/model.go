@@ -18,3 +18,20 @@ type envVariables struct {
 	fileLineLimit       int
 	segFileCountLimit   int
 }
+
+type memoryType string
+
+const (
+	BinarySearchTree memoryType = "bst"
+	AVLTree          memoryType = "avl"
+)
+
+func (m memoryType) String() string {
+	switch m {
+	case BinarySearchTree:
+		return "bst"
+	case AVLTree:
+		return "avl"
+	}
+	return "unknown"
+}

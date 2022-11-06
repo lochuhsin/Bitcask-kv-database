@@ -87,9 +87,10 @@ func isKeyInSegments(k *string, segContainer *SegmentContainer) (v []byte, statu
 	return []byte(""), false
 }
 
-// currently, compress function will compress the entire history
-// this can be optimized
-// Redesign tree entry to save, key: value, create_time, additional_attribute: map
+/*
+1. Could be optimized using merge sort like algorithm with multitthreading
+2. Convert to backend process, execute this periodically
+*/
 func compressSegments(segContainer *SegmentContainer) (newSegContainer SegmentContainer) {
 	allKVPair := segContainer.memo.GetAll()
 
@@ -173,6 +174,5 @@ func compressSegments(segContainer *SegmentContainer) (newSegContainer SegmentCo
 			writer = bufio.NewWriter(segFile)
 		}
 	}
-
 	return newSegContainer
 }

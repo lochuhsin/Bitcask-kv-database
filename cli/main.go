@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"rebitcask/cli/Handler"
+	"rebitcask/cli/handler"
 )
 
 func helloServer(w http.ResponseWriter, r *http.Request) {

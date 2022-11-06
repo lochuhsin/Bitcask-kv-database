@@ -9,7 +9,7 @@ import (
 )
 
 // TODO Convert this to singleton
-var memory models.BinarySearchTree
+var memory models.AVLTree
 var segContainer SegmentContainer
 var ENVVAR envVariables
 

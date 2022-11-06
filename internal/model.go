@@ -7,7 +7,7 @@ type SegmentContainer struct {
 }
 
 func (segContainer *SegmentContainer) Init() {
-	segContainer.memo = new(models.BinarySearchTree)
+	segContainer.memo = new(models.AVLTree)
 }
 
 type envVariables struct {

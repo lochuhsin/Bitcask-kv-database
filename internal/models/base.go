@@ -5,7 +5,6 @@ type KVPair struct {
 	Val Item
 }
 
-// MemoryModel TODO convert internal memory model to interface
 type MemoryModel interface {
 	Init()
 	Get(string) (Item, bool)

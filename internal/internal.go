@@ -66,8 +66,8 @@ func Set(k string, v string) error {
 	// between bloom filter and actual database value.
 	// Resulting the fact that bloom filter becomes unreliable.
 	//
-	// However, for the second thought, rebitcask is known for appending new key / values
-	// therefor it is not reasonable for rebitcask to check if the key exists before
+	// However, for the second thought, bitcask is known for appending new key / values
+	// therefor it is not reasonable for bitcask to check if the key exists before
 	// setting value. Therefore, the way of adding keys to bloom filter should be
 	// more carefully
 	countingbf.Set(k)

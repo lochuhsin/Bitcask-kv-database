@@ -2,11 +2,21 @@ package test
 
 import (
 	"fmt"
+	"hash/adler32"
 	"os"
 	"rebitcask/src"
 	"testing"
 	"time"
 )
+
+func TestHash(t *testing.T) {
+	adler := adler32.New()
+	adler.Write([]byte("hello_world"))
+	output := adler.Sum32()
+	fmt.Println(output)
+	fmt.Println(output / 10000)
+
+}
 
 func TestGetSetPureRandom(t *testing.T) {
 	keys, vals := generateLowDuplicateRandomData()

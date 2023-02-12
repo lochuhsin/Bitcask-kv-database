@@ -3,6 +3,7 @@ package internal
 import (
 	"fmt"
 	"github.com/joho/godotenv"
+	"hash/adler32"
 	"os"
 	"strconv"
 )
@@ -70,4 +71,77 @@ func initGlobalEnvVar(envPath string) {
 
 	fmt.Println("env setting done")
 	fmt.Println(ENVVAR)
+}
+
+// CountingBloomFilter TODO: Implement a better bloom filter using different
+// hash functions.
+// Implement to disk periodically and able to reload
+// before everything terminate.
+type CountingBloomFilter struct {
+	hashArr [1000000]int
+}
+
+func (cbf *CountingBloomFilter) Init() {
+	cbf.hashArr = [1000000]int{}
+}
+
+func (cbf *CountingBloomFilter) Get(s string) bool {
+	hashNum1 := cbf.hash1(s)
+	hashNum2 := cbf.hash2(s)
+	hashNum3 := cbf.hash3(s)
+
+	if cbf.hashArr[hashNum1] > 0 && cbf.hashArr[hashNum2] > 0 && cbf.hashArr[hashNum3] > 0 {
+		return true
+	}
+	return false
+}
+
+func (cbf *CountingBloomFilter) Set(s string) bool {
+	hashNum1 := cbf.hash1(s)
+	hashNum2 := cbf.hash2(s)
+	hashNum3 := cbf.hash3(s)
+
+	cbf.hashArr[hashNum1]++
+	cbf.hashArr[hashNum2]++
+	cbf.hashArr[hashNum3]++
+	return true
+}
+
+func (cbf *CountingBloomFilter) Delete(s string) bool {
+	hashNum1 := cbf.hash1(s)
+	hashNum2 := cbf.hash2(s)
+	hashNum3 := cbf.hash3(s)
+
+	if cbf.hashArr[hashNum1] > 0 && cbf.hashArr[hashNum2] > 0 && cbf.hashArr[hashNum3] > 0 {
+		cbf.hashArr[hashNum1]--
+		cbf.hashArr[hashNum2]--
+		cbf.hashArr[hashNum3]--
+		return true
+	}
+	return false
+}
+
+func (cbf *CountingBloomFilter) hash1(s string) int32 {
+	alder := adler32.New()
+	alder.Write([]byte(s))
+	return cbf.abs(alder.Sum32() / 10000)
+}
+
+func (cbf *CountingBloomFilter) hash2(s string) int32 {
+	alder := adler32.New()
+	alder.Write([]byte(s))
+	return cbf.abs(alder.Sum32() / 10100)
+}
+
+func (cbf *CountingBloomFilter) hash3(s string) int32 {
+	alder := adler32.New()
+	alder.Write([]byte(s))
+	return cbf.abs(alder.Sum32() / 10101)
+}
+
+func (cbf *CountingBloomFilter) abs(val uint32) int32 {
+	if val < 0 {
+		return int32(-val)
+	}
+	return int32(val)
 }

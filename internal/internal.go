@@ -9,6 +9,7 @@ import (
 )
 
 // TODO Convert this to singleton
+var countingbf CountingBloomFilter
 var memory models.AVLTree
 var segContainer SegmentContainer
 var ENVVAR envVariables
@@ -27,10 +28,13 @@ func init() {
 func initMaps() {
 	memory.Init()
 	segContainer.Init()
+	countingbf.Init()
 }
 
 func Get(k string) (v string, status bool) {
-
+	if !countingbf.Get(k) {
+		return "", false
+	}
 	if item, ok := memory.Get(k); ok {
 		str := string(item.Val)
 		return filterTombStone(str)
@@ -56,6 +60,18 @@ func Set(k string, v string) error {
 	b := models.Item{
 		Val: []byte(v),
 	}
+	// TODO: setting BloomFilter should be more carefully
+	// Even though this might work as usual, but when large amount of duplicate keys
+	// coming in, the array count will keep adding. This will increase the differences
+	// between bloom filter and actual database value.
+	// Resulting the fact that bloom filter becomes unreliable.
+	//
+	// However, for the second thought, rebitcask is known for appending new key / values
+	// therefor it is not reasonable for rebitcask to check if the key exists before
+	// setting value. Therefore, the way of adding keys to bloom filter should be
+	// more carefully
+	countingbf.Set(k)
+
 	memory.Set(k, b)
 	if isExceedMemoLimit(memory.GetSize()) {
 		err := toSegment(&memory, &segContainer)
@@ -73,6 +89,9 @@ func Set(k string, v string) error {
 
 // Delete : This doesn't need lock, since Set function already contains lock
 func Delete(k string) error {
+	if countingbf.Get(k) {
+		countingbf.Delete(k)
+	}
 	err := Set(k, ENVVAR.tombstone)
 	return err
 }

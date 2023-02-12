@@ -50,7 +50,8 @@ storage mechanism.
 - [ ]  Supporting backend compression periodically
 - [ ]  Implement range based key query
 - [ ]  Implement Red-Black Tree
-- [ ]  Support more generic types 
+- [ ]  Support more generic types
+- [ ]  Implement graceful exit
 
 ---
 ### How to ....use?

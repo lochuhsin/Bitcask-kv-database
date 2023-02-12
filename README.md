@@ -46,12 +46,10 @@ storage mechanism.
 - [x]  Re-implement Get, Set storage method
 - [x]  Implement SSTable (**Sorted String Table**) (Last one is implement compress function) （Finished)
 - [x]  Implement AVL Tree
+- [x]  Implement BloomFilter and cache mechanism for Read
 - [ ]  Supporting backend compression periodically
 - [ ]  Implement range based key query
-- [ ]  Optimize compression mechanism
 - [ ]  Implement Red-Black Tree
-- [ ]  Implement BloomFilter and cache mechanism for Read
-- [ ]  Implement B-Tree
 - [ ]  Support more generic types 
 
 ---

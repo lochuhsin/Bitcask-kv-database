@@ -11,6 +11,21 @@ database underlying works.<br>
 In short, this is a project re-implementing Key/Value storage with log style
 storage mechanism.
 
+Why log style ?
+Since this is an append only storage mechanism, that is every create, update, delete operation
+will append data to log file. As this takes only O(1) operation in general.
+Therefore it is very efficient for write heavy stuff.
+
+However the read operation will be significant slow, since there are several layers to approach
+in order to find if the data is in database.
+
+First it ask bloomfilter, to see if data is in.
+Second, search in memory, since it contains most recent data.
+Third, if data is not in memory, search segments (Where SSTable is implemented).
+
+Therefore unlike B-tree implementation, there are several layers to look up, as it consumes a lot of
+time.
+
 ---
 ### Feature
 1. Basic Key/Value Storage mechanism

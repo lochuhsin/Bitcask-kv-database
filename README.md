@@ -62,7 +62,7 @@ time.
 - [x]  Implement SSTable (**Sorted String Table**) (Last one is implement compress function) （Finished)
 - [x]  Implement AVL Tree
 - [x]  Implement BloomFilter and cache mechanism for Read
-- [ ]  Supporting backend compression periodically
+- [x]  Supporting backend compression periodically
 - [ ]  Implement range based key query
 - [ ]  Implement Red-Black Tree
 - [ ]  Support more generic types

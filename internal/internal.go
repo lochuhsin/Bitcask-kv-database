@@ -95,3 +95,27 @@ func Delete(k string) error {
 	err := Set(k, ENVVAR.tombstone)
 	return err
 }
+
+func Exist() (bool, error) {
+	panic("Not implemented error")
+}
+
+func BulkCreate(k string) error {
+	panic("Not implemented error")
+}
+
+func BulkUpdate(k string) error {
+	panic("Not implemented error")
+}
+
+func BulkUpsert(k string) error {
+	panic("Not implemented error")
+}
+
+func BulkDelete(k string) error {
+	panic("Not implemented error")
+}
+
+func BulkGet(k ...string) ([]string, error) {
+	panic("Not implemented error")
+}

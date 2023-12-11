@@ -5,3 +5,5 @@ log
 log/*
 cli/cli
 app
+.DS_Store
+test/*.DS_Store

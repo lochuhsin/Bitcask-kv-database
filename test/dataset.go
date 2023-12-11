@@ -7,6 +7,27 @@ import (
 
 var LETTERS = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
+func generateHugeLowDuplicateRandomData(dataCount int) ([]string, []string) {
+	rand.Seed(time.Now().UnixNano())
+	keys := make([]string, 0, dataCount)
+	vals := make([]string, 0, dataCount)
+	count := 0
+	for i := 0; i < dataCount; i++ {
+		k := make([]rune, 30)
+		for j, _ := range k {
+			k[j] = LETTERS[rand.Intn(len(LETTERS))]
+		}
+		v := make([]rune, rand.Intn(30))
+		for m, _ := range v {
+			v[m] = LETTERS[rand.Intn(len(LETTERS))]
+		}
+		keys = append(keys, string(k))
+		vals = append(vals, string(v))
+		count += 1
+	}
+	return keys, vals
+}
+
 func generateLowDuplicateRandomData() ([]string, []string) {
 	rand.Seed(time.Now().UnixNano())
 	const size = 200000

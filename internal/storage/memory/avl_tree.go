@@ -1,8 +1,10 @@
-package models
+package memory
+
+import "rebitcask/internal/storage/dao"
 
 type avlnode struct {
-	key    string
-	val    Item
+	key    dao.NilString
+	val    dao.Base
 	height int
 	left   *avlnode
 	right  *avlnode
@@ -12,21 +14,33 @@ type AVLTree struct {
 	size int
 }
 
-func (avl *AVLTree) Init() {
-	avl.size = 0
+func InitAvlTree() *AVLTree {
+	return &AVLTree{nil, 0}
 }
 
 func (avl *AVLTree) GetSize() int {
 	return avl.size
 }
 
-func (avl *AVLTree) GetAll() []KVPair {
-	kvPair := make([]KVPair, 0, avl.size)
+func (avl *AVLTree) GetAll() []dao.Pair {
+	kvPair := make([]dao.Pair, 0, avl.size)
 	avl.inorder(avl.root, &kvPair)
 	return kvPair
 }
 
-func (avl *AVLTree) inorder(root *avlnode, kvPair *[]KVPair) {
+func (avl *AVLTree) Set(p dao.Pair) {
+	k, v := p.Key, p.Val
+	avl.root = avl.set(avl.root, k, v)
+}
+
+func (avl *AVLTree) Get(key dao.NilString) (val dao.Base, status bool) {
+	if res := avl.get(avl.root, key); res != nil {
+		return res, true
+	}
+	return nil, false
+}
+
+func (avl *AVLTree) inorder(root *avlnode, kvPair *[]dao.Pair) {
 	if root == nil {
 		return
 	}
@@ -35,7 +49,7 @@ func (avl *AVLTree) inorder(root *avlnode, kvPair *[]KVPair) {
 		avl.inorder(root.left, kvPair)
 	}
 
-	*kvPair = append(*kvPair, KVPair{
+	*kvPair = append(*kvPair, dao.Pair{
 		Key: root.key,
 		Val: root.val,
 	})
@@ -45,33 +59,22 @@ func (avl *AVLTree) inorder(root *avlnode, kvPair *[]KVPair) {
 	}
 }
 
-func (avl *AVLTree) Set(key string, val Item) {
-	avl.root = avl.set(avl.root, &key, &val)
-}
-
-func (avl *AVLTree) Get(key string) (val Item, status bool) {
-	if res := avl.get(avl.root, &key); res != nil {
-		return *res, true
-	}
-	return *new(Item), false
-}
-
-func (avl *AVLTree) set(root *avlnode, key *string, val *Item) *avlnode {
+func (avl *AVLTree) set(root *avlnode, key dao.NilString, val dao.Base) *avlnode {
 	if root == nil {
 		avl.size++
 		return &avlnode{
-			key: *key,
-			val: *val,
+			key: key,
+			val: val,
 		}
 	}
 
-	if root.key == *key {
-		root.val = *val
+	if root.key.IsEqual(key) {
+		root.val = val
 		return root
 	}
 
-	if node := *root; node.key != *key {
-		if *key < node.key {
+	if node := *root; !node.key.IsEqual(key) {
+		if node.key.IsLarger(key) {
 			root.left = avl.set(node.left, key, val)
 		} else {
 			root.right = avl.set(node.right, key, val)
@@ -82,25 +85,26 @@ func (avl *AVLTree) set(root *avlnode, key *string, val *Item) *avlnode {
 }
 
 // GetAllValueUnder TODO: Optimize this
-func (avl *AVLTree) GetAllValueUnder(key *string) []KVPair {
-	valueList := make([]KVPair, 0)
+func (avl *AVLTree) GetAllValueUnder(key dao.NilString) []dao.Pair {
+	valueList := make([]dao.Pair, 0)
 	avl.inorder(avl.root, &valueList)
 
 	if len(valueList) == 0 {
-		return make([]KVPair, 0)
+		return make([]dao.Pair, 0)
 	}
 
-	if valueList[0].Key > *key {
-		return make([]KVPair, 0)
+	if valueList[0].Key.IsLarger(key) {
+		return make([]dao.Pair, 0)
 	}
 
-	if valueList[len(valueList)-1].Key <= *key {
+	_k := valueList[len(valueList)-1].Key
+	if _k.IsSmaller(key) || _k.IsEqual(key) {
 		return valueList
 	}
 
 	stopIndex := -1
 	for i := 0; i < len(valueList); i++ {
-		if valueList[i].Key > *key {
+		if valueList[i].Key.IsLarger(key) {
 			stopIndex = i
 			break
 		}
@@ -108,16 +112,21 @@ func (avl *AVLTree) GetAllValueUnder(key *string) []KVPair {
 	return valueList[0:stopIndex]
 }
 
-func (avl *AVLTree) get(root *avlnode, key *string) (val *Item) {
+func (avl *AVLTree) Reset() {
+	avl.root = nil
+	avl.size = 0
+}
+
+func (avl *AVLTree) get(root *avlnode, key dao.NilString) (val dao.Base) {
 	if root == nil {
 		return nil
 	}
 
-	if root.key == *key {
-		return &root.val
+	if root.key.IsEqual(key) {
+		return root.val
 	}
 
-	if *key < root.key {
+	if root.key.IsLarger(key) {
 		return avl.get(root.left, key)
 	} else {
 		return avl.get(root.right, key)

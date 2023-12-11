@@ -2,6 +2,8 @@ package test
 
 import (
 	"fmt"
+	"os"
+	"rebitcask/internal/settings"
 	"testing"
 	"time"
 )
@@ -15,4 +17,8 @@ func testTimer(fn func(t *testing.T), t *testing.T) {
 	timeLength := time.Since(s)
 	fmt.Println("test finished")
 	fmt.Printf("Cost: %v", timeLength)
+}
+
+func RemoveSegment() {
+	os.RemoveAll(settings.ENV.LogPath)
 }

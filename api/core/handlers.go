@@ -3,15 +3,25 @@ package core
 import (
 	"log"
 	"net/http"
-
-	"rebitcask/internal"
+	"rebitcask/internal/storage"
 
 	"github.com/gin-gonic/gin"
 )
 
+// @BasePath /api/v1
+
+// PingExample godoc
+// @Summary ping example
+// @Schemes
+// @Description do ping
+// @Tags example
+// @Accept json
+// @Produce json
+// @Success 200 {string} Helloworld
+// @Router /core [get]
 func getHandler(c *gin.Context) {
 	key := c.Query("key")
-	val, status := internal.Get(key)
+	val, status := storage.Get(key)
 	if !status {
 		c.String(http.StatusBadRequest, "")
 	}
@@ -21,7 +31,7 @@ func getHandler(c *gin.Context) {
 func postHandler(c *gin.Context) {
 	obj := dataRequestSerializer{}
 	c.Bind(&obj)
-	internal.Set(obj.Key, obj.Value)
+	storage.Set(obj.Key, obj.Value)
 	log.Println(obj.Key, obj.Value)
 	c.JSON(http.StatusCreated, obj)
 }
@@ -29,7 +39,7 @@ func postHandler(c *gin.Context) {
 func putHandler(c *gin.Context) {
 	obj := dataRequestSerializer{}
 	c.Bind(&obj)
-	err := internal.Set(obj.Key, obj.Value)
+	err := storage.Set(obj.Key, obj.Value)
 	if err != nil {
 		c.String(http.StatusBadRequest, "invalid operation")
 	}
@@ -40,7 +50,7 @@ func patchHandler(c *gin.Context) {
 	obj := dataRequestSerializer{}
 	c.Bind(&obj)
 
-	err := internal.Set(obj.Key, obj.Value)
+	err := storage.Set(obj.Key, obj.Value)
 	if err != nil {
 		c.String(http.StatusBadRequest, "invalid operation")
 	}
@@ -50,7 +60,7 @@ func patchHandler(c *gin.Context) {
 func deleteHandler(c *gin.Context) {
 	obj := dataRequestSerializer{}
 	c.Bind(&obj)
-	err := internal.Delete(obj.Key)
+	err := storage.Delete(obj.Key)
 	if err != nil {
 		c.String(http.StatusBadRequest, "invalid operation")
 	}

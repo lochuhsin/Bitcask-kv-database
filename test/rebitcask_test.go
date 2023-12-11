@@ -2,28 +2,43 @@ package test
 
 import (
 	"fmt"
-	"hash/adler32"
 	"os"
-	"rebitcask/src"
+	"rebitcask/internal/storage"
 	"testing"
 	"time"
 )
 
-func TestHash(t *testing.T) {
-	adler := adler32.New()
-	adler.Write([]byte("hello_world"))
-	output := adler.Sum32()
-	fmt.Println(output)
-	fmt.Println(output / 10000)
+func TestPureRandomWriteLoad(t *testing.T) {
+	// TODO: Implement write queue and frozen memory
+	// inorder to improve write performance
+	// probably need coroutines
+	// this load is too heavy
+	storage.Init()
+	dataCount := 20000000
+	keys, vals := generateHugeLowDuplicateRandomData(dataCount)
+	s := time.Now()
+	fmt.Println(s)
+	for i, k := range keys {
+		err := storage.Set(k, vals[i])
 
+		if err != nil {
+			t.Error("Something went wrong while setting")
+		}
+	}
+	fmt.Println("done set")
+	timeLength := time.Since(s)
+	fmt.Println("test finished")
+	fmt.Printf("Cost: %v", timeLength)
+	defer RemoveSegment()
 }
 
 func TestGetSetPureRandom(t *testing.T) {
+	storage.Init()
 	keys, vals := generateLowDuplicateRandomData()
 	s := time.Now()
 	fmt.Println(s)
 	for i, k := range keys {
-		err := src.Set(k, vals[i])
+		err := storage.Set(k, vals[i])
 
 		if err != nil {
 			t.Error("Something went wrong while setting")
@@ -31,10 +46,11 @@ func TestGetSetPureRandom(t *testing.T) {
 	}
 	fmt.Println("done set")
 	for i, k := range keys {
-		res, _ := src.Get(k)
+		res, status := storage.Get(k)
 
 		if res != vals[i] {
-			t.Error("Get value error")
+			t.Error(res, status)
+			panic("")
 		}
 	}
 	timeLength := time.Since(s)
@@ -50,7 +66,7 @@ func TestGetSetKeyDuplicateRandom(t *testing.T) {
 	s := time.Now()
 	fmt.Println(s)
 	for i, k := range keys {
-		err := src.Set(k, vals[i])
+		err := storage.Set(k, vals[i])
 
 		if err != nil {
 			t.Error("Something went wrong while setting")
@@ -59,7 +75,7 @@ func TestGetSetKeyDuplicateRandom(t *testing.T) {
 	}
 	fmt.Println("done set")
 	for k, v := range lastValMap {
-		res, _ := src.Get(k)
+		res, _ := storage.Get(k)
 
 		if res != v {
 			t.Error("Get value error")
@@ -75,13 +91,13 @@ func TestGetSetFixValue(t *testing.T) {
 	s := time.Now()
 	fmt.Println(s)
 	for _, k := range keys {
-		err := src.Set(k, "@@@@@@@")
+		err := storage.Set(k, "@@@@@@@")
 
 		if err != nil {
 			t.Fatal("Something went wrong while setting")
 		}
 
-		res, _ := src.Get(k)
+		res, _ := storage.Get(k)
 
 		if res != "@@@@@@@" {
 			t.Error("Get value error")
@@ -101,13 +117,13 @@ func TestGetSetFixKey(t *testing.T) {
 	sameKey := "Same"
 	var lastVal string
 	for _, v := range vals {
-		err := src.Set(sameKey, v)
+		err := storage.Set(sameKey, v)
 		if err != nil {
 			t.Fatal("Something went wrong while setting")
 		}
 		lastVal = v
 	}
-	if res, _ := src.Get(sameKey); res != lastVal {
+	if res, _ := storage.Get(sameKey); res != lastVal {
 		t.Fatal("final assertion error")
 	}
 }
@@ -117,16 +133,16 @@ func TestDelete(t *testing.T) {
 	keys, vals := generateLowDuplicateRandomData()
 
 	for i, k := range keys {
-		err := src.Set(k, vals[i])
+		err := storage.Set(k, vals[i])
 		if err != nil {
 			t.Fatal("Something went wrong while setting")
 		}
 
-		err = src.Delete(k)
+		err = storage.Delete(k)
 		if err != nil {
 			t.Fatal("Something went wrong while deleting")
 		}
-		val, status := src.Get(k)
+		val, status := storage.Get(k)
 		if status != false {
 			fmt.Println(vals[i], val)
 			t.Error("Get value error")
@@ -142,19 +158,19 @@ func TestSmallVal(t *testing.T) {
 
 	s := time.Now()
 	for _, val := range []string{"a", "b", "c", "d"} {
-		err := src.Set(val, val)
+		err := storage.Set(val, val)
 		if err != nil {
 			t.Fatal("Set function failed")
 		}
 	}
 
-	res, _ := src.Get("a")
+	res, _ := storage.Get("a")
 	if res != "a" {
 		fmt.Println(res)
 		t.Error("")
 	}
 
-	res, _ = src.Get("b")
+	res, _ = storage.Get("b")
 	if res != "b" {
 		fmt.Println(res)
 		t.Error("")

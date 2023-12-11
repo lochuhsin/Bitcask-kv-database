@@ -5,19 +5,21 @@ import (
 	"time"
 )
 
-var LETTERS = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
+var LETTERS = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()+-")
 
-func generateHugeLowDuplicateRandomData(dataCount int) ([]string, []string) {
-	rand.Seed(time.Now().UnixNano())
+func generateLowDuplicateRandomData(dataCount int) ([]string, []string) {
+	keyLen := 50
+	valLen := 50
+	rand.New(rand.NewSource(time.Now().UnixNano()))
 	keys := make([]string, 0, dataCount)
 	vals := make([]string, 0, dataCount)
 	count := 0
 	for i := 0; i < dataCount; i++ {
-		k := make([]rune, 30)
+		k := make([]byte, keyLen)
 		for j, _ := range k {
 			k[j] = LETTERS[rand.Intn(len(LETTERS))]
 		}
-		v := make([]rune, rand.Intn(30))
+		v := make([]byte, rand.Intn(valLen))
 		for m, _ := range v {
 			v[m] = LETTERS[rand.Intn(len(LETTERS))]
 		}
@@ -28,39 +30,16 @@ func generateHugeLowDuplicateRandomData(dataCount int) ([]string, []string) {
 	return keys, vals
 }
 
-func generateLowDuplicateRandomData() ([]string, []string) {
-	rand.Seed(time.Now().UnixNano())
-	const size = 200000
-	keys := make([]string, 0, size)
-	vals := make([]string, 0, size)
-	count := 0
-	for i := 0; i < size; i++ {
-		k := make([]rune, 30)
-		for j, _ := range k {
-			k[j] = LETTERS[rand.Intn(len(LETTERS))]
-		}
-		v := make([]rune, rand.Intn(30))
-		for m, _ := range v {
-			v[m] = LETTERS[rand.Intn(len(LETTERS))]
-		}
-		keys = append(keys, string(k))
-		vals = append(vals, string(v))
-		count += 1
-	}
-	return keys, vals
-}
-
-func generateHighDuplicateRandom() ([]string, []string) {
-	rand.Seed(time.Now().UnixNano())
-	const size = 100000
-	keys := make([]string, 0, size)
-	vals := make([]string, 0, size)
-	for i := 0; i < size; i++ {
-		k := make([]rune, 2)
+func generateHighDuplicateRandom(dataCount int) ([]string, []string) {
+	rand.New(rand.NewSource(time.Now().UnixNano()))
+	keys := make([]string, 0, dataCount)
+	vals := make([]string, 0, dataCount)
+	for i := 0; i < dataCount; i++ {
+		k := make([]byte, 2)
 		for i := range k {
 			k[i] = LETTERS[rand.Intn(len(LETTERS))]
 		}
-		v := make([]rune, rand.Intn(30))
+		v := make([]byte, rand.Intn(30))
 		for i := range v {
 			v[i] = LETTERS[rand.Intn(len(LETTERS))]
 		}

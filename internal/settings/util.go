@@ -14,8 +14,8 @@ func InitENV() {
 		SegmentFolder:     "seg/",
 		Tombstone:         "!@#$%^&*()_+",
 		NilData:           ")(*&^)!@!@#$%^&*()",
+		MemoryModel:       "hash",
 		MemoryCountLimit:  100000,
-		SegLineLimit:      100000 * 10,
 		SegFileCountLimit: 100,
 		MemoryLogFolder:   "mlog/",
 		MemoryLogFile:     "m.log",
@@ -32,7 +32,6 @@ func InitENV() {
 	} else {
 
 		// System settings
-
 		if logPath := os.Getenv("LOG_FOLDER_PATH"); logPath != "" {
 			ENV.LogPath = logPath
 		}
@@ -46,19 +45,15 @@ func InitENV() {
 			}
 			ENV.MemoryCountLimit = limit
 		}
-		if segLineLimit := os.Getenv("SEG_LINE_LIMIT"); segLineLimit != "" {
-			limit, err := strconv.Atoi(segLineLimit)
-			if err != nil {
-				panic("something went wrong with getting FILE_BYTE_LIMIT")
-			}
-			ENV.SegLineLimit = limit
-		}
 		if segFileCountLimit := os.Getenv("SEGMENT_FILE_COUNT_LIMIT"); segFileCountLimit != "" {
 			limit, err := strconv.Atoi(segFileCountLimit)
 			if err != nil {
 				panic("something went wrong with getting SEGMENT_FILE_COUNT_LIMIT")
 			}
 			ENV.SegFileCountLimit = limit
+		}
+		if memModel := os.Getenv("MEMORY_MODEL"); memModel != "" {
+			ENV.MemoryModel = memModel
 		}
 	}
 }

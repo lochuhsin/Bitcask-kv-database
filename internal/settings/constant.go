@@ -6,9 +6,9 @@ type envVar struct {
 	Tombstone         string
 	NilData           string
 	MemoryCountLimit  int
+	MemoryModel       string
 	MemoryLogFolder   string
 	MemoryLogFile     string
-	SegLineLimit      int
 	SegFileCountLimit int // used for merge segments or change to other
 	SegmentLogFolder  string
 	SegmentLogFile    string

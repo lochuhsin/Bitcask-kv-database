@@ -22,17 +22,17 @@ func memoryTypeSelector(mType memory.ModelType) memory.MemoryBase {
 	switch mType {
 	case memory.HASH:
 		m = memory.InitHash()
+	case memory.BST:
+		m = memory.InitBinarySearchTree()
 
 	// TODO: implement these
-	// case memory.RBT:
-	// 	m = memory.InitRedBlackTree()
-	// case memory.BST:
-	// 	m = memory.InitBinarySearchTree()
 	// case memory.AVLT:
 	// 	m = memory.InitAvlTree()
+	// case memory.RBT:
+	// 	m = memory.InitRedBlackTree()
 
 	default:
-		panic("not implemented errir")
+		panic("memory model not implemented errir")
 	}
 	return m
 }

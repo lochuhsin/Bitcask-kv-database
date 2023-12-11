@@ -14,7 +14,7 @@ import (
 // move these to env
 const (
 	cacheType  cache.CacheType  = cache.CBF
-	memoryType memory.ModelType = memory.HASH
+	memoryType memory.ModelType = memory.BST
 )
 
 func Init() {
@@ -24,7 +24,7 @@ func Init() {
 	settings.InitENV()
 	env := settings.ENV
 	service.CacheInit(cacheType)
-	service.MemoryInit(memoryType)
+	service.MemoryInit(memory.ModelType(settings.ENV.MemoryModel))
 	service.SegmentInit()
 	segDir := fmt.Sprintf("%s%s", env.LogPath, env.SegmentFolder)
 	os.MkdirAll(segDir, os.ModePerm)

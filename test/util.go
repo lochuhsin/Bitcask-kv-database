@@ -19,6 +19,6 @@ func testTimer(fn func(t *testing.T), t *testing.T) {
 	fmt.Printf("Cost: %v", timeLength)
 }
 
-func RemoveSegment() {
+func removeSegment() {
 	os.RemoveAll(settings.ENV.LogPath)
 }

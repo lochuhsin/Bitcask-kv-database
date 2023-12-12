@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"rebitcask/internal/storage/dao"
 	"rebitcask/internal/storage/memory"
 	"rebitcask/internal/storage/segment"
@@ -27,7 +28,11 @@ func SegmentInit() {
 			 * 2. Segment Index
 			 * 3. Implement transaction log files
 			 * */
+		} else {
+			fmt.Println("seg manager exists")
 		}
+	} else {
+		fmt.Println("seg manager exists")
 	}
 }
 

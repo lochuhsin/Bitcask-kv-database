@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"rebitcask/internal/storage/cache"
 	"sync"
 )
@@ -20,7 +21,11 @@ func CacheInit(cType cache.CacheType) {
 		if mCache == nil {
 			mCache = cacheSelector(cType)
 			// TODO: implemented reload from log data
+		} else {
+			fmt.Println("cache exists")
 		}
+	} else {
+		fmt.Println("cache exists")
 	}
 }
 

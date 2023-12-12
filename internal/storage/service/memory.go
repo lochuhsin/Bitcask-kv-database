@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"rebitcask/internal/settings"
 	"rebitcask/internal/storage/dao"
 	"rebitcask/internal/storage/memory"
@@ -22,7 +23,11 @@ func MemoryInit(mType memory.ModelType) {
 		if memModel == nil {
 			memModel = memoryTypeSelector(mType)
 			// Implement reload from log file
+		} else {
+			fmt.Println("mempory model exists")
 		}
+	} else {
+		fmt.Println("mempory model exists")
 	}
 }
 

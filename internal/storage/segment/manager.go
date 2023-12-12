@@ -17,7 +17,7 @@ func (s *SegmentManager) Get(k dao.NilString) (dao.Base, bool) {
 	/**
 	 * TODO: Implement check segment index
 	 */
-	// Assuming zero level seg is ordered by timestamp
+	//zero level segments should be ordered by timestamp
 	for _, segment := range *(s.collection.zeroLevelSeg.list()) {
 		if k.GetVal().(string) < segment.smallestKey {
 			continue
@@ -51,8 +51,7 @@ func (s *SegmentManager) ConvertToSegment(m memory.MemoryBase) {
 	 * First we generate a new segment
 	 */
 	pairs := m.GetAll()
-
-	newSeg := InitSegment()
+	newSeg := InitSegment(int64(s.collection.zeroLevelSeg.Size()))
 	newSeg.WriteFile(pairs)
 
 	s.collection.AddSegment(newSeg)

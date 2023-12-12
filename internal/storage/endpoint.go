@@ -49,13 +49,16 @@ func Get(k string) (any, bool) {
 		if err != nil {
 			panic(err) // TODO: better handling
 		}
-		d, status := service.MGet(_k.(dao.NilString))
+		m, status := service.MGet(_k.(dao.NilString))
 
-		if status && d.GetType() != dao.Tombstone {
-			return d.GetVal(), true
+		if status && m.GetType() != dao.Tombstone {
+			return m.GetVal(), true
+
+		} else if status && m.GetType() == dao.Tombstone {
+			return *new(any), false
 		}
 
-		d, status = service.SGet(_k.(dao.NilString))
+		d, status := service.SGet(_k.(dao.NilString))
 
 		if status && d.GetType() != dao.Tombstone {
 			return d.GetVal(), true

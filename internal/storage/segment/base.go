@@ -34,8 +34,11 @@ type Segment struct {
 	keyCount    int
 }
 
-func InitSegment() Segment {
-	return Segment{id: uuid.New().String(), level: 0, smallestKey: "", timestamp: time.Now().UnixMicro()}
+func InitSegment(segCount int64) Segment {
+	// the reason of adding segcount is that
+	// the creation of a segment is too fast that even nano seconds
+	// could not distinguish between segments order
+	return Segment{id: uuid.New().String(), level: 0, smallestKey: "", timestamp: time.Now().UnixNano() + segCount}
 }
 
 func (s *Segment) Get(k dao.NilString) (dao.Base, bool) {

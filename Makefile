@@ -3,12 +3,16 @@
 test: # vanilla test
 	go test ./test -bench=. -benchmem
 
+.PHONY: test-timeout
+test-timeout:
+	go test ./test -bench=. -benchmem -timeout 30s
+
 .PHONY: build
 build:
 	go build cmd/main.go
 
-.PHONY: build_escape
-build_escape:
+.PHONY: build-escape
+build-escape:
 	go build -gcflags "-m -l" -o app cmd/main.go
 
 .PHONY: run

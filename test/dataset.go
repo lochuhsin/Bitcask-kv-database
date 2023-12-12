@@ -7,7 +7,7 @@ import (
 
 var LETTERS = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()+-")
 
-func generateLowDuplicateRandomData(dataCount int) ([]string, []string) {
+func generateLowDuplicateRandom(dataCount int) ([]string, []string) {
 	keyLen := 50
 	valLen := 50
 	rand.New(rand.NewSource(time.Now().UnixNano()))

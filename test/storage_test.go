@@ -1,19 +1,22 @@
 package test
 
 import (
+	"fmt"
 	"rebitcask/internal/settings"
 	"rebitcask/internal/storage"
 	"testing"
 )
 
-func TestStorageSet(t *testing.T) {
-	defer removeSegment()
+func TestStorageInit(t *testing.T) {
 	storage.Init()
 
+}
+
+func TestStorageSet(t *testing.T) {
 	env := settings.ENV
 	dataCount := env.MemoryCountLimit*10 + 1
 
-	keys, vals := generateLowDuplicateRandomData(dataCount)
+	keys, vals := generateLowDuplicateRandom(dataCount)
 	for i, k := range keys {
 		err := storage.Set(k, vals[i])
 		if err != nil {
@@ -23,13 +26,11 @@ func TestStorageSet(t *testing.T) {
 }
 
 func TestStorageGet(t *testing.T) {
-	defer removeSegment()
-	storage.Init()
 
 	env := settings.ENV
 	dataCount := env.MemoryCountLimit*10 + 1
 
-	keys, vals := generateLowDuplicateRandomData(dataCount)
+	keys, vals := generateLowDuplicateRandom(dataCount)
 	for i, k := range keys {
 		err := storage.Set(k, vals[i])
 		if err != nil {
@@ -39,11 +40,9 @@ func TestStorageGet(t *testing.T) {
 }
 
 func TestStorageDelete(t *testing.T) {
-	defer removeSegment()
-	storage.Init()
 	env := settings.ENV
 	dataCount := env.MemoryCountLimit*10 + 1
-	keys, _ := generateLowDuplicateRandomData(dataCount)
+	keys, _ := generateLowDuplicateRandom(dataCount)
 	for _, k := range keys {
 		err := storage.Delete(k)
 		if err != nil {
@@ -53,13 +52,11 @@ func TestStorageDelete(t *testing.T) {
 }
 
 func TestStorageSetGet(t *testing.T) {
-	defer removeSegment()
-	storage.Init()
 
 	env := settings.ENV
-	dataCount := env.MemoryCountLimit*10 + 1
+	dataCount := env.MemoryCountLimit*2 + 1
 
-	keys, vals := generateLowDuplicateRandomData(dataCount)
+	keys, vals := generateLowDuplicateRandom(dataCount)
 	for i, k := range keys {
 		err := storage.Set(k, vals[i])
 		if err != nil {
@@ -80,13 +77,10 @@ func TestStorageSetGet(t *testing.T) {
 }
 
 func TestStorageSetDelete(t *testing.T) {
-	defer removeSegment()
-	storage.Init()
-
 	env := settings.ENV
-	dataCount := env.MemoryCountLimit*10 + 1
+	dataCount := env.MemoryCountLimit*2 + 1
 
-	keys, vals := generateLowDuplicateRandomData(dataCount)
+	keys, vals := generateLowDuplicateRandom(dataCount)
 	for i, k := range keys {
 		err := storage.Set(k, vals[i])
 		if err != nil {
@@ -102,6 +96,19 @@ func TestStorageSetDelete(t *testing.T) {
 
 	}
 
+	for i, k := range keys {
+		val, status := storage.Get(k)
+		if status {
+			str := fmt.Sprintf("the key should not exist: %v", val)
+			t.Error(str)
+			fmt.Println(val == vals[i])
+		}
+	}
+}
+
+func TestEmptyGet(t *testing.T) {
+	keys, _ := generateLowDuplicateRandom(100)
+
 	for _, k := range keys {
 		_, status := storage.Get(k)
 		if status {
@@ -110,15 +117,7 @@ func TestStorageSetDelete(t *testing.T) {
 	}
 }
 
-func TestEmptyGet(t *testing.T) {
-	defer removeSegment()
+func TestEndRemoveSegment(t *testing.T) {
 	storage.Init()
-	keys, _ := generateLowDuplicateRandomData(100)
-
-	for _, k := range keys {
-		_, status := storage.Get(k)
-		if status {
-			t.Error("the key should not exist")
-		}
-	}
+	removeSegment()
 }

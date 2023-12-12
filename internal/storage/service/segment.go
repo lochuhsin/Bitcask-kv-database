@@ -36,7 +36,12 @@ func SegmentInit() {
 	}
 }
 
-func SGet(k dao.NilString) (dao.Base, bool) {
+func SGet(k dao.NilString) (val dao.Base, status bool) {
+	/**
+	 * Get function always return two values
+	 * 1. data
+	 * 2. status which indicates whether the key exists or not
+	 */
 	return segManager.Get(k)
 }
 

@@ -13,7 +13,7 @@ func InitSegmentManager() *SegmentManager {
 	return &SegmentManager{collection: InitSegmentCollection()}
 }
 
-func (s *SegmentManager) Get(k dao.NilString) (dao.Base, bool) {
+func (s *SegmentManager) Get(k dao.NilString) (val dao.Base, status bool) {
 	/**
 	 * TODO: Implement check segment index
 	 */

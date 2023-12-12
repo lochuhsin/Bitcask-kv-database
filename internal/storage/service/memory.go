@@ -51,7 +51,11 @@ func memoryTypeSelector(mType memory.ModelType) memory.MemoryBase {
 	return m
 }
 
-func MGet(k dao.NilString) (dao.Base, bool) {
+func MGet(k dao.NilString) (val dao.Base, status bool) {
+	/**
+	 * The Get function always returns value, and status
+	 * status indicates whether the key exists or not
+	 */
 	return memModel.Get(k)
 }
 

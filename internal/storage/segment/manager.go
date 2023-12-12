@@ -9,8 +9,8 @@ type SegmentManager struct {
 	collection SegmentCollection
 }
 
-func InitSegmentManager() SegmentManager {
-	return SegmentManager{collection: InitSegmentCollection()}
+func InitSegmentManager() *SegmentManager {
+	return &SegmentManager{collection: InitSegmentCollection()}
 }
 
 func (s *SegmentManager) Get(k dao.NilString) (dao.Base, bool) {

@@ -4,17 +4,26 @@ import (
 	"rebitcask/internal/settings"
 	"rebitcask/internal/storage/dao"
 	"rebitcask/internal/storage/memory"
+	"sync"
 )
 
-// TODO: Convert this to singleton
 var memModel memory.MemoryBase
+
+// Guards the memory model initalization
+var mlock = &sync.Mutex{}
 
 func MemoryInit(mType memory.ModelType) {
 	/**
 	 * Using env variable to initialize memory base model type
-	 * Implement reload from log
 	 */
-	memModel = memoryTypeSelector(mType)
+	if memModel == nil {
+		mlock.Lock()
+		defer mlock.Unlock()
+		if memModel == nil {
+			memModel = memoryTypeSelector(mType)
+			// Implement reload from log file
+		}
+	}
 }
 
 func memoryTypeSelector(mType memory.ModelType) memory.MemoryBase {

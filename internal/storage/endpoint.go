@@ -13,8 +13,7 @@ import (
 
 // move these to env
 const (
-	cacheType  cache.CacheType  = cache.CBF
-	memoryType memory.ModelType = memory.BST
+	cacheType cache.CacheType = cache.CBF
 )
 
 func Init() {

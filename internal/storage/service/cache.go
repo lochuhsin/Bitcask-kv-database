@@ -1,17 +1,27 @@
 package service
 
-import "rebitcask/internal/storage/cache"
+import (
+	"rebitcask/internal/storage/cache"
+	"sync"
+)
 
-// TODO: Convert this to singleton
 var mCache cache.Base
+
+// Guards the memory model initalization
+var clock = &sync.Mutex{}
 
 func CacheInit(cType cache.CacheType) {
 	/**
-	 * Initializes the cache overhere
+	 * Initializes caches overhere
 	 */
-
-	// TODO: implemented reload from log
-	mCache = cacheSelector(cType)
+	if mCache == nil {
+		clock.Lock()
+		defer clock.Unlock()
+		if mCache == nil {
+			mCache = cacheSelector(cType)
+			// TODO: implemented reload from log data
+		}
+	}
 }
 
 func cacheSelector(ctype cache.CacheType) cache.Base {

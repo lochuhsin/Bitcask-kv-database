@@ -52,9 +52,6 @@ func (bst *BinarySearchTree) inorder(root *bstnode, kvPair *[]dao.Pair) {
 }
 
 func (bst *BinarySearchTree) Set(p dao.Pair) {
-	if bst.frozen {
-		return
-	}
 	bst.setMu.Lock()
 	k, v := p.Key, p.Val
 	bst.root = bst.set(bst.root, k, v)
@@ -140,6 +137,7 @@ func (bst *BinarySearchTree) get(root *bstnode, k dao.NilString) (val dao.Base) 
 func (bst *BinarySearchTree) Reset() {
 	bst.root = nil
 	bst.size = 0
+	bst.frozen = false
 }
 
 func (bst *BinarySearchTree) Setfrozen(frozen bool) {

@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-var mCache cache.Base
+var mCache cache.ICache
 
 // Guards the memory model initalization
 var clock = &sync.Mutex{}
@@ -29,8 +29,8 @@ func CacheInit(cType cache.CacheType) {
 	}
 }
 
-func cacheSelector(ctype cache.CacheType) cache.Base {
-	var cBase cache.Base = nil
+func cacheSelector(ctype cache.CacheType) cache.ICache {
+	var cBase cache.ICache = nil
 	switch ctype {
 	case cache.CBF:
 		cBase = cache.InitCBF()

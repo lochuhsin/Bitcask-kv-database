@@ -2,14 +2,25 @@ package test
 
 import (
 	"fmt"
+	"os"
 	"rebitcask/internal/settings"
 	"rebitcask/internal/storage"
 	"testing"
 )
 
-func TestStorageInit(t *testing.T) {
+func setup() {
 	storage.Init()
+}
 
+func teardown() {
+	removeSegment()
+}
+
+func TestMain(m *testing.M) {
+	setup()
+	code := m.Run()
+	teardown()
+	os.Exit(code)
 }
 
 func TestStorageSet(t *testing.T) {
@@ -40,6 +51,7 @@ func TestStorageGet(t *testing.T) {
 }
 
 func TestStorageDelete(t *testing.T) {
+
 	env := settings.ENV
 	dataCount := env.MemoryCountLimit*10 + 1
 	keys, _ := generateLowDuplicateRandom(dataCount)
@@ -115,9 +127,4 @@ func TestEmptyGet(t *testing.T) {
 			t.Error("the key should not exist")
 		}
 	}
-}
-
-func TestEndRemoveSegment(t *testing.T) {
-	storage.Init()
-	removeSegment()
 }

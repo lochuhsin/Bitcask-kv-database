@@ -2,6 +2,7 @@ package cache
 
 import (
 	"hash/adler32"
+	"sync"
 )
 
 /**
@@ -11,10 +12,11 @@ import (
 
 type CountingBloomFilter struct {
 	hashArr [1000000]int
+	mu      *sync.Mutex
 }
 
 func InitCBF() *CountingBloomFilter {
-	return &CountingBloomFilter{hashArr: [1000000]int{}}
+	return &CountingBloomFilter{hashArr: [1000000]int{}, mu: &sync.Mutex{}}
 }
 
 func (cbf *CountingBloomFilter) Get(s string) bool {
@@ -33,9 +35,11 @@ func (cbf *CountingBloomFilter) Set(s string) {
 	hashNum2 := cbf.hash2(s)
 	hashNum3 := cbf.hash3(s)
 
+	cbf.mu.Lock()
 	cbf.hashArr[hashNum1]++
 	cbf.hashArr[hashNum2]++
 	cbf.hashArr[hashNum3]++
+	cbf.mu.Unlock()
 }
 
 func (cbf *CountingBloomFilter) Delete(s string) bool {

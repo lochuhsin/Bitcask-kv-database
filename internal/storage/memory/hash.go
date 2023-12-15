@@ -3,6 +3,7 @@ package memory
 import (
 	"rebitcask/internal/storage/dao"
 	"sort"
+	"sync"
 )
 
 type value struct {
@@ -12,15 +13,16 @@ type value struct {
 
 type Hash struct {
 	keyvalue map[dao.NilString]value
+	mu       *sync.Mutex
+	frozen   bool
 }
 
 func InitHash() *Hash {
-	return &Hash{keyvalue: map[dao.NilString]value{}}
+	return &Hash{keyvalue: map[dao.NilString]value{}, mu: &sync.Mutex{}, frozen: false}
 }
 
 func (m *Hash) Get(k dao.NilString) (b dao.Base, status bool) {
 	if val, ok := m.keyvalue[k]; ok {
-
 		return val.val, true
 	}
 	return nil, false
@@ -69,4 +71,12 @@ func (m *Hash) GetAllValueUnder(k dao.NilString) []dao.Pair {
 
 func (m *Hash) Reset() {
 	m.keyvalue = map[dao.NilString]value{}
+}
+
+func (m *Hash) Setfrozen(frozen bool) {
+	m.frozen = frozen
+}
+
+func (m *Hash) Isfrozen() bool {
+	return m.frozen
 }

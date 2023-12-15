@@ -1,6 +1,6 @@
 package cache
 
-type Base interface {
+type ICache interface {
 	Get(string) bool
 	Set(string)
 	Delete(string) bool

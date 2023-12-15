@@ -1,6 +1,9 @@
 package memory
 
-import "rebitcask/internal/storage/dao"
+import (
+	"rebitcask/internal/storage/dao"
+	"sync"
+)
 
 type bstnode struct {
 	key   dao.NilString
@@ -9,12 +12,14 @@ type bstnode struct {
 	right *bstnode
 }
 type BinarySearchTree struct {
-	root *bstnode
-	size int
+	root   *bstnode
+	size   int
+	setMu  *sync.Mutex // lock for holding the set operation
+	frozen bool
 }
 
 func InitBinarySearchTree() *BinarySearchTree {
-	return &BinarySearchTree{nil, 0}
+	return &BinarySearchTree{nil, 0, &sync.Mutex{}, false}
 }
 
 func (bst *BinarySearchTree) GetSize() int {
@@ -47,8 +52,13 @@ func (bst *BinarySearchTree) inorder(root *bstnode, kvPair *[]dao.Pair) {
 }
 
 func (bst *BinarySearchTree) Set(p dao.Pair) {
+	if bst.frozen {
+		return
+	}
+	bst.setMu.Lock()
 	k, v := p.Key, p.Val
 	bst.root = bst.set(bst.root, k, v)
+	bst.setMu.Unlock()
 }
 
 func (bst *BinarySearchTree) Get(k dao.NilString) (val dao.Base, status bool) {
@@ -130,4 +140,12 @@ func (bst *BinarySearchTree) get(root *bstnode, k dao.NilString) (val dao.Base) 
 func (bst *BinarySearchTree) Reset() {
 	bst.root = nil
 	bst.size = 0
+}
+
+func (bst *BinarySearchTree) Setfrozen(frozen bool) {
+	bst.frozen = true
+}
+
+func (bst *BinarySearchTree) Isfrozen() bool {
+	return bst.frozen
 }

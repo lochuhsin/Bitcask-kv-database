@@ -1,62 +1,16 @@
 package service
 
 import (
-	"fmt"
-	"rebitcask/internal/settings"
 	"rebitcask/internal/storage/dao"
 	"rebitcask/internal/storage/memory"
-	"sync"
 )
-
-var memModel memory.MemoryBase
-
-// Guards the memory model initalization
-var mlock = &sync.Mutex{}
-
-func MemoryInit(mType memory.ModelType) {
-	/**
-	 * Using env variable to initialize memory base model type
-	 */
-	if memModel == nil {
-		mlock.Lock()
-		defer mlock.Unlock()
-		if memModel == nil {
-			memModel = memoryTypeSelector(mType)
-			// Implement reload from log file
-		} else {
-			fmt.Println("mempory model exists")
-		}
-	} else {
-		fmt.Println("mempory model exists")
-	}
-}
-
-func memoryTypeSelector(mType memory.ModelType) memory.MemoryBase {
-	var m memory.MemoryBase = nil
-	switch mType {
-	case memory.HASH:
-		m = memory.InitHash()
-	case memory.BST:
-		m = memory.InitBinarySearchTree()
-
-	// TODO: implement these
-	// case memory.AVLT:
-	// 	m = memory.InitAvlTree()
-	// case memory.RBT:
-	// 	m = memory.InitRedBlackTree()
-
-	default:
-		panic("memory model not implemented errir")
-	}
-	return m
-}
 
 func MGet(k dao.NilString) (val dao.Base, status bool) {
 	/**
 	 * The Get function always returns value, and status
 	 * status indicates whether the key exists or not
 	 */
-	return memModel.Get(k)
+	return memory.MemModel.Get(k)
 }
 
 func MSet(k dao.NilString, v dao.Base) {
@@ -72,13 +26,9 @@ func MSet(k dao.NilString, v dao.Base) {
 		panic(err)
 	}
 	// write to memory
-	memModel.Set(pair)
+	memory.MemModel.Set(pair)
 
-	// TODO: write to memory log
-	if memModel.GetSize() > settings.ENV.MemoryCountLimit {
-		memoryToSegment(memModel)
-	}
-
+	memoryToSegment(memory.MemModel)
 }
 
 func MDelete(k dao.NilString) {
@@ -89,13 +39,11 @@ func MDelete(k dao.NilString) {
 		panic(err)
 	}
 
-	memModel.Set(pair)
-
-	if memModel.GetSize() > settings.ENV.MemoryCountLimit {
-		memoryToSegment(memModel)
-	}
+	memory.MemModel.Set(pair)
+	memoryToSegment(memory.MemModel)
 }
 
 func mLog(pair dao.Pair) error {
+	// Implement this,
 	return nil
 }

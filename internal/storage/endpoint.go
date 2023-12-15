@@ -23,7 +23,7 @@ func Init() {
 	settings.InitENV()
 	env := settings.ENV
 	service.CacheInit(cacheType)
-	service.MemoryInit(memory.ModelType(settings.ENV.MemoryModel))
+	memory.MemoryInit(memory.ModelType(settings.ENV.MemoryModel))
 	service.SegmentInit()
 	segDir := fmt.Sprintf("%s%s", env.LogPath, env.SegmentFolder)
 	os.MkdirAll(segDir, os.ModePerm)

@@ -49,7 +49,7 @@ time.
 
 4. Could be used as standalone server.
 
-5. Could be used as library.
+5. Optimize for heavy write
 
 ---
 ### Future Panning

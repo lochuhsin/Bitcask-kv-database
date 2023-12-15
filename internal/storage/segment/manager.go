@@ -1,6 +1,7 @@
 package segment
 
 import (
+	"rebitcask/internal/settings"
 	"rebitcask/internal/storage/dao"
 	"rebitcask/internal/storage/memory"
 )
@@ -46,7 +47,7 @@ func (s *SegmentManager) Get(k dao.NilString) (val dao.Base, status bool) {
 	return nil, false
 }
 
-func (s *SegmentManager) ConvertToSegment(m memory.MemoryBase) {
+func (s *SegmentManager) ConvertToSegment(m memory.IMemory) {
 	/**
 	 * First we generate a new segment
 	 */
@@ -60,10 +61,8 @@ func (s *SegmentManager) ConvertToSegment(m memory.MemoryBase) {
 	if s.collection.CompactionCondition() {
 		s.collection.Compaction()
 	}
-
-	defer m.Reset()
+	defer memory.MemoryReset(memory.ModelType(settings.ENV.MemoryModel))
 	/**
-	 * Then we generate the Segment Index for further search
+	 * TODO: Then we generate the Segment Index for further search
 	 */
-	// TODO:
 }

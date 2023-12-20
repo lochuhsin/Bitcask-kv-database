@@ -66,36 +66,8 @@ func (s *Segment) Get(k dao.NilString) (dao.Base, bool) {
 	return nil, false
 }
 
-func (s *Segment) WriteFile(pairs []dao.Pair) {
-	/**
-	 * Note, assuming that key in pairs are sorted in ascending order
-	 */
-	filePath := getSegmentFilePath(s.id)
-	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
-	if err != nil {
-		panic(err)
-	}
-	defer file.Close()
-
-	writer := bufio.NewWriter(file)
-
-	curroffset := 0
-	s.smallestKey = pairs[0].Key.Val // the first key is the smallest value
-	for _, p := range pairs {
-		data, err := dao.Serialize(p)
-		if err != nil {
-			panic("Error while serializing data")
-		}
-		offset, err := writer.WriteString(data + "\n") // Figure out a better way to split between keys
-		if err != nil {
-			panic("something went wrong while writing to segment")
-		}
-		curroffset += offset
-	}
-	writer.Flush()
-
-	s.smallestKey = pairs[0].Key.GetVal().(string)
-	s.keyCount = len(pairs)
+func (s *Segment) GetbyOffset(offset int) (dao.Base, bool) {
+	panic("not implemented yet")
 }
 
 type SegmentStack struct {
@@ -119,7 +91,9 @@ func (s *SegmentStack) Pop() (Segment, bool) {
 	return *new(Segment), false
 }
 
-func (s *SegmentStack) Size() int { return len(s.stack) }
+func (s *SegmentStack) Size() int {
+	return len(s.stack)
+}
 
 func (s *SegmentStack) list() *[]Segment {
 
@@ -138,18 +112,18 @@ type SegmentCollection struct {
 	 * of first in last out, which meets the requirements of
 	 * order by timestamp
 	 */
-	zeroLevelSeg SegmentStack
+	noneLevelSeg SegmentStack
 	level        map[int][]Segment
 	maxLevel     int // whenever a compaction starts, adjust this maxLevel
 }
 
 func InitSegmentCollection() SegmentCollection {
 	stack := InitSegmentStack()
-	return SegmentCollection{level: map[int][]Segment{}, zeroLevelSeg: stack, maxLevel: 0}
+	return SegmentCollection{level: map[int][]Segment{}, noneLevelSeg: stack, maxLevel: 0}
 }
 
-func (s *SegmentCollection) AddSegment(seg Segment) {
-	s.zeroLevelSeg.Add(seg)
+func (s *SegmentCollection) Add(seg Segment) {
+	s.noneLevelSeg.Add(seg)
 }
 
 func (s *SegmentCollection) CompactionCondition() bool {
@@ -165,7 +139,38 @@ func (s *SegmentCollection) Compaction() {
 }
 
 type SegmentIndex struct {
+	id          string
+	smallestKey string
+	offsetMap   map[dao.NilString]int
+}
+
+func InitSegmentIndex(sid string) SegmentIndex {
+	return SegmentIndex{id: sid, smallestKey: "", offsetMap: map[dao.NilString]int{}}
+}
+
+func (s *SegmentIndex) Set(k dao.NilString, offset int) {
+	s.offsetMap[k] = offset
+}
+
+func (s *SegmentIndex) Get(k dao.NilString) (int, bool) {
+	offset, ok := s.offsetMap[k]
+	return offset, ok
 }
 
 type SegmentIndexCollection struct {
+	indexMap map[string]*SegmentIndex
+}
+
+func InitSegmentIndexCollection() SegmentIndexCollection {
+	// TODO: possibly, we could do without using pointer ?
+	return SegmentIndexCollection{map[string]*SegmentIndex{}}
+}
+
+func (s *SegmentIndexCollection) Add(sid string, segIndex *SegmentIndex) {
+	s.indexMap[sid] = segIndex
+}
+
+func (s *SegmentIndexCollection) Get(sid string) (*SegmentIndex, bool) {
+	segIndex, ok := s.indexMap[sid]
+	return segIndex, ok
 }

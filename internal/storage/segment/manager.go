@@ -29,27 +29,28 @@ func (s *SegmentManager) Get(k dao.NilString) (val dao.Base, status bool) {
 		sid := segment.id
 		segIndex, status := s.indexCollection.Get(sid)
 		if !status {
-			fmt.Println(fmt.Sprintf("Notice!!!! segment index of %v not found", sid))
+			fmt.Printf("Notice!!!! segment index of %v not found \n", sid)
 		}
 
-		offset, ok := segIndex.Get(k)
+		offsetLen, ok := segIndex.Get(k)
 
 		if ok {
-			fmt.Println(offset)
-			// open this when get by offset is implemented
-			// val, status := segment.GetbyOffset(offset)
-			// return val, status
+			val, status := segment.GetbyOffset(k, offsetLen.Offset, offsetLen.Len)
+			return val, status
 		} else {
 			// since segIndex is primary index, we assume that
 			// this index will always be consistent with segment
 			continue
 		}
-
-		val, status := segment.Get(k)
-		if !status {
-			continue
-		}
-		return val, true
+		/**
+		 * Figure out do we need to keep the function that reads directly
+		 * to segment, or primary index is enough
+		 */
+		// val, status := segment.Get(k)
+		// if !status {
+		// 	continue
+		// }
+		// return val, true
 	}
 
 	// todo: search by each segment level
@@ -60,27 +61,28 @@ func (s *SegmentManager) Get(k dao.NilString) (val dao.Base, status bool) {
 				sid := segment.id
 				segIndex, status := s.indexCollection.Get(sid)
 				if !status {
-					fmt.Println(fmt.Sprintf("Notice!!!! segment index of %v not found", sid))
+					fmt.Printf("Notice!!!! segment index of %v not found \n", sid)
 				}
 
-				offset, ok := segIndex.Get(k)
+				offsetLen, ok := segIndex.Get(k)
 
 				if ok {
-					fmt.Println(offset)
-					// open this when get by offset is implemented
-					// val, status := segment.GetbyOffset(offset)
-					// return val, status
+					val, status := segment.GetbyOffset(k, offsetLen.Offset, offsetLen.Len)
+					return val, status
 				} else {
 					// since segIndex is primary index, we assume that
 					// this index will always be consistent with segment
 					continue
 				}
-
-				val, status := segment.Get(k)
-				if !status {
-					continue
-				}
-				return val, true
+				/**
+				 * Figure out do we need to keep the function that reads directly
+				 * to segment, or primary index is enough
+				 */
+				// val, status := segment.Get(k)
+				// if !status {
+				// 	continue
+				// }
+				// return val, true
 			}
 		}
 

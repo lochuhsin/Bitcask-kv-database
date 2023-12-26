@@ -32,11 +32,12 @@ func writeSegmentToFile(s *Segment, sIndex *SegmentIndex, pairs []dao.Pair) {
 		if err != nil {
 			panic("Error while serializing data")
 		}
-		offset, err := writer.WriteString(data + "\n") // Figure out a better way to split between keys
+		offset, err := writer.WriteString(data + settings.DATASAPARATER)
 		if err != nil {
 			panic("something went wrong while writing to segment")
 		}
-		sIndex.Set(p.Key, curroffset)
+		// offset minus data saparater = the length of the data
+		sIndex.Set(p.Key, curroffset, offset-len([]byte(settings.DATASAPARATER)))
 		curroffset += offset
 	}
 	writer.Flush()

@@ -66,8 +66,37 @@ func (s *Segment) Get(k dao.NilString) (dao.Base, bool) {
 	return nil, false
 }
 
-func (s *Segment) GetbyOffset(offset int) (dao.Base, bool) {
-	panic("not implemented yet")
+func (s *Segment) GetbyOffset(key dao.NilString, offset int, datalen int) (dao.Base, bool) {
+	filePath := getSegmentFilePath(s.id)
+	fd, err := os.Open(filePath)
+	if err != nil {
+		panic("Something went wrong while opening segment file")
+	}
+	defer fd.Close()
+
+	byteBuffer := make([]byte, datalen)
+
+	fd.Seek(int64(offset), 0)
+	n, err := fd.Read(byteBuffer)
+	if err != nil {
+		panic("Something went wrong while reading segment file")
+	}
+
+	if n != datalen {
+		panic("something went wrong wuth the segment data, length doesn't match")
+	}
+	pair, err := dao.DeSerialize(string(byteBuffer))
+
+	if err != nil {
+		panic("is the data valid?")
+	}
+
+	// validate key match
+	if !pair.Key.IsEqual(key) {
+		panic("Key does not match the value")
+	}
+
+	return pair.Val, true
 }
 
 type SegmentStack struct {
@@ -138,21 +167,30 @@ func (s *SegmentCollection) Compaction() {
 	panic("not implemented yet")
 }
 
+type OffsetLen struct {
+	Offset int
+	Len    int
+}
+
+func InitOffsetLen(offset, Len int) OffsetLen {
+	return OffsetLen{offset, Len}
+}
+
 type SegmentIndex struct {
 	id          string
 	smallestKey string
-	offsetMap   map[dao.NilString]int
+	offsetMap   map[dao.NilString]OffsetLen
 }
 
 func InitSegmentIndex(sid string) SegmentIndex {
-	return SegmentIndex{id: sid, smallestKey: "", offsetMap: map[dao.NilString]int{}}
+	return SegmentIndex{id: sid, smallestKey: "", offsetMap: map[dao.NilString]OffsetLen{}}
 }
 
-func (s *SegmentIndex) Set(k dao.NilString, offset int) {
-	s.offsetMap[k] = offset
+func (s *SegmentIndex) Set(k dao.NilString, offset, len int) {
+	s.offsetMap[k] = InitOffsetLen(offset, len)
 }
 
-func (s *SegmentIndex) Get(k dao.NilString) (int, bool) {
+func (s *SegmentIndex) Get(k dao.NilString) (OffsetLen, bool) {
 	offset, ok := s.offsetMap[k]
 	return offset, ok
 }

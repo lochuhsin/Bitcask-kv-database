@@ -19,3 +19,5 @@ type envVar struct {
 var ENV envVar
 
 const ENVPATH = "./rebitcask.env"
+
+const DATASAPARATER = ".."

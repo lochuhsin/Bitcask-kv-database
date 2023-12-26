@@ -17,11 +17,6 @@ func InitENV() {
 		MemoryModel:       "hash",
 		MemoryCountLimit:  100000,
 		SegFileCountLimit: 100,
-		MemoryLogFolder:   "mlog/",
-		MemoryLogFile:     "m.log",
-		SegmentLogFolder:  "slog/",
-		SegmentLogFile:    "s.log",
-		SegmentFileExt:    ".sst",
 	}
 	err := godotenv.Load(ENVPATH)
 

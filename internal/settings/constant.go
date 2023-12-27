@@ -1,7 +1,7 @@
 package settings
 
 type envVar struct {
-	LogPath           string
+	DataPath          string
 	SegmentFolder     string
 	Tombstone         string
 	NilData           string
@@ -26,3 +26,5 @@ const SEGMENT_LOG_FOLDER = "slog/"
 const SEGMENT_LOG_FILE = "s.log"
 
 const SEGMENT_LOG_FILE_EXT = ".sst"
+
+const LOG_FOLDER_PATH = "./log/"

@@ -9,7 +9,7 @@ import (
 )
 
 func getSegmentFilePath(segId string) string {
-	return fmt.Sprintf("%v%v%v%v", settings.ENV.LogPath, settings.ENV.SegmentFolder, segId, settings.SEGMENT_LOG_FILE_EXT)
+	return fmt.Sprintf("%v%v%v%v", settings.ENV.DataPath, settings.ENV.SegmentFolder, segId, settings.SEGMENT_LOG_FILE_EXT)
 }
 
 func writeSegmentToFile(s *Segment, sIndex *SegmentIndex, pairs []dao.Pair) {

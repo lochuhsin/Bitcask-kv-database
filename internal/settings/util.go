@@ -10,7 +10,7 @@ import (
 
 func InitENV() {
 	ENV = envVar{
-		LogPath:           "./log/",
+		DataPath:          "./rbData/",
 		SegmentFolder:     "seg/",
 		Tombstone:         "!@#$%^&*()_+",
 		NilData:           ")(*&^)!@!@#$%^&*()",
@@ -27,8 +27,8 @@ func InitENV() {
 	} else {
 
 		// System settings
-		if logPath := os.Getenv("LOG_FOLDER_PATH"); logPath != "" {
-			ENV.LogPath = logPath
+		if DataPath := os.Getenv("DATA_FOLDER_PATH"); DataPath != "" {
+			ENV.DataPath = DataPath
 		}
 		if tombstone := os.Getenv("TOMBSTONE"); tombstone != "" {
 			ENV.Tombstone = tombstone

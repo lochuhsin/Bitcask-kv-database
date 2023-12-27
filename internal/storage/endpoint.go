@@ -25,7 +25,7 @@ func Init() {
 	cache.CacheInit(cacheType)
 	memory.MemoryInit(memory.ModelType(settings.ENV.MemoryModel))
 	service.SegmentInit()
-	segDir := fmt.Sprintf("%s%s", env.LogPath, env.SegmentFolder)
+	segDir := fmt.Sprintf("%s%s", env.DataPath, env.SegmentFolder)
 	os.MkdirAll(segDir, os.ModePerm)
 }
 

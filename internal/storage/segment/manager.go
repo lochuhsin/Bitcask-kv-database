@@ -100,6 +100,7 @@ func (s *SegmentManager) ConvertToSegment(m memory.IMemory) {
 
 	// Write to segment file and generate segment index in the same time
 	writeSegmentToFile(&newSeg, &newSegIndex, pairs)
+	writeSegmentIndexToFile(&newSegIndex)
 
 	s.collection.Add(newSeg)
 	s.indexCollection.Add(newSeg.id, &newSegIndex)

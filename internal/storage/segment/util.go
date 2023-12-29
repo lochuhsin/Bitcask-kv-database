@@ -9,7 +9,11 @@ import (
 )
 
 func getSegmentFilePath(segId string) string {
-	return fmt.Sprintf("%v%v%v%v", settings.ENV.DataPath, settings.ENV.SegmentFolder, segId, settings.SEGMENT_LOG_FILE_EXT)
+	return fmt.Sprintf("%v%v%v%v", settings.ENV.DataPath, settings.SEGMENT_FILE_FOLDER, segId, settings.SEGMENT_FILE_EXT)
+}
+
+func getSegmentIndexFilePath(segId string) string {
+	return fmt.Sprintf("%v%v%v%v", settings.ENV.DataPath, settings.INDEX_FILE_FOLDER, segId, settings.SEGMENT_KEY_OFFSET_FILE_EXT)
 }
 
 func writeSegmentToFile(s *Segment, sIndex *SegmentIndex, pairs []dao.Pair) {
@@ -17,7 +21,7 @@ func writeSegmentToFile(s *Segment, sIndex *SegmentIndex, pairs []dao.Pair) {
 	 * Note, assuming that key in pairs are sorted in ascending order
 	 */
 	filePath := getSegmentFilePath(s.id)
-	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
+	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777) //TODO: optimize the mode
 	if err != nil {
 		panic(err)
 	}
@@ -27,7 +31,7 @@ func writeSegmentToFile(s *Segment, sIndex *SegmentIndex, pairs []dao.Pair) {
 
 	curroffset := 0
 	s.smallestKey = pairs[0].Key.Val // the first key is the smallest value
-	for _, p := range pairs {
+	for _, p := range pairs {        // TODO: convert this pair to generator pattern, hide inside segment, we don't need to know if the data needs to be serialized
 		data, err := dao.Serialize(p)
 		if err != nil {
 			panic("Error while serializing data")
@@ -44,4 +48,32 @@ func writeSegmentToFile(s *Segment, sIndex *SegmentIndex, pairs []dao.Pair) {
 
 	s.smallestKey = pairs[0].Key.GetVal().(string)
 	s.keyCount = len(pairs)
+}
+
+func writeSegmentIndexToFile(sIndex *SegmentIndex) {
+	filePath := getSegmentIndexFilePath(sIndex.id)
+	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777) //TODO: optimize the mode
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	writer := bufio.NewWriter(file)
+
+	offsetMap := sIndex.offsetMap
+
+	for key, val := range offsetMap {
+		data := segmentIndexSerialize(key.Format(), val.Format())
+		_, err := writer.WriteString(data + settings.DATASAPARATER)
+		if err != nil {
+			panic("something went wrong while writing to segment")
+		}
+	}
+	writer.Flush()
+}
+
+// TODO: refactor this
+func segmentIndexSerialize(key string, val string) string {
+	// format -> KeyDataType::KeyLen::Key::offset::length
+	return fmt.Sprintf("%v::%v", key, val)
 }

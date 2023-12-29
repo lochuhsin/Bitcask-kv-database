@@ -11,11 +11,10 @@ import (
 func InitENV() {
 	ENV = envVar{
 		DataPath:          "./rbData/",
-		SegmentFolder:     "seg/",
 		Tombstone:         "!@#$%^&*()_+",
 		NilData:           ")(*&^)!@!@#$%^&*()",
 		MemoryModel:       "hash",
-		MemoryCountLimit:  100000,
+		MemoryCountLimit:  1000000,
 		SegFileCountLimit: 100,
 	}
 	err := godotenv.Load(ENVPATH)

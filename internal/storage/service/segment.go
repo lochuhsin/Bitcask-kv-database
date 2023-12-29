@@ -24,6 +24,7 @@ func SegmentInit() {
 			/**
 			 *  TODO: implement reload from segment log files
 			 * 1. Segment Collection
+			 * 2. Segment Index Collection from log files
 			 * */
 		} else {
 			fmt.Println("seg manager exists")
@@ -31,7 +32,6 @@ func SegmentInit() {
 	} else {
 		fmt.Println("seg manager exists")
 	}
-	// 3. Implement transaction log files
 }
 
 func SGet(k dao.NilString) (val dao.Base, status bool) {

@@ -2,7 +2,6 @@ package settings
 
 type envVar struct {
 	DataPath          string
-	SegmentFolder     string
 	Tombstone         string
 	NilData           string
 	MemoryCountLimit  int
@@ -17,6 +16,25 @@ const ENVPATH = "./rebitcask.env"
 
 const DATASAPARATER = ".."
 
+const SEGMENT_FILE_EXT = ".sst"
+
+const SEGMENT_FILE_FOLDER = "seg/"
+
+/**
+ * Index backup files
+ */
+
+// format segmentId.hint
+const INDEX_FILE_FOLDER = "hint/"
+
+const SEGMENT_KEY_OFFSET_FILE_EXT = ".koshint"
+
+/**
+ * Log related global variables
+ */
+
+const LOG_FOLDER_PATH = "./log/"
+
 const MEMORY_LOG_FOLDER = "mlog/"
 
 const MEMORY_LOG_FILE = "m.log"
@@ -24,7 +42,3 @@ const MEMORY_LOG_FILE = "m.log"
 const SEGMENT_LOG_FOLDER = "slog/"
 
 const SEGMENT_LOG_FILE = "s.log"
-
-const SEGMENT_LOG_FILE_EXT = ".sst"
-
-const LOG_FOLDER_PATH = "./log/"

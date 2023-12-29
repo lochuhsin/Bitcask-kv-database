@@ -2,32 +2,9 @@ package storage
 
 import (
 	"errors"
-	"fmt"
-	"os"
-	"rebitcask/internal/settings"
-	"rebitcask/internal/storage/cache"
 	"rebitcask/internal/storage/dao"
-	"rebitcask/internal/storage/memory"
 	"rebitcask/internal/storage/service"
 )
-
-// move these to env
-const (
-	cacheType cache.CacheType = cache.CBF
-)
-
-func Init() {
-	/**
-	 * Should call this, whenever the server is up
-	 */
-	settings.InitENV()
-	env := settings.ENV
-	cache.CacheInit(cacheType)
-	memory.MemoryInit(memory.ModelType(settings.ENV.MemoryModel))
-	service.SegmentInit()
-	segDir := fmt.Sprintf("%s%s", env.DataPath, env.SegmentFolder)
-	os.MkdirAll(segDir, os.ModePerm)
-}
 
 func Get(k string) (any, bool) {
 	/**

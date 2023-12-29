@@ -2,6 +2,7 @@ package segment
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"rebitcask/internal/storage/dao"
 	"time"
@@ -176,6 +177,10 @@ func InitOffsetLen(offset, Len int) OffsetLen {
 	return OffsetLen{offset, Len}
 }
 
+func (o OffsetLen) Format() string {
+	return fmt.Sprintf("%v::%v", o.Offset, o.Len)
+}
+
 type SegmentIndex struct {
 	id          string
 	smallestKey string
@@ -200,6 +205,9 @@ type SegmentIndexCollection struct {
 }
 
 func InitSegmentIndexCollection() SegmentIndexCollection {
+	//TODO:  1. try to initialize from .koshint files
+	// if none of the exists, create an empty one
+
 	// TODO: possibly, we could do without using pointer ?
 	return SegmentIndexCollection{map[string]*SegmentIndex{}}
 }

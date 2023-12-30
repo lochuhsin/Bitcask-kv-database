@@ -109,56 +109,14 @@ func (s *Segment) Clone() Segment {
 	}
 }
 
-type SegmentStack struct {
-	stack []Segment
-}
-
-func InitSegmentStack() SegmentStack {
-	return SegmentStack{stack: []Segment{}}
-}
-
-func (s *SegmentStack) Add(seg Segment) {
-	s.stack = append(s.stack, seg)
-}
-
-func (s *SegmentStack) Pop() (Segment, bool) {
-	for len(s.stack) > 0 {
-		seg := s.stack[len(s.stack)-1]
-		s.stack = s.stack[:len(s.stack)-1]
-		return seg, true
-	}
-	return *new(Segment), false
-}
-
-func (s *SegmentStack) Size() int {
-	return len(s.stack)
-}
-
-func (s *SegmentStack) list() *[]Segment {
-
-	newSeg := []Segment{}
-
-	for i := len(s.stack) - 1; i >= 0; i-- {
-		newSeg = append(newSeg, s.stack[i])
-	}
-	return &newSeg
-}
-
-// order_by timestamp
 type SegmentCollection struct {
-	/**
-	 * We are using stack to get the native characteristics
-	 * of first in last out, which meets the requirements of
-	 * order by timestamp
-	 */
-	noneLevelSeg SegmentStack
-	levelMap     map[int][]Segment
-	maxLevel     int // whenever a compaction starts, adjust this maxLevel
+	levelMap map[int][]Segment
+	maxLevel int // whenever a compaction starts, adjust this maxLevel
+	segCount int
 }
 
 func InitSegmentCollection() SegmentCollection {
-	stack := InitSegmentStack()
-	return SegmentCollection{levelMap: map[int][]Segment{}, noneLevelSeg: stack, maxLevel: 0}
+	return SegmentCollection{levelMap: map[int][]Segment{}, maxLevel: 0, segCount: 0}
 }
 
 func (s *SegmentCollection) Add(seg Segment) {
@@ -166,6 +124,7 @@ func (s *SegmentCollection) Add(seg Segment) {
 		s.levelMap[seg.level] = []Segment{}
 	}
 	s.levelMap[seg.level] = append(s.levelMap[seg.level], seg)
+	s.segCount++
 }
 
 func (s *SegmentCollection) CompactionCondition() bool {

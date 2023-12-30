@@ -28,7 +28,7 @@ func (sc *SegmentCollectionIterator) hasNext(segCollection *SegmentCollection) b
 // This is a huge performance drop, optimize this ... n * nlogln
 func (sc *SegmentCollectionIterator) getNext(segCollection *SegmentCollection) (Segment, error) {
 	var segments []Segment
-	if sc.level == 0 {
+	if sc.level == 0 { // if level is zero, we should return by timestamp, since there might be duplcate keys
 		segments = segCollection.levelMap[0]
 		sort.Slice(segments, func(i, j int) bool {
 			return segments[i].timestamp > segments[j].timestamp

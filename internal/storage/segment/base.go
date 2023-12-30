@@ -2,7 +2,6 @@ package segment
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"rebitcask/internal/storage/dao"
 	"time"
@@ -139,40 +138,8 @@ func (s *SegmentCollection) Compaction() {
 	panic("not implemented yet")
 }
 
-type OffsetLen struct {
-	Offset int
-	Len    int
-}
-
-func InitOffsetLen(offset, Len int) OffsetLen {
-	return OffsetLen{offset, Len}
-}
-
-func (o OffsetLen) Format() string {
-	return fmt.Sprintf("%v::%v", o.Offset, o.Len)
-}
-
-type SegmentIndex struct {
-	id          string
-	smallestKey string
-	offsetMap   map[dao.NilString]OffsetLen
-}
-
-func InitSegmentIndex(sid string) SegmentIndex {
-	return SegmentIndex{id: sid, smallestKey: "", offsetMap: map[dao.NilString]OffsetLen{}}
-}
-
-func (s *SegmentIndex) Set(k dao.NilString, offset, len int) {
-	s.offsetMap[k] = InitOffsetLen(offset, len)
-}
-
-func (s *SegmentIndex) Get(k dao.NilString) (OffsetLen, bool) {
-	offset, ok := s.offsetMap[k]
-	return offset, ok
-}
-
 type SegmentIndexCollection struct {
-	indexMap map[string]*SegmentIndex
+	indexMap map[string]*PrimaryIndex
 }
 
 func InitSegmentIndexCollection() SegmentIndexCollection {
@@ -180,14 +147,14 @@ func InitSegmentIndexCollection() SegmentIndexCollection {
 	// if none of the exists, create an empty one
 
 	// TODO: possibly, we could do without using pointer ?
-	return SegmentIndexCollection{map[string]*SegmentIndex{}}
+	return SegmentIndexCollection{map[string]*PrimaryIndex{}}
 }
 
-func (s *SegmentIndexCollection) Add(sid string, segIndex *SegmentIndex) {
+func (s *SegmentIndexCollection) Add(sid string, segIndex *PrimaryIndex) {
 	s.indexMap[sid] = segIndex
 }
 
-func (s *SegmentIndexCollection) Get(sid string) (*SegmentIndex, bool) {
+func (s *SegmentIndexCollection) Get(sid string) (*PrimaryIndex, bool) {
 	segIndex, ok := s.indexMap[sid]
 	return segIndex, ok
 }

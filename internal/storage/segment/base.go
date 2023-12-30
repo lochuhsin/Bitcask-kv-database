@@ -25,8 +25,6 @@ import (
  * Then we have another
  */
 
-// Design a segment index structure that match the upper condition
-// implemented using binary search tree
 type Segment struct {
 	id          string
 	level       int    // reference from levelDB, using level indicate the compaction process
@@ -100,6 +98,17 @@ func (s *Segment) GetbyOffset(key dao.NilString, offset int, datalen int) (dao.B
 	return pair.Val, true
 }
 
+// TODO: while reading segments, using snapshot to prevent race condition
+func (s *Segment) Clone() Segment {
+	return Segment{
+		id:          s.id,
+		level:       s.level,
+		smallestKey: s.smallestKey,
+		timestamp:   s.timestamp,
+		keyCount:    s.keyCount,
+	}
+}
+
 type SegmentStack struct {
 	stack []Segment
 }
@@ -143,17 +152,20 @@ type SegmentCollection struct {
 	 * order by timestamp
 	 */
 	noneLevelSeg SegmentStack
-	level        map[int][]Segment
+	levelMap     map[int][]Segment
 	maxLevel     int // whenever a compaction starts, adjust this maxLevel
 }
 
 func InitSegmentCollection() SegmentCollection {
 	stack := InitSegmentStack()
-	return SegmentCollection{level: map[int][]Segment{}, noneLevelSeg: stack, maxLevel: 0}
+	return SegmentCollection{levelMap: map[int][]Segment{}, noneLevelSeg: stack, maxLevel: 0}
 }
 
 func (s *SegmentCollection) Add(seg Segment) {
-	s.noneLevelSeg.Add(seg)
+	if _, ok := s.levelMap[seg.level]; !ok {
+		s.levelMap[seg.level] = []Segment{}
+	}
+	s.levelMap[seg.level] = append(s.levelMap[seg.level], seg)
 }
 
 func (s *SegmentCollection) CompactionCondition() bool {

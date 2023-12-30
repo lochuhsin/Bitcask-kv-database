@@ -16,16 +16,17 @@ func InitSegmentManager() *SegmentManager {
 }
 
 func (s *SegmentManager) Get(k dao.NilString) (val dao.Base, status bool) {
-	/**
-	 * TODO: Implement check segment index
-	 */
 	//zero level segments should be ordered by timestamp
-	for _, segment := range *(s.collection.noneLevelSeg.list()) {
 
+	iter := InitSegmentCollectionIterator()
+	for iter.hasNext(&s.collection) {
+		segment, err := iter.getNext(&s.collection)
+		if err != nil {
+			panic("something went wrong with looping segments")
+		}
 		if k.GetVal().(string) < segment.smallestKey {
 			continue
 		}
-
 		sid := segment.id
 		segIndex, status := s.indexCollection.Get(sid)
 		if !status {
@@ -42,51 +43,8 @@ func (s *SegmentManager) Get(k dao.NilString) (val dao.Base, status bool) {
 			// this index will always be consistent with segment
 			continue
 		}
-		/**
-		 * Figure out do we need to keep the function that reads directly
-		 * to segment, or primary index is enough
-		 */
-		// val, status := segment.Get(k)
-		// if !status {
-		// 	continue
-		// }
-		// return val, true
 	}
 
-	// todo: search by each segment level
-	for l := 0; l < s.collection.maxLevel; l++ {
-		if segments, ok := s.collection.level[l]; ok {
-			for _, segment := range segments {
-
-				sid := segment.id
-				segIndex, status := s.indexCollection.Get(sid)
-				if !status {
-					fmt.Printf("Notice!!!! segment index of %v not found \n", sid)
-				}
-
-				offsetLen, ok := segIndex.Get(k)
-
-				if ok {
-					val, status := segment.GetbyOffset(k, offsetLen.Offset, offsetLen.Len)
-					return val, status
-				} else {
-					// since segIndex is primary index, we assume that
-					// this index will always be consistent with segment
-					continue
-				}
-				/**
-				 * Figure out do we need to keep the function that reads directly
-				 * to segment, or primary index is enough
-				 */
-				// val, status := segment.Get(k)
-				// if !status {
-				// 	continue
-				// }
-				// return val, true
-			}
-		}
-
-	}
 	return nil, false
 }
 
@@ -98,7 +56,7 @@ func (s *SegmentManager) ConvertToSegment(m memory.IMemory) {
 	newSeg := InitSegment(int64(s.collection.noneLevelSeg.Size()))
 	newSegIndex := InitSegmentIndex(newSeg.id)
 
-	// Write to segment file and generate segment index in the same time
+	// Write to segment file and generate segment index, metadata in the same time
 	writeSegmentToFile(&newSeg, &newSegIndex, pairs)
 	writeSegmentMetadata(&newSeg)
 	writeSegmentIndexToFile(&newSegIndex)
@@ -110,7 +68,4 @@ func (s *SegmentManager) ConvertToSegment(m memory.IMemory) {
 	if s.collection.CompactionCondition() {
 		s.collection.Compaction()
 	}
-	/**
-	 * TODO: Then we generate the Segment Index for further search
-	 */
 }

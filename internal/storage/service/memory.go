@@ -4,6 +4,7 @@ import (
 	"rebitcask/internal/settings"
 	"rebitcask/internal/storage/dao"
 	"rebitcask/internal/storage/memory"
+	"rebitcask/internal/storage/segment"
 	"sync"
 )
 
@@ -85,7 +86,7 @@ func memoryToSegment(m memory.IMemory) (bool, error) {
 		muSegConverter.Lock()
 		if memory.MemModel.GetSize() > settings.ENV.MemoryCountLimit {
 			memory.MemModel.Setfrozen(true)
-			segManager.ConvertToSegment(m)
+			segment.SegManager.ConvertToSegment(m)
 			memory.MemModel.Reset()
 			/**
 			 * TODO: Generate primary index a key offset mappings for this current segment

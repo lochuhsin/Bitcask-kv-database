@@ -53,18 +53,18 @@ func (s *SegmentManager) ConvertToSegment(m memory.IMemory) {
 	 * First we generate a new segment
 	 */
 	pairs := m.GetAll()
-	newSeg := InitSegment(int64(s.collection.segCount))
-	newSegIndex := InitSegmentIndex(newSeg.id)
+	Seg := InitSegment(int64(s.collection.segCount))
+	SegIndex := InitSegmentIndex(Seg.id)
 
 	// Write to segment file and generate segment index, metadata in the same time
-	writeSegmentToFile(&newSeg, &newSegIndex, pairs)
-	writeSegmentMetadata(&newSeg)
-	writeSegmentIndexToFile(&newSegIndex)
+	writeSegmentToFile(&Seg, &SegIndex, pairs)
+	writeSegmentMetadata(&Seg)
+	writeSegmentIndexToFile(&SegIndex)
 
-	s.collection.Add(newSeg)
-	s.indexCollection.Add(newSeg.id, &newSegIndex)
+	s.collection.Add(Seg)
+	s.indexCollection.Add(SegIndex.id, &SegIndex)
 
-	// Check compaction condition, if meets
+	// Check compaction condition, if meets trigger it, however this should be implemented in scheduler
 	if s.collection.CompactionCondition() {
 		s.collection.Compaction()
 	}

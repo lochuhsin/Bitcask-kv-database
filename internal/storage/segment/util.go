@@ -16,6 +16,10 @@ func getSegmentIndexFilePath(segId string) string {
 	return fmt.Sprintf("%v%v%v%v", settings.ENV.DataPath, settings.INDEX_FILE_FOLDER, segId, settings.SEGMENT_KEY_OFFSET_FILE_EXT)
 }
 
+func getSegmentIndexMetaDataFilePath(segId string) string {
+	return fmt.Sprintf("%v%v%v%v", settings.ENV.DataPath, settings.SEGMENT_FILE_FOLDER, segId, settings.SEGMENT_FILE_METADATA_EXT)
+}
+
 func writeSegmentToFile(s *Segment, sIndex *SegmentIndex, pairs []dao.Pair) {
 	/**
 	 * Note, assuming that key in pairs are sorted in ascending order
@@ -48,6 +52,24 @@ func writeSegmentToFile(s *Segment, sIndex *SegmentIndex, pairs []dao.Pair) {
 
 	s.smallestKey = pairs[0].Key.GetVal().(string)
 	s.keyCount = len(pairs)
+}
+
+func writeSegmentMetadata(s *Segment) {
+	filePath := getSegmentIndexMetaDataFilePath(s.id)
+	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777) //TODO: optimize the mode
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	/**
+	 * Currently only store level information for segment manager to backup
+	 */
+	writer := bufio.NewWriter(file)
+	_, err = writer.WriteString(fmt.Sprintf("level::%v", s.level))
+	if err != nil {
+		panic("something went wrong while writing segment metadata")
+	}
+	writer.Flush()
 }
 
 func writeSegmentIndexToFile(sIndex *SegmentIndex) {

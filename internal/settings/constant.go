@@ -18,6 +18,8 @@ const DATASAPARATER = ".."
 
 const SEGMENT_FILE_EXT = ".sst"
 
+const SEGMENT_FILE_METADATA_EXT = ".meta"
+
 const SEGMENT_FILE_FOLDER = "seg/"
 
 /**

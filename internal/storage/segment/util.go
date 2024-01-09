@@ -16,7 +16,7 @@ func getSegmentIndexFilePath(segId string) string {
 	return fmt.Sprintf("%v%v%v%v", settings.ENV.DataPath, settings.INDEX_FILE_FOLDER, segId, settings.SEGMENT_KEY_OFFSET_FILE_EXT)
 }
 
-func getSegmentIndexMetaDataFilePath(segId string) string {
+func getSegmentMetaDataFilePath(segId string) string {
 	return fmt.Sprintf("%v%v%v%v", settings.ENV.DataPath, settings.SEGMENT_FILE_FOLDER, segId, settings.SEGMENT_FILE_METADATA_EXT)
 }
 
@@ -55,7 +55,7 @@ func writeSegmentToFile(s *Segment, sIndex *PrimaryIndex, pairs []dao.Pair) {
 }
 
 func writeSegmentMetadata(s *Segment) {
-	filePath := getSegmentIndexMetaDataFilePath(s.id)
+	filePath := getSegmentMetaDataFilePath(s.id)
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777) //TODO: optimize the mode
 	if err != nil {
 		panic(err)

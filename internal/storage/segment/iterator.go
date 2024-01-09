@@ -1,6 +1,8 @@
 package segment
 
 import (
+	"errors"
+	"fmt"
 	"sort"
 )
 
@@ -16,10 +18,12 @@ func InitSegmentCollectionIterator() *SegmentCollectionIterator {
 
 func (sc *SegmentCollectionIterator) hasNext(segCollection *SegmentCollection) bool {
 
-	if sc.level < len(segCollection.levelMap)-1 {
+	if sc.level < segCollection.GetLevel()-1 {
 		return true
 	}
-	if sc.level == len(segCollection.levelMap)-1 && sc.index < len(segCollection.levelMap[sc.level]) {
+
+	segCount, status := segCollection.GetSegmentCountByLevel(sc.level)
+	if sc.level == segCollection.GetLevel()-1 && status && sc.index < segCount {
 		return true
 	}
 	return false
@@ -27,9 +31,16 @@ func (sc *SegmentCollectionIterator) hasNext(segCollection *SegmentCollection) b
 
 // This is a huge performance drop, optimize this ... n * nlogln
 func (sc *SegmentCollectionIterator) getNext(segCollection *SegmentCollection) (Segment, error) {
-	var segments []Segment
+	var (
+		segments []Segment
+		status   bool
+	)
 	if sc.level == 0 { // if level is zero, we should return by timestamp, since there might be duplcate keys
-		segments = segCollection.levelMap[0]
+		segments, status = segCollection.GetSegmentByLevel(0)
+		if !status {
+			fmt.Println("Something went wrong while reading level 0 segments")
+			return *new(Segment), errors.New("something went wrong while reading level 0 segments")
+		}
 		sort.Slice(segments, func(i, j int) bool {
 			return segments[i].timestamp > segments[j].timestamp
 		})

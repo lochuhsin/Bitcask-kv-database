@@ -44,3 +44,11 @@ const MEMORY_LOG_FILE = "m.log"
 const SEGMENT_LOG_FOLDER = "slog/"
 
 const SEGMENT_LOG_FILE = "s.log"
+
+/**
+ * Convert to segment scheduler parameters
+ */
+
+const TASK_POOL_SIZE = 1000
+
+const WORKER_COUNT = 30

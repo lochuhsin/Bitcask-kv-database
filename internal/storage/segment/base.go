@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"os"
 	"rebitcask/internal/storage/dao"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -109,21 +110,51 @@ func (s *Segment) Clone() Segment {
 }
 
 type SegmentCollection struct {
+	mu       sync.Mutex // TODO: Change to RW lock
 	levelMap map[int][]Segment
 	maxLevel int // whenever a compaction starts, adjust this maxLevel
 	segCount int
 }
 
 func InitSegmentCollection() SegmentCollection {
-	return SegmentCollection{levelMap: map[int][]Segment{}, maxLevel: 0, segCount: 0}
+	return SegmentCollection{levelMap: map[int][]Segment{}, maxLevel: 0, segCount: 0, mu: sync.Mutex{}}
 }
 
 func (s *SegmentCollection) Add(seg Segment) {
+	s.mu.Lock()
 	if _, ok := s.levelMap[seg.level]; !ok {
 		s.levelMap[seg.level] = []Segment{}
 	}
 	s.levelMap[seg.level] = append(s.levelMap[seg.level], seg)
 	s.segCount++
+	s.mu.Unlock()
+}
+
+func (s *SegmentCollection) GetSegmentCountByLevel(level int) (int, bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if segments, ok := s.levelMap[level]; ok {
+		return len(segments), true
+	}
+	return 0, false
+}
+
+func (s *SegmentCollection) GetSegmentByLevel(level int) ([]Segment, bool) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if segments, ok := s.levelMap[level]; ok {
+		newSegments := make([]Segment, len(segments))
+		copy(newSegments, segments)
+		return newSegments, true
+	}
+	return *new([]Segment), false
+}
+
+func (s *SegmentCollection) GetLevel() int {
+	s.mu.Lock()
+	level := len(s.levelMap)
+	s.mu.Unlock()
+	return level
 }
 
 func (s *SegmentCollection) CompactionCondition() bool {
@@ -139,6 +170,7 @@ func (s *SegmentCollection) Compaction() {
 }
 
 type SegmentIndexCollection struct {
+	mapMu    sync.Mutex
 	indexMap map[string]*PrimaryIndex
 }
 
@@ -147,14 +179,18 @@ func InitSegmentIndexCollection() SegmentIndexCollection {
 	// if none of the exists, create an empty one
 
 	// TODO: possibly, we could do without using pointer ?
-	return SegmentIndexCollection{map[string]*PrimaryIndex{}}
+	return SegmentIndexCollection{mapMu: sync.Mutex{}, indexMap: map[string]*PrimaryIndex{}}
 }
 
 func (s *SegmentIndexCollection) Add(sid string, segIndex *PrimaryIndex) {
+	s.mapMu.Lock()
 	s.indexMap[sid] = segIndex
+	s.mapMu.Unlock()
 }
 
 func (s *SegmentIndexCollection) Get(sid string) (*PrimaryIndex, bool) {
+	s.mapMu.Lock()
 	segIndex, ok := s.indexMap[sid]
+	s.mapMu.Unlock()
 	return segIndex, ok
 }

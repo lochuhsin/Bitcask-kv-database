@@ -71,6 +71,7 @@ func (m *Hash) GetAllValueUnder(k dao.NilString) []dao.Pair {
 
 func (m *Hash) Reset() {
 	m.keyvalue = map[dao.NilString]value{}
+	m.frozen = false
 }
 
 func (m *Hash) Setfrozen(frozen bool) {
@@ -79,4 +80,13 @@ func (m *Hash) Setfrozen(frozen bool) {
 
 func (m *Hash) Isfrozen() bool {
 	return m.frozen
+}
+
+func (m *Hash) Clone() IMemory {
+	newHash := InitHash()
+
+	for k, v := range m.keyvalue {
+		newHash.keyvalue[k] = v
+	}
+	return newHash
 }

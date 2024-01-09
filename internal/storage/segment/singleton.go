@@ -19,6 +19,7 @@ func SegmentInit() {
 		defer slock.Unlock()
 		if SegManager == nil {
 			SegManager = InitSegmentManager()
+			fmt.Println("seg manager initialized")
 			/**
 			 * TODO: implement reload from segment log files
 			 * 1. Segment Collection

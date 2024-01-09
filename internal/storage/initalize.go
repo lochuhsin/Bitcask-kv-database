@@ -6,6 +6,7 @@ import (
 	"rebitcask/internal/settings"
 	"rebitcask/internal/storage/cache"
 	"rebitcask/internal/storage/memory"
+	"rebitcask/internal/storage/scheduler"
 	"rebitcask/internal/storage/segment"
 )
 
@@ -28,4 +29,7 @@ func Init() {
 	indexDir := fmt.Sprintf("%s%s", env.DataPath, settings.INDEX_FILE_FOLDER)
 	os.MkdirAll(indexDir, os.ModePerm)
 
+	scheduler.TaskChannelInit()
+	scheduler.TaskPoolInit()
+	scheduler.SchedulerInit()
 }

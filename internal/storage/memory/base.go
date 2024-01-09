@@ -13,4 +13,5 @@ type IMemory interface {
 	Reset()
 	Isfrozen() bool
 	Setfrozen(bool)
+	Clone() IMemory
 }

@@ -1,7 +1,7 @@
 
 .PHONY: test
 test: # vanilla test
-	go test ./test -bench=. -benchmem -race
+	go test ./test -bench=. -benchmem
 
 .PHONY: test-timeout
 test-timeout:

@@ -16,11 +16,11 @@ func generateLowDuplicateRandom(dataCount int) ([]string, []string) {
 	count := 0
 	for i := 0; i < dataCount; i++ {
 		k := make([]byte, keyLen)
-		for j, _ := range k {
+		for j := range k {
 			k[j] = LETTERS[rand.Intn(len(LETTERS))]
 		}
 		v := make([]byte, rand.Intn(valLen))
-		for m, _ := range v {
+		for m := range v {
 			v[m] = LETTERS[rand.Intn(len(LETTERS))]
 		}
 		keys = append(keys, string(k))

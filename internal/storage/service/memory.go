@@ -4,7 +4,7 @@ import (
 	"rebitcask/internal/settings"
 	"rebitcask/internal/storage/dao"
 	"rebitcask/internal/storage/memory"
-	"rebitcask/internal/storage/segment"
+	"rebitcask/internal/storage/scheduler"
 	"sync"
 )
 
@@ -15,7 +15,28 @@ func MGet(k dao.NilString) (val dao.Base, status bool) {
 	 * The Get function always returns value, and status
 	 * status indicates whether the key exists or not
 	 */
-	return memory.MemModel.Get(k)
+	/**
+	 * 1. Get from memory model
+	 * 2. Get from task pool (waiting tasks)
+	 * 3. Get from schedumere
+	 */
+
+	val, status = memory.MemModel.Get(k)
+	if status {
+		return val, status
+	}
+
+	val, status = getFromTaskPool(k)
+	if status {
+		return val, status
+	}
+
+	val, status = getFromSchedulerPool(k)
+	if status {
+		return val, status
+	}
+
+	return nil, false
 }
 
 func MSet(k dao.NilString, v dao.Base) {
@@ -54,6 +75,7 @@ func MSet(k dao.NilString, v dao.Base) {
 }
 
 func MDelete(k dao.NilString) {
+	// Optimize this
 	pair := dao.InitTombPair(k)
 
 	err := mLog(pair)
@@ -70,6 +92,28 @@ func mLog(pair dao.Pair) error {
 	return nil
 }
 
+func getFromTaskPool(k dao.NilString) (val dao.Base, status bool) {
+	tasks := scheduler.TaskPool.GetWaitingTasks()
+	for _, t := range tasks {
+		m, status := t.GetMemory().Get(k)
+		if status {
+			return m, status
+		}
+	}
+	return nil, false
+}
+
+func getFromSchedulerPool(k dao.NilString) (val dao.Base, status bool) {
+	tasks := scheduler.Sched.GetByOrder()
+	for _, t := range tasks {
+		m, status := t.GetMemory().Get(k)
+		if status {
+			return m, status
+		}
+	}
+	return nil, false
+}
+
 func memoryToSegment(m memory.IMemory) (bool, error) {
 	/**
 	 * TODO:
@@ -79,18 +123,17 @@ func memoryToSegment(m memory.IMemory) (bool, error) {
 	 *
 	 * In this scenario, we need a mechanism, that is able to create
 	 * a new memory model to store the new write operation
-	 *
 	 */
 
-	if memory.MemModel.GetSize() > settings.ENV.MemoryCountLimit {
+	if m.GetSize() > settings.ENV.MemoryCountLimit {
 		muSegConverter.Lock()
-		if memory.MemModel.GetSize() > settings.ENV.MemoryCountLimit {
-			memory.MemModel.Setfrozen(true)
-			segment.SegManager.ConvertToSegment(m)
+		if m.GetSize() > settings.ENV.MemoryCountLimit {
+			m.Setfrozen(true)
+			newM := m.Clone()
+
+			task := scheduler.ConvertMemoToTask(newM)
+			scheduler.AddTask(task)
 			memory.MemModel.Reset()
-			/**
-			 * TODO: Generate primary index a key offset mappings for this current segment
-			 */
 		}
 		muSegConverter.Unlock()
 	}

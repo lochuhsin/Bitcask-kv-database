@@ -147,3 +147,7 @@ func (bst *BinarySearchTree) Setfrozen(frozen bool) {
 func (bst *BinarySearchTree) Isfrozen() bool {
 	return bst.frozen
 }
+
+func (bst *BinarySearchTree) Clone() IMemory {
+	return InitBinarySearchTree()
+}

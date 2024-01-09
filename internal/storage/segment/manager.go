@@ -16,8 +16,6 @@ func InitSegmentManager() *SegmentManager {
 }
 
 func (s *SegmentManager) Get(k dao.NilString) (val dao.Base, status bool) {
-	//zero level segments should be ordered by timestamp
-
 	iter := InitSegmentCollectionIterator()
 	for iter.hasNext(&s.collection) {
 		segment, err := iter.getNext(&s.collection)

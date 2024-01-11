@@ -42,6 +42,8 @@ func SchedulerInit() {
 	schOnce.Do(func() {
 		if Sched == nil {
 			Sched = NewScheduler()
+			go Sched.StartTaskScheduling()
+			go Sched.StartTaskSignalHandler()
 		}
 	})
 }

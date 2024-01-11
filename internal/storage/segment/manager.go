@@ -51,7 +51,7 @@ func (s *SegmentManager) ConvertToSegment(m memory.IMemory) {
 	 * First we generate a new segment
 	 */
 	pairs := m.GetAll()
-	Seg := NewSegment(int64(s.collection.segCount))
+	Seg := NewSegment(int64(s.collection.GetSegmentCount()))
 	SegIndex := InitSegmentIndex(Seg.id)
 
 	// Write to segment file and generate segment index, metadata in the same time

@@ -157,6 +157,13 @@ func (s *SegmentCollection) GetLevel() int {
 	return level
 }
 
+func (s *SegmentCollection) GetSegmentCount() int {
+	s.mu.Lock()
+	count := s.segCount
+	s.mu.Unlock()
+	return count
+}
+
 func (s *SegmentCollection) CompactionCondition() bool {
 	/**
 	 * Implement the compaction condtion for manager to determine

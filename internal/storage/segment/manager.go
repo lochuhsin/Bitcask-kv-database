@@ -11,12 +11,12 @@ type SegmentManager struct {
 	indexCollection SegmentIndexCollection
 }
 
-func InitSegmentManager() *SegmentManager {
-	return &SegmentManager{collection: InitSegmentCollection(), indexCollection: InitSegmentIndexCollection()}
+func NewSegmentManager() *SegmentManager {
+	return &SegmentManager{collection: NewSegmentCollection(), indexCollection: NewSegmentIndexCollection()}
 }
 
 func (s *SegmentManager) Get(k dao.NilString) (val dao.Base, status bool) {
-	iter := InitSegmentCollectionIterator()
+	iter := NewSegmentCollectionIterator()
 	for iter.hasNext(&s.collection) {
 		segment, err := iter.getNext(&s.collection)
 		if err != nil {
@@ -51,7 +51,7 @@ func (s *SegmentManager) ConvertToSegment(m memory.IMemory) {
 	 * First we generate a new segment
 	 */
 	pairs := m.GetAll()
-	Seg := InitSegment(int64(s.collection.segCount))
+	Seg := NewSegment(int64(s.collection.segCount))
 	SegIndex := InitSegmentIndex(Seg.id)
 
 	// Write to segment file and generate segment index, metadata in the same time

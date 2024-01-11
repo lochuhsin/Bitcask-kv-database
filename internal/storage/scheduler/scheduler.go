@@ -20,7 +20,7 @@ type Scheduler struct {
 	taskSignal  chan taskSignal
 }
 
-func InitScheduler() *Scheduler {
+func NewScheduler() *Scheduler {
 	return &Scheduler{
 		processPool: *InitTaskOrderedMap(),
 		taskSignal:  make(chan taskSignal, settings.WORKER_COUNT),

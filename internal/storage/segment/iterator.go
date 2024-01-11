@@ -12,7 +12,7 @@ type SegmentCollectionIterator struct {
 	tempStoreSegmentList []Segment
 }
 
-func InitSegmentCollectionIterator() *SegmentCollectionIterator {
+func NewSegmentCollectionIterator() *SegmentCollectionIterator {
 	return &SegmentCollectionIterator{0, 0, nil}
 }
 

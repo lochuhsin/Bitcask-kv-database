@@ -33,7 +33,7 @@ type Segment struct {
 	keyCount    int
 }
 
-func InitSegment(segCount int64) Segment {
+func NewSegment(segCount int64) Segment {
 	// the reason of adding segcount is that
 	// the creation of a segment is too fast that even nano seconds
 	// could not distinguish between segments order
@@ -116,7 +116,7 @@ type SegmentCollection struct {
 	segCount int
 }
 
-func InitSegmentCollection() SegmentCollection {
+func NewSegmentCollection() SegmentCollection {
 	return SegmentCollection{levelMap: map[int][]Segment{}, maxLevel: 0, segCount: 0, mu: sync.Mutex{}}
 }
 
@@ -174,7 +174,7 @@ type SegmentIndexCollection struct {
 	indexMap map[string]*PrimaryIndex
 }
 
-func InitSegmentIndexCollection() SegmentIndexCollection {
+func NewSegmentIndexCollection() SegmentIndexCollection {
 	//TODO:  1. try to initialize from .koshint files
 	// if none of the exists, create an empty one
 

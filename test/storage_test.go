@@ -29,7 +29,7 @@ func TestStorageSet(t *testing.T) {
 	env := settings.ENV
 	dataCount := env.MemoryCountLimit*10 + 1
 
-	keys, vals := generateLowDuplicateRandom(dataCount)
+	keys, vals := GenerateLowDuplicateRandom(dataCount)
 	for i, k := range keys {
 		err := storage.Set(k, vals[i])
 		if err != nil {
@@ -43,7 +43,7 @@ func TestStorageGet(t *testing.T) {
 	env := settings.ENV
 	dataCount := env.MemoryCountLimit*10 + 1
 
-	keys, vals := generateLowDuplicateRandom(dataCount)
+	keys, vals := GenerateLowDuplicateRandom(dataCount)
 	for i, k := range keys {
 		err := storage.Set(k, vals[i])
 		if err != nil {
@@ -56,7 +56,7 @@ func TestStorageDelete(t *testing.T) {
 
 	env := settings.ENV
 	dataCount := env.MemoryCountLimit*10 + 1
-	keys, _ := generateLowDuplicateRandom(dataCount)
+	keys, _ := GenerateLowDuplicateRandom(dataCount)
 	for _, k := range keys {
 		err := storage.Delete(k)
 		if err != nil {
@@ -70,7 +70,7 @@ func TestStorageSetGet(t *testing.T) {
 	env := settings.ENV
 	dataCount := env.MemoryCountLimit*2 + 1
 
-	keys, vals := generateLowDuplicateRandom(dataCount)
+	keys, vals := GenerateLowDuplicateRandom(dataCount)
 	for i, k := range keys {
 		err := storage.Set(k, vals[i])
 		if err != nil {
@@ -94,7 +94,7 @@ func TestStorageSetDelete(t *testing.T) {
 	env := settings.ENV
 	dataCount := env.MemoryCountLimit*2 + 1
 
-	keys, vals := generateLowDuplicateRandom(dataCount)
+	keys, vals := GenerateLowDuplicateRandom(dataCount)
 	for i, k := range keys {
 		err := storage.Set(k, vals[i])
 		if err != nil {
@@ -121,7 +121,7 @@ func TestStorageSetDelete(t *testing.T) {
 }
 
 func TestEmptyGet(t *testing.T) {
-	keys, _ := generateLowDuplicateRandom(100)
+	keys, _ := GenerateLowDuplicateRandom(100)
 
 	for _, k := range keys {
 		_, status := storage.Get(k)

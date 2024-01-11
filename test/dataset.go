@@ -7,7 +7,7 @@ import (
 
 var LETTERS = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()+-")
 
-func generateLowDuplicateRandom(dataCount int) ([]string, []string) {
+func GenerateLowDuplicateRandom(dataCount int) ([]string, []string) {
 	keyLen := 50
 	valLen := 50
 	rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -30,7 +30,7 @@ func generateLowDuplicateRandom(dataCount int) ([]string, []string) {
 	return keys, vals
 }
 
-func generateHighDuplicateRandom(dataCount int) ([]string, []string) {
+func GenerateHighDuplicateRandom(dataCount int) ([]string, []string) {
 	rand.New(rand.NewSource(time.Now().UnixNano()))
 	keys := make([]string, 0, dataCount)
 	vals := make([]string, 0, dataCount)

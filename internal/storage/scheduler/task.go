@@ -49,11 +49,7 @@ func (t *taskPool) GetWaitingTasks() []task {
 	tasks := make([]task, len(t.queue))
 
 	for i, tk := range t.queue {
-		tasks[len(t.queue)-1-i] = task{
-			timestamp: tk.timestamp,
-			id:        tk.id,
-			m:         tk.m,
-		}
+		tasks[len(t.queue)-1-i] = tk
 	}
 	t.mu.Unlock()
 	return tasks

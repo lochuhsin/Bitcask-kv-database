@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-var LETTERS = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()+-")
+var LETTERS = []byte("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()+-[]~.,><?")
 
 func GenerateLowDuplicateRandom(dataCount int) ([]string, []string) {
 	keyLen := 50

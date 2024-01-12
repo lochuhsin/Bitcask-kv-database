@@ -25,7 +25,7 @@ run:
 
 .PHONY: all_profile
 all_profile:
-	go test ./test -bench=. -run=none -benchmem -memprofile=mem.pprof -cpuprofile=cpu.pprof
+	go test ./test -bench=. -benchmem -memprofile=mem.pprof -cpuprofile=cpu.pprof
 
 .PHONY: cpu_profile
 cpu_profile:

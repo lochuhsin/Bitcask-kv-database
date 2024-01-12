@@ -68,7 +68,7 @@ func TestStorageDelete(t *testing.T) {
 func TestStorageSetGet(t *testing.T) {
 
 	env := settings.ENV
-	dataCount := env.MemoryCountLimit*2 + 1
+	dataCount := env.MemoryCountLimit*10 + 1
 
 	keys, vals := GenerateLowDuplicateRandom(dataCount)
 	for i, k := range keys {
@@ -92,7 +92,7 @@ func TestStorageSetGet(t *testing.T) {
 
 func TestStorageSetDelete(t *testing.T) {
 	env := settings.ENV
-	dataCount := env.MemoryCountLimit*2 + 1
+	dataCount := env.MemoryCountLimit*10 + 1
 
 	keys, vals := GenerateLowDuplicateRandom(dataCount)
 	for i, k := range keys {

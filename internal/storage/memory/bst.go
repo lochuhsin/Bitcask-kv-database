@@ -149,5 +149,22 @@ func (bst *BinarySearchTree) Isfrozen() bool {
 }
 
 func (bst *BinarySearchTree) Clone() IMemory {
-	return InitBinarySearchTree()
+	newBst := InitBinarySearchTree()
+	newBst.root = bst.clone(bst.root)
+	return newBst
+}
+
+func (bst *BinarySearchTree) clone(oNode *bstnode) *bstnode {
+	if oNode == nil {
+		return nil
+	}
+
+	initNewNode := bstnode{
+		key: oNode.key,
+		val: oNode.val,
+	}
+
+	initNewNode.left = bst.clone(oNode.left)
+	initNewNode.right = bst.clone(oNode.right)
+	return &initNewNode
 }

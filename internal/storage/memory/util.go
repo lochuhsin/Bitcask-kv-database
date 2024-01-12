@@ -4,9 +4,9 @@ func MemoryTypeSelector(mType ModelType) IMemory {
 	var m IMemory = nil
 	switch mType {
 	case HASH:
-		m = InitHash()
+		m = NewHash()
 	case BST:
-		m = InitBinarySearchTree()
+		m = NewBinarySearchTree()
 
 	// TODO: implement these
 	// case memory.AVLT:

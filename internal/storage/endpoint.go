@@ -21,27 +21,23 @@ func Get(k string) (any, bool) {
 	 * Note: exists meaning that the key exists, and the value is not tombstoneed
 	 */
 	// check if exists in cbf
-	if service.CGet(k) {
-		_k, err := daoConverter(k)
-		if err != nil {
-			panic(err) // TODO: better handling
-		}
+	_k, err := daoConverter(k)
+	if err != nil {
+		panic(err) // TODO: better handling
+	}
 
-		m, status := service.MGet(_k.(dao.NilString))
+	m, status := service.MGet(_k.(dao.NilString))
 
-		if status && m.GetType() != dao.Tombstone {
-			return m.GetVal(), true
-		} else if status && m.GetType() == dao.Tombstone {
-			return *new(any), false
-		}
-
-		d, status := service.SGet(_k.(dao.NilString))
-
-		if status && d.GetType() != dao.Tombstone {
-			return d.GetVal(), true
-		}
-	} else {
+	if status && m.GetType() != dao.Tombstone {
+		return m.GetVal(), true
+	} else if status && m.GetType() == dao.Tombstone {
 		return *new(any), false
+	}
+
+	d, status := service.SGet(_k.(dao.NilString))
+
+	if status && d.GetType() != dao.Tombstone {
+		return d.GetVal(), true
 	}
 	return *new(any), false
 }

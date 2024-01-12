@@ -18,7 +18,7 @@ type BinarySearchTree struct {
 	frozen bool
 }
 
-func InitBinarySearchTree() *BinarySearchTree {
+func NewBinarySearchTree() *BinarySearchTree {
 	return &BinarySearchTree{nil, 0, &sync.Mutex{}, false}
 }
 
@@ -149,7 +149,7 @@ func (bst *BinarySearchTree) Isfrozen() bool {
 }
 
 func (bst *BinarySearchTree) Clone() IMemory {
-	newBst := InitBinarySearchTree()
+	newBst := NewBinarySearchTree()
 	newBst.root = bst.clone(bst.root)
 	return newBst
 }

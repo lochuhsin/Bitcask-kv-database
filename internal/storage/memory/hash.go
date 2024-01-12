@@ -17,7 +17,7 @@ type Hash struct {
 	frozen   bool
 }
 
-func InitHash() *Hash {
+func NewHash() *Hash {
 	return &Hash{keyvalue: map[dao.NilString]value{}, mu: &sync.Mutex{}, frozen: false}
 }
 
@@ -83,7 +83,7 @@ func (m *Hash) Isfrozen() bool {
 }
 
 func (m *Hash) Clone() IMemory {
-	newHash := InitHash()
+	newHash := NewHash()
 
 	for k, v := range m.keyvalue {
 		newHash.keyvalue[k] = v

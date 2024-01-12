@@ -110,7 +110,7 @@ func (s *Segment) Clone() Segment {
 }
 
 type SegmentCollection struct {
-	mu       sync.Mutex // TODO: Change to RW lock
+	mu       sync.Mutex
 	levelMap map[int][]Segment
 	maxLevel int // whenever a compaction starts, adjust this maxLevel
 	segCount int

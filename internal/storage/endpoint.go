@@ -43,8 +43,6 @@ func Get(k string) (any, bool) {
 }
 
 func Set(k string, v any) error {
-	service.CSet(k)
-
 	_k, err := daoConverter(k)
 	if err != nil {
 		return err
@@ -59,7 +57,6 @@ func Set(k string, v any) error {
 }
 
 func Delete(k string) error {
-	service.CDelete(k)
 	_k, err := daoConverter(k)
 	if err != nil {
 		return err

@@ -56,13 +56,15 @@ func (s *SegmentManager) ConvertToSegment(m memory.IMemory) {
 
 	// Write to segment file and generate segment index, metadata in the same time
 	writeSegmentToFile(&Seg, &SegIndex, pairs)
+
+	// TODO: use goroutine to write concurrently, i.e wait group
 	writeSegmentMetadata(&Seg)
 	writeSegmentIndexToFile(&SegIndex)
 
 	s.collection.Add(Seg)
 	s.indexCollection.Add(SegIndex.id, &SegIndex)
 
-	// Check compaction condition, if meets trigger it, however this should be implemented in scheduler
+	// TODO: Check compaction condition, if meets trigger it, however this should be implemented in scheduler
 	if s.collection.CompactionCondition() {
 		s.collection.Compaction()
 	}

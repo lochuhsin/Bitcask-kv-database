@@ -1,7 +1,7 @@
 
 .PHONY: test
 test: # vanilla test
-	go test ./test -bench=. -benchmem
+	go test ./test -race
 
 .PHONY: test-timeout
 test-timeout:
@@ -25,7 +25,7 @@ run:
 
 .PHONY: all_profile
 all_profile:
-	go test ./test -bench=. -benchmem -memprofile=mem.pprof -cpuprofile=cpu.pprof
+	go test ./test -bench=. -benchmem -benchtime=5s -memprofile=mem.pprof -cpuprofile=cpu.pprof -blockprofile=block.pprof
 
 .PHONY: cpu_profile
 cpu_profile:

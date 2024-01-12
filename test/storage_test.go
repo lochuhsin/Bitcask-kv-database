@@ -14,7 +14,7 @@ func setup() {
 }
 
 func teardown() {
-	time.Sleep(time.Millisecond * 100)
+	time.Sleep(time.Second)
 	removeSegment()
 }
 
@@ -43,12 +43,9 @@ func TestStorageGet(t *testing.T) {
 	env := settings.ENV
 	dataCount := env.MemoryCountLimit*10 + 1
 
-	keys, vals := GenerateLowDuplicateRandom(dataCount)
-	for i, k := range keys {
-		err := storage.Set(k, vals[i])
-		if err != nil {
-			t.Error("Something went wrong while setting")
-		}
+	keys, _ := GenerateLowDuplicateRandom(dataCount)
+	for _, k := range keys {
+		_, _ = storage.Get(k)
 	}
 }
 

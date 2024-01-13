@@ -111,8 +111,8 @@ func (s *Segment) Clone() Segment {
 
 type SegmentCollection struct {
 	mu       sync.Mutex
-	levelMap map[int][]Segment
-	maxLevel int // whenever a compaction starts, adjust this maxLevel
+	levelMap map[int][]Segment // using 2-d array, index of segments
+	maxLevel int               // whenever a compaction starts, adjust this maxLevel
 	segCount int
 }
 

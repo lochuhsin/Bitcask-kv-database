@@ -14,7 +14,7 @@ func setup() {
 }
 
 func teardown() {
-	time.Sleep(time.Second)
+	time.Sleep(time.Second * 3)
 	removeSegment()
 }
 

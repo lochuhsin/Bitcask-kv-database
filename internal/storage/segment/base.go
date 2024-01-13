@@ -175,29 +175,3 @@ func (s *SegmentCollection) CompactionCondition() bool {
 func (s *SegmentCollection) Compaction() {
 	panic("not implemented yet")
 }
-
-type SegmentIndexCollection struct {
-	mapMu    sync.Mutex
-	indexMap map[string]*PrimaryIndex
-}
-
-func NewSegmentIndexCollection() SegmentIndexCollection {
-	//TODO:  1. try to initialize from .koshint files
-	// if none of the exists, create an empty one
-
-	// TODO: possibly, we could do without using pointer ?
-	return SegmentIndexCollection{mapMu: sync.Mutex{}, indexMap: map[string]*PrimaryIndex{}}
-}
-
-func (s *SegmentIndexCollection) Add(sid string, segIndex *PrimaryIndex) {
-	s.mapMu.Lock()
-	s.indexMap[sid] = segIndex
-	s.mapMu.Unlock()
-}
-
-func (s *SegmentIndexCollection) Get(sid string) (*PrimaryIndex, bool) {
-	s.mapMu.Lock()
-	segIndex, ok := s.indexMap[sid]
-	s.mapMu.Unlock()
-	return segIndex, ok
-}

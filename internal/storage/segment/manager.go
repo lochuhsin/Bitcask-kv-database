@@ -4,15 +4,16 @@ import (
 	"fmt"
 	"rebitcask/internal/storage/dao"
 	"rebitcask/internal/storage/memory"
+	"sync"
 )
 
 type SegmentManager struct {
 	collection      SegmentCollection
-	indexCollection SegmentIndexCollection
+	primaryIndexMap sync.Map // type of [segmentId, *PrimaryIndex]
 }
 
 func NewSegmentManager() *SegmentManager {
-	return &SegmentManager{collection: NewSegmentCollection(), indexCollection: NewSegmentIndexCollection()}
+	return &SegmentManager{collection: NewSegmentCollection(), primaryIndexMap: sync.Map{}}
 }
 
 func (s *SegmentManager) Get(k dao.NilString) (val dao.Base, status bool) {
@@ -26,12 +27,14 @@ func (s *SegmentManager) Get(k dao.NilString) (val dao.Base, status bool) {
 			continue
 		}
 		sid := segment.id
-		segIndex, status := s.indexCollection.Get(sid)
+		segIndex, status := s.primaryIndexMap.Load(sid)
+		sIndex := segIndex.(*PrimaryIndex)
+
 		if !status {
 			fmt.Printf("Notice!!!! segment index of %v not found \n", sid)
 		}
 
-		offsetLen, ok := segIndex.Get(k)
+		offsetLen, ok := sIndex.Get(k)
 
 		if ok {
 			val, status := segment.GetbyOffset(k, offsetLen.Offset, offsetLen.Len)
@@ -62,7 +65,7 @@ func (s *SegmentManager) ConvertToSegment(m memory.IMemory) {
 	writeSegmentIndexToFile(&SegIndex)
 
 	s.collection.Add(Seg)
-	s.indexCollection.Add(SegIndex.id, &SegIndex)
+	s.primaryIndexMap.Store(SegIndex.id, &SegIndex)
 
 	// TODO: Check compaction condition, if meets trigger it, however this should be implemented in scheduler
 	if s.collection.CompactionCondition() {

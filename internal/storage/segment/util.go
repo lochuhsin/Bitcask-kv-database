@@ -61,6 +61,7 @@ func writeSegmentMetadata(s *Segment) {
 		panic(err)
 	}
 	defer file.Close()
+
 	/**
 	 * Currently only store level information for segment manager to backup
 	 */

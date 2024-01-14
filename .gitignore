@@ -9,3 +9,5 @@ app
 test/*.DS_Store
 cpu.pprof
 mem.pprof
+*.pprof
+*.test

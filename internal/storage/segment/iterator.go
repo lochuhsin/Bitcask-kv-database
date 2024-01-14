@@ -16,7 +16,7 @@ func NewSegmentCollectionIterator() *SegmentCollectionIterator {
 	return &SegmentCollectionIterator{0, 0, nil}
 }
 
-func (sc *SegmentCollectionIterator) hasNext(segCollection *SegmentCollection) bool {
+func (sc *SegmentCollectionIterator) hasNext(segCollection *Collection) bool {
 
 	if sc.level < segCollection.GetLevel()-1 {
 		return true
@@ -30,7 +30,7 @@ func (sc *SegmentCollectionIterator) hasNext(segCollection *SegmentCollection) b
 }
 
 // This is a huge performance drop, optimize this ... n * nlogln
-func (sc *SegmentCollectionIterator) getNext(segCollection *SegmentCollection) (Segment, error) {
+func (sc *SegmentCollectionIterator) getNext(segCollection *Collection) (Segment, error) {
 	var (
 		segments []Segment
 		status   bool

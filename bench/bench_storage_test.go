@@ -1,9 +1,27 @@
 package test
 
 import (
+	"os"
 	"rebitcask/internal/storage"
 	"testing"
+	"time"
 )
+
+func setup() {
+	storage.Init()
+}
+
+func teardown() {
+	time.Sleep(time.Second * 3)
+	removeSegment()
+}
+
+func TestMain(m *testing.M) {
+	setup()
+	code := m.Run()
+	teardown()
+	os.Exit(code)
+}
 
 func BenchmarkFullSearchStorageGet(b *testing.B) {
 	keys, _ := GenerateLowDuplicateRandom(b.N)

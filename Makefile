@@ -9,7 +9,7 @@ test-timeout:
 
 .PHONY: test-concurrent
 test-concurrent:
-	go test ./test -bench=. -benchmem -race -parallel 10
+	go test ./test -race -parallel 10
 
 .PHONY: build
 build:
@@ -25,20 +25,20 @@ run:
 
 .PHONY: all_profile
 all_profile:
-	go test ./test -run=none -bench=. -benchmem -benchtime=10s -memprofile=mem.pprof -cpuprofile=cpu.pprof -blockprofile=block.pprof
+	go test ./bench -run=none -bench=. -benchmem -benchtime=20s -memprofile=mem.pprof -cpuprofile=cpu.pprof -blockprofile=block.pprof
 
 .PHONY: cpu_profile
 cpu_profile:
-	go test ./test -bench=. -benchmem -cpuprofile=cpu.pprof
+	go test ./bench -bench=. -benchmem -cpuprofile=cpu.pprof
 
 .PHONY: mem_profile
 mem_profile:
-	go test ./test -bench=. -benchmem -memprofile=mem.pprof
+	go test ./bench -bench=. -benchmem -memprofile=mem.pprof
 
 .PHONY: cpu_profile-it
 cpu_profile-it:
-	go test ./test -bench=. -benchmem -cpuprofile=cpu.pprof && go tool pprof cpu.pprof
+	go test ./bench -bench=. -benchmem -cpuprofile=cpu.pprof && go tool pprof cpu.pprof
 
 .PHONY: mem_profile-it
 mem_profile-it:
-	go test ./test -bench=. -benchmem -memprofile=mem.pprof && go tool pprof mem.pprof
+	go test ./bench -bench=. -benchmem -memprofile=mem.pprof && go tool pprof mem.pprof

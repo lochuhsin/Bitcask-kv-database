@@ -5,7 +5,7 @@ import (
 )
 
 var (
-	SegManager     *SegmentManager
+	SegManager     *Manager
 	segManagerOnce sync.Once
 )
 

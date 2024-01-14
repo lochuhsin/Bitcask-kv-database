@@ -7,16 +7,16 @@ import (
 	"sync"
 )
 
-type SegmentManager struct {
-	collection      SegmentCollection
+type Manager struct {
+	collection      Collection
 	primaryIndexMap sync.Map // type of [segmentId, *PrimaryIndex]
 }
 
-func NewSegmentManager() *SegmentManager {
-	return &SegmentManager{collection: NewSegmentCollection(), primaryIndexMap: sync.Map{}}
+func NewSegmentManager() *Manager {
+	return &Manager{collection: NewSegmentCollection(), primaryIndexMap: sync.Map{}}
 }
 
-func (s *SegmentManager) Get(k dao.NilString) (val dao.Base, status bool) {
+func (s *Manager) Get(k dao.NilString) (val dao.Base, status bool) {
 	iter := NewSegmentCollectionIterator()
 	for iter.hasNext(&s.collection) {
 		segment, err := iter.getNext(&s.collection)
@@ -49,7 +49,7 @@ func (s *SegmentManager) Get(k dao.NilString) (val dao.Base, status bool) {
 	return nil, false
 }
 
-func (s *SegmentManager) ConvertToSegment(m memory.IMemory) {
+func (s *Manager) ConvertToSegment(m memory.IMemory) {
 	/**
 	 * First we generate a new segment
 	 */

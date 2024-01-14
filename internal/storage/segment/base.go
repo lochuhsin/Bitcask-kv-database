@@ -98,29 +98,18 @@ func (s *Segment) GetbyOffset(key dao.NilString, offset int, datalen int) (dao.B
 	return pair.Val, true
 }
 
-// TODO: while reading segments, using snapshot to prevent race condition
-func (s *Segment) Clone() Segment {
-	return Segment{
-		id:          s.id,
-		level:       s.level,
-		smallestKey: s.smallestKey,
-		timestamp:   s.timestamp,
-		keyCount:    s.keyCount,
-	}
-}
-
-type SegmentCollection struct {
+type Collection struct {
 	mu       sync.Mutex
 	levelMap map[int][]Segment // using 2-d array, index of segments
 	maxLevel int               // whenever a compaction starts, adjust this maxLevel
 	segCount int
 }
 
-func NewSegmentCollection() SegmentCollection {
-	return SegmentCollection{levelMap: map[int][]Segment{}, maxLevel: 0, segCount: 0, mu: sync.Mutex{}}
+func NewSegmentCollection() Collection {
+	return Collection{levelMap: map[int][]Segment{}, maxLevel: 0, segCount: 0, mu: sync.Mutex{}}
 }
 
-func (s *SegmentCollection) Add(seg Segment) {
+func (s *Collection) Add(seg Segment) {
 	s.mu.Lock()
 	if _, ok := s.levelMap[seg.level]; !ok {
 		s.levelMap[seg.level] = []Segment{}
@@ -130,7 +119,7 @@ func (s *SegmentCollection) Add(seg Segment) {
 	s.mu.Unlock()
 }
 
-func (s *SegmentCollection) GetSegmentCountByLevel(level int) (int, bool) {
+func (s *Collection) GetSegmentCountByLevel(level int) (int, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if segments, ok := s.levelMap[level]; ok {
@@ -139,7 +128,7 @@ func (s *SegmentCollection) GetSegmentCountByLevel(level int) (int, bool) {
 	return 0, false
 }
 
-func (s *SegmentCollection) GetSegmentByLevel(level int) ([]Segment, bool) {
+func (s *Collection) GetSegmentByLevel(level int) ([]Segment, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if segments, ok := s.levelMap[level]; ok {
@@ -150,21 +139,21 @@ func (s *SegmentCollection) GetSegmentByLevel(level int) ([]Segment, bool) {
 	return *new([]Segment), false
 }
 
-func (s *SegmentCollection) GetLevel() int {
+func (s *Collection) GetLevel() int {
 	s.mu.Lock()
 	level := len(s.levelMap)
 	s.mu.Unlock()
 	return level
 }
 
-func (s *SegmentCollection) GetSegmentCount() int {
+func (s *Collection) GetSegmentCount() int {
 	s.mu.Lock()
 	count := s.segCount
 	s.mu.Unlock()
 	return count
 }
 
-func (s *SegmentCollection) CompactionCondition() bool {
+func (s *Collection) CompactionCondition() bool {
 	/**
 	 * Implement the compaction condtion for manager to determine
 	 * When we are starts to compact
@@ -172,6 +161,6 @@ func (s *SegmentCollection) CompactionCondition() bool {
 	return false
 }
 
-func (s *SegmentCollection) Compaction() {
+func (s *Collection) Compaction() {
 	panic("not implemented yet")
 }

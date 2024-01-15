@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Route(route *gin.Engine) {
+func Routes(route *gin.Engine) {
 	route.GET("/", func(c *gin.Context) {
 		c.String(http.StatusOK, "")
 	})

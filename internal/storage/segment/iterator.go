@@ -31,11 +31,21 @@ func (sc *SegmentCollectionIterator) hasNext(segCollection *Collection) bool {
 
 // This is a huge performance drop, optimize this ... n * nlogln
 func (sc *SegmentCollectionIterator) getNext(segCollection *Collection) (Segment, error) {
+	/**
+	 * This iterator is really slow, since it first get all the segments in the same level
+	 * from segCollection. Second sort the segments by timestamp, which is super slow.
+	 * Most importantly, this is a getNext function, therefore this function is under a for loop
+	 * The total operation of iterating segments costs O(n) * (O(n) + O(nlogn)), super slow.
+	 *
+	 * One solution is implement level zero with tree like structure and compare with timestamp
+	 * during insertion in level 0, the only level that is sensitive to time ordering. Then remove this iterator mother fucker.
+	 */
+
 	var (
 		segments []Segment
 		status   bool
 	)
-	if sc.level == 0 { // if level is zero, we should return by timestamp, since there might be duplcate keys
+	if sc.level == 0 { // sensitive to timestamp, should order by timestamp
 		segments, status = segCollection.GetSegmentByLevel(0)
 		if !status {
 			fmt.Println("Something went wrong while reading level 0 segments")

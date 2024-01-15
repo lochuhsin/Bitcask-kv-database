@@ -63,12 +63,17 @@ type linkedlist struct {
 
 type TaskOrderedMap struct {
 	taskMap map[taskId]*linkedlist
-	top     *linkedlist // use sentinel node to implement this
-	bottom  *linkedlist // use sentinel node to implement this
+	top     *linkedlist
+	bottom  *linkedlist
 	mu      sync.Mutex
 }
 
 func InitTaskOrderedMap() *TaskOrderedMap {
+
+	/**
+	 * I'm using sentinel node to implement ordered map
+	 * as it is simpler to handle base case
+	 */
 	top := &linkedlist{}
 	bottom := &linkedlist{}
 	top.next = bottom

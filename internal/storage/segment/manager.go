@@ -4,16 +4,14 @@ import (
 	"fmt"
 	"rebitcask/internal/storage/dao"
 	"rebitcask/internal/storage/memory"
-	"sync"
 )
 
 type Manager struct {
-	collection      Collection
-	primaryIndexMap sync.Map // type of [segmentId, *PrimaryIndex]
+	collection Collection
 }
 
 func NewSegmentManager() *Manager {
-	return &Manager{collection: NewSegmentCollection(), primaryIndexMap: sync.Map{}}
+	return &Manager{collection: NewSegmentCollection()}
 }
 
 func (s *Manager) Get(k dao.NilString) (val dao.Base, status bool) {
@@ -27,11 +25,10 @@ func (s *Manager) Get(k dao.NilString) (val dao.Base, status bool) {
 			continue
 		}
 		sid := segment.id
-		segIndex, status := s.primaryIndexMap.Load(sid)
-		sIndex := segIndex.(*PrimaryIndex)
-
-		if !status {
-			fmt.Printf("Notice!!!! segment index of %v not found \n", sid)
+		sIndex := segment.pIndex
+		if sIndex == nil {
+			fmt.Println(sid, status, sIndex)
+			panic("index not found")
 		}
 
 		offsetLen, ok := sIndex.Get(k)
@@ -54,21 +51,14 @@ func (s *Manager) ConvertToSegment(m memory.IMemory) {
 	 * First we generate a new segment
 	 */
 	pairs := m.GetAll()
-	Seg := NewSegment(int64(s.collection.GetSegmentCount()))
-	SegIndex := InitSegmentIndex(Seg.id)
+	seg := NewSegment(int64(s.collection.GetSegmentCount()))
+	segIndex := InitSegmentIndex(seg.id)
+	seg.pIndex = &segIndex
 
 	// Write to segment file and generate segment index, metadata in the same time
-	writeSegmentToFile(&Seg, &SegIndex, pairs)
+	writeSegmentToFile(&seg, pairs)
+	writeSegmentMetadata(&seg)
+	writeSegmentIndexToFile(&seg)
 
-	// TODO: use goroutine to write concurrently, i.e wait group
-	writeSegmentMetadata(&Seg)
-	writeSegmentIndexToFile(&SegIndex)
-
-	s.collection.Add(Seg)
-	s.primaryIndexMap.Store(SegIndex.id, &SegIndex)
-
-	// TODO: Check compaction condition, if meets trigger it, however this should be implemented in scheduler
-	if s.collection.CompactionCondition() {
-		s.collection.Compaction()
-	}
+	s.collection.Add(seg)
 }

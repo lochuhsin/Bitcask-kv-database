@@ -20,7 +20,7 @@ func getSegmentMetaDataFilePath(segId string) string {
 	return fmt.Sprintf("%v%v%v%v", settings.ENV.DataPath, settings.SEGMENT_FILE_FOLDER, segId, settings.SEGMENT_FILE_METADATA_EXT)
 }
 
-func writeSegmentToFile(s *Segment, sIndex *PrimaryIndex, pairs []dao.Pair) {
+func writeSegmentToFile(s *Segment, pairs []dao.Pair) {
 	/**
 	 * Note, assuming that key in pairs are sorted in ascending order
 	 */
@@ -45,7 +45,7 @@ func writeSegmentToFile(s *Segment, sIndex *PrimaryIndex, pairs []dao.Pair) {
 			panic("something went wrong while writing to segment")
 		}
 		// offset minus data saparater = the length of the data
-		sIndex.Set(p.Key, curroffset, offset-len([]byte(settings.DATASAPARATER)))
+		s.pIndex.Set(p.Key, curroffset, offset-len([]byte(settings.DATASAPARATER)))
 		curroffset += offset
 	}
 	writer.Flush()
@@ -73,8 +73,8 @@ func writeSegmentMetadata(s *Segment) {
 	writer.Flush()
 }
 
-func writeSegmentIndexToFile(sIndex *PrimaryIndex) {
-	filePath := getSegmentIndexFilePath(sIndex.id)
+func writeSegmentIndexToFile(segment *Segment) {
+	filePath := getSegmentIndexFilePath(segment.id)
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777) //TODO: optimize the mode
 	if err != nil {
 		panic(err)
@@ -83,7 +83,7 @@ func writeSegmentIndexToFile(sIndex *PrimaryIndex) {
 
 	writer := bufio.NewWriter(file)
 
-	offsetMap := sIndex.offsetMap
+	offsetMap := segment.pIndex.offsetMap
 
 	for key, val := range offsetMap {
 		data := segmentIndexSerialize(key.Format(), val.Format())

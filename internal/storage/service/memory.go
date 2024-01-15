@@ -83,6 +83,25 @@ func MDelete(k dao.NilString) {
 		panic(err)
 	}
 
+	for memory.MemModel.Isfrozen() {
+		/**
+		 * This for loop is a workaround when the memory is under the process of
+		 * converting to segment. In this case, the memory model is frozen, in which
+		 * it closes the write operation. So we had two choices:
+		 *
+		 * 1. Wait until the memory model, is unfrozen
+		 *
+		 * 2. we use a queue to hold all the frozen memory, especially when the write
+		 * operation is really huge. Run a background goroutine to process these frozen memory.
+		 * In the meantime, we create a new memory model for keep writing.
+		 *
+		 * For current implementation, we choose the first one, since it's simpler to implement.
+		 * However the performance impact of write heavy cases are really huge.
+		 * Therefore, we should be able to reimplement to the second method, in near future.
+		 *
+		 */
+
+	}
 	memory.MemModel.Set(pair)
 	memoryToSegment(memory.MemModel)
 }

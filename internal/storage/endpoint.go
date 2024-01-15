@@ -27,17 +27,13 @@ func Get(k string) (any, bool) {
 	}
 
 	m, status := service.MGet(_k.(dao.NilString))
-
-	if status && m.GetType() != dao.Tombstone {
-		return m.GetVal(), true
-	} else if status && m.GetType() == dao.Tombstone {
-		return *new(any), false
+	if status {
+		return filterTombstone(m)
 	}
 
-	d, status := service.SGet(_k.(dao.NilString))
-
-	if status && d.GetType() != dao.Tombstone {
-		return d.GetVal(), true
+	s, status := service.SGet(_k.(dao.NilString))
+	if status {
+		return filterTombstone(s)
 	}
 	return *new(any), false
 }
@@ -105,4 +101,12 @@ func daoConverter(v any) (dao.Base, error) {
 	default:
 		return nil, errors.New("invalid data type")
 	}
+}
+
+func filterTombstone(val dao.Base) (any, bool) {
+	if val.GetType() == dao.Tombstone {
+		return new(*any), false
+	}
+
+	return val.GetVal(), true
 }

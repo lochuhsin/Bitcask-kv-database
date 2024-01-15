@@ -104,15 +104,13 @@ func TestStorageSetDelete(t *testing.T) {
 		if err != nil {
 			t.Error("Delete operation should work")
 		}
-
 	}
 
-	for i, k := range keys {
+	for _, k := range keys {
 		val, status := storage.Get(k)
 		if status {
 			str := fmt.Sprintf("the key should not exist: %v", val)
 			t.Error(str)
-			fmt.Println(val == vals[i])
 		}
 	}
 }

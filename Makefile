@@ -1,15 +1,15 @@
 
 .PHONY: test
 test: # vanilla test
-	go test ./test -race
+	go test ./test -race -count=1
 
 .PHONY: test-timeout
 test-timeout:
-	go test ./test -bench=. -benchmem -race -timeout 30s
+	go test ./test -bench=. -benchmem -race -timeout 30s -count=1
 
 .PHONY: test-concurrent
 test-concurrent:
-	go test ./test -race -parallel 10
+	go test ./test -race -parallel 10 -count=1
 
 .PHONY: build
 build:

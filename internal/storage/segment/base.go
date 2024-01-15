@@ -31,13 +31,14 @@ type Segment struct {
 	smallestKey string // indicates the smallest key in current segment
 	timestamp   int64  // the time that segment was created
 	keyCount    int
+	pIndex      *PrimaryIndex
 }
 
 func NewSegment(segCount int64) Segment {
 	// the reason of adding segcount is that
 	// the creation of a segment is too fast that even nano seconds
 	// could not distinguish between segments order
-	return Segment{id: uuid.New().String(), level: 0, smallestKey: "", timestamp: time.Now().UnixNano() + segCount}
+	return Segment{id: uuid.New().String(), level: 0, smallestKey: "", timestamp: time.Now().UnixNano() + segCount, pIndex: nil}
 }
 
 func (s *Segment) Get(k dao.NilString) (dao.Base, bool) {

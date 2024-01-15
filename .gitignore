@@ -11,3 +11,4 @@ cpu.pprof
 mem.pprof
 *.pprof
 *.test
+*main

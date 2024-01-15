@@ -2,13 +2,13 @@ package test
 
 import (
 	"os"
-	"rebitcask/internal/storage"
+	"rebitcask"
 	"testing"
 	"time"
 )
 
 func setup() {
-	storage.Init()
+	rebitcask.Init()
 }
 
 func teardown() {
@@ -26,35 +26,35 @@ func TestMain(m *testing.M) {
 func BenchmarkFullSearchStorageGet(b *testing.B) {
 	keys, _ := GenerateLowDuplicateRandom(b.N)
 	for _, k := range keys {
-		_, _ = storage.Get(k)
+		_, _ = rebitcask.Get(k)
 	}
 }
 
 func BenchmarkStorageSet(b *testing.B) {
 	keys, vals := GenerateLowDuplicateRandom(b.N)
 	for i, k := range keys {
-		_ = storage.Set(k, vals[i])
+		_ = rebitcask.Set(k, vals[i])
 	}
 }
 
 func BenchmarkStorageGet(b *testing.B) {
 	keys, _ := GenerateLowDuplicateRandom(b.N)
 	for _, k := range keys {
-		_, _ = storage.Get(k)
+		_, _ = rebitcask.Get(k)
 	}
 }
 
 func BenchmarkStorageDelete(b *testing.B) {
 	keys, _ := GenerateLowDuplicateRandom(b.N)
 	for _, k := range keys {
-		_ = storage.Delete(k)
+		_ = rebitcask.Delete(k)
 	}
 }
 
 func BenchmarkStorageSetGet(b *testing.B) {
 	keys, vals := GenerateLowDuplicateRandom(b.N)
 	for i, k := range keys {
-		_ = storage.Set(k, vals[i])
-		_, _ = storage.Get(k)
+		_ = rebitcask.Set(k, vals[i])
+		_, _ = rebitcask.Get(k)
 	}
 }

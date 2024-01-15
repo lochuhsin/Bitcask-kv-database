@@ -1,9 +1,9 @@
 package main
 
 import (
-	"rebitcask/api/chore"
-	"rebitcask/api/core"
-	"rebitcask/internal/storage"
+	"rebitcask"
+	"rebitcask/server/api/chore"
+	"rebitcask/server/api/core"
 
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"     // swagger embed files
@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	storage.Init()
+	rebitcask.Init()
 
 	r := gin.Default()
 	core.Routes(r)

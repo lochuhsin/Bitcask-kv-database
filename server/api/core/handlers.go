@@ -3,7 +3,7 @@ package core
 import (
 	"log"
 	"net/http"
-	"rebitcask/internal/storage"
+	"rebitcask"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,7 +21,7 @@ import (
 // @Router /core [get]
 func getHandler(c *gin.Context) {
 	key := c.Query("key")
-	val, status := storage.Get(key)
+	val, status := rebitcask.Get(key)
 	if !status {
 		c.String(http.StatusBadRequest, "")
 	}
@@ -31,7 +31,7 @@ func getHandler(c *gin.Context) {
 func postHandler(c *gin.Context) {
 	obj := dataRequestSerializer{}
 	c.Bind(&obj)
-	storage.Set(obj.Key, obj.Value)
+	rebitcask.Set(obj.Key, obj.Value)
 	log.Println(obj.Key, obj.Value)
 	c.JSON(http.StatusCreated, obj)
 }
@@ -39,7 +39,7 @@ func postHandler(c *gin.Context) {
 func putHandler(c *gin.Context) {
 	obj := dataRequestSerializer{}
 	c.Bind(&obj)
-	err := storage.Set(obj.Key, obj.Value)
+	err := rebitcask.Set(obj.Key, obj.Value)
 	if err != nil {
 		c.String(http.StatusBadRequest, "invalid operation")
 	}
@@ -50,7 +50,7 @@ func patchHandler(c *gin.Context) {
 	obj := dataRequestSerializer{}
 	c.Bind(&obj)
 
-	err := storage.Set(obj.Key, obj.Value)
+	err := rebitcask.Set(obj.Key, obj.Value)
 	if err != nil {
 		c.String(http.StatusBadRequest, "invalid operation")
 	}
@@ -60,7 +60,7 @@ func patchHandler(c *gin.Context) {
 func deleteHandler(c *gin.Context) {
 	obj := dataRequestSerializer{}
 	c.Bind(&obj)
-	err := storage.Delete(obj.Key)
+	err := rebitcask.Delete(obj.Key)
 	if err != nil {
 		c.String(http.StatusBadRequest, "invalid operation")
 	}

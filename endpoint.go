@@ -2,8 +2,8 @@ package rebitcask
 
 import (
 	"errors"
-	"rebitcask/internal/storage/dao"
-	"rebitcask/internal/storage/service"
+	"rebitcask/internal/dao"
+	"rebitcask/internal/service"
 )
 
 func Get(k string) (any, bool) {

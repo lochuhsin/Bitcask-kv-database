@@ -1,8 +1,8 @@
 package service
 
 import (
-	"rebitcask/internal/storage/dao"
-	"rebitcask/internal/storage/segment"
+	"rebitcask/internal/dao"
+	"rebitcask/internal/segment"
 )
 
 func SGet(k dao.NilString) (val dao.Base, status bool) {

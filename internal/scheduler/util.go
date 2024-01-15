@@ -1,7 +1,7 @@
 package scheduler
 
 import (
-	"rebitcask/internal/storage/memory"
+	"rebitcask/internal/memory"
 	"time"
 
 	"github.com/google/uuid"

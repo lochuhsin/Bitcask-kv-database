@@ -1,6 +1,6 @@
 package service
 
-import "rebitcask/internal/storage/cache"
+import "rebitcask/internal/cache"
 
 func CGet(k string) bool {
 	return cache.Cache.Get(k)

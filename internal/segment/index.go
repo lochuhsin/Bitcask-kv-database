@@ -2,7 +2,7 @@ package segment
 
 import (
 	"fmt"
-	"rebitcask/internal/storage/dao"
+	"rebitcask/internal/dao"
 )
 
 type OffsetLen struct {

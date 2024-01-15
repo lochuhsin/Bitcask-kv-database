@@ -1,6 +1,6 @@
 package memory
 
-import "rebitcask/internal/storage/dao"
+import "rebitcask/internal/dao"
 
 type avlnode struct {
 	key    dao.NilString

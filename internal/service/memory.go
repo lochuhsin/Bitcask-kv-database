@@ -1,10 +1,10 @@
 package service
 
 import (
+	"rebitcask/internal/dao"
+	"rebitcask/internal/memory"
+	"rebitcask/internal/scheduler"
 	"rebitcask/internal/settings"
-	"rebitcask/internal/storage/dao"
-	"rebitcask/internal/storage/memory"
-	"rebitcask/internal/storage/scheduler"
 	"sync"
 )
 

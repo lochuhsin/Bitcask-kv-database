@@ -3,7 +3,7 @@ package segment
 import (
 	"bufio"
 	"os"
-	"rebitcask/internal/storage/dao"
+	"rebitcask/internal/dao"
 	"sync"
 	"time"
 

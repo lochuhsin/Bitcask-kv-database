@@ -2,8 +2,8 @@ package scheduler
 
 import (
 	"fmt"
+	"rebitcask/internal/segment"
 	"rebitcask/internal/settings"
-	"rebitcask/internal/storage/segment"
 )
 
 type taskSignal struct {

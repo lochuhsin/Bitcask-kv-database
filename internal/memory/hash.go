@@ -1,7 +1,7 @@
 package memory
 
 import (
-	"rebitcask/internal/storage/dao"
+	"rebitcask/internal/dao"
 	"sort"
 	"sync"
 )

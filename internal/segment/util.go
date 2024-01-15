@@ -4,8 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"rebitcask/internal/dao"
 	"rebitcask/internal/settings"
-	"rebitcask/internal/storage/dao"
 )
 
 func getSegmentFilePath(segId string) string {

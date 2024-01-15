@@ -3,11 +3,11 @@ package rebitcask
 import (
 	"fmt"
 	"os"
+	"rebitcask/internal/cache"
+	"rebitcask/internal/memory"
+	"rebitcask/internal/scheduler"
+	"rebitcask/internal/segment"
 	"rebitcask/internal/settings"
-	"rebitcask/internal/storage/cache"
-	"rebitcask/internal/storage/memory"
-	"rebitcask/internal/storage/scheduler"
-	"rebitcask/internal/storage/segment"
 )
 
 // move these to env

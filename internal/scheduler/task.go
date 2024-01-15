@@ -2,7 +2,7 @@ package scheduler
 
 import (
 	"errors"
-	"rebitcask/internal/storage/memory"
+	"rebitcask/internal/memory"
 	"sync"
 )
 

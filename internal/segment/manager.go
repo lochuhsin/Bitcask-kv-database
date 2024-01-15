@@ -2,8 +2,8 @@ package segment
 
 import (
 	"fmt"
-	"rebitcask/internal/storage/dao"
-	"rebitcask/internal/storage/memory"
+	"rebitcask/internal/dao"
+	"rebitcask/internal/memory"
 )
 
 type Manager struct {

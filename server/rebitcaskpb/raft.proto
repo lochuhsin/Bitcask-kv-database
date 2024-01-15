@@ -1,23 +1,9 @@
 syntax = "proto3";
+package rebitcaskpb;
 
-package chore;
-option go_package = "proto/grpc-demo";
+option go_package = "proto/rebitcaskpb";
 
-enum ServerType {
-	LEADER = 0;
-	FOLLOWER = 1;
-
-}
-
-message GetHeartBeatRequest {
-	string server_name = 1;
-	int32 status = 2;
-	ServerType server_type = 3;
-}
-
-message GetHeartBeatResponse {
-    int32 status = 4;
-}
+import "server/chorepb/chore.proto";
 
 service Chore {
     rpc GetHeartBeat(GetHeartBeatRequest) returns (GetHeartBeatResponse);

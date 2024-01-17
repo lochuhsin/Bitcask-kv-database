@@ -1,11 +1,13 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"rebitcask"
 	"rebitcask/api/chore"
 	"rebitcask/api/core"
+	"rebitcask/server/chorepb"
 	"rebitcask/server/rebitcaskpb"
 
 	"github.com/gin-gonic/gin"
@@ -14,9 +16,19 @@ import (
 	"google.golang.org/grpc"
 )
 
+type grpcServer struct {
+	rebitcaskpb.UnimplementedRebitcaskServiceServer
+}
+
+func (s *grpcServer) GetHeartBeat(context.Context, *chorepb.GetHeartBeatRequest) (*chorepb.GetHeartBeatResponse, error) {
+	return &chorepb.GetHeartBeatResponse{
+		Status: 200,
+	}, nil
+}
+
 func runGRPC() {
 	port := ":9090"
-	rbServer := Server{}
+	rbServer := grpcServer{}
 	lst, err := net.Listen("tcp", port)
 	if err != nil {
 		panic("unable to listen port " + port)

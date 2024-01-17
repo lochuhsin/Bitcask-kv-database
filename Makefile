@@ -13,15 +13,15 @@ test-concurrent:
 
 .PHONY: build
 build:
-	go build -o app server/cmd/main.go
+	go build -o app cmd/main.go
 
 .PHONY: build-race
 build-race:
-	go build -race -o app server/cmd/main.go 
+	go build -race -o app cmd/main.go 
 
 .PHONY: build-escape
 build-escape:
-	go build -gcflags "-m -l" -o app server/cmd/main.go
+	go build -gcflags "-m -l" -o app cmd/main.go
 
 .PHONY: run
 run:

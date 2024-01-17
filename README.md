@@ -69,8 +69,11 @@ time.
 - [ ]  Implement graceful exit
 
 ---
-### Setup
-- Swagger Path: http://localhost:8080/swagger/index.html
+### Development Setup
+- Install swag, gin-swag ...etc
+- Install protoc-gen-go, protoc-gen-go-grpc, protoc (proto3)
+- Go 1.21 +
+- go mod tidy
 
 ### How to ....use?
 1. Used as library:

@@ -1,10 +1,12 @@
 syntax = "proto3";
-package chore;
+
+package chorepb;
+
+option go_package = "rebitcask/server/chorepb";
 
 enum ServerType {
 	LEADER = 0;
 	FOLLOWER = 1;
-
 }
 
 message GetHeartBeatRequest {

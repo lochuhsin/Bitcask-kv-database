@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package rebitcaskpb;
+
+option go_package = "rebitcask/server/rebitcaskpb";
+
+import "server/chorepb/chore.proto";
+
+
+service RebitcaskService {
+    rpc GetHeartBeat(chorepb.GetHeartBeatRequest) returns (chorepb.GetHeartBeatResponse) {};
+}

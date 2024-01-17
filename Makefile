@@ -25,7 +25,11 @@ build-escape:
 
 .PHONY: run
 run:
-	go build -o app cmd/main.go  && ./app
+	swag init -g ./cmd/main.go -o ./docs && go build -o app cmd/main.go && ./app
+
+.PHONY: run-prod
+run:
+	go build -o app cmd/main.go && ./app
 
 .PHONY: all_profile
 all_profile:

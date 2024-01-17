@@ -7,6 +7,8 @@ type envVar struct {
 	MemoryCountLimit  int
 	MemoryModel       string
 	SegFileCountLimit int // used for merge segments or change to other
+	HttpPort          string
+	GrpcPort          string
 }
 
 // TODO: Convert this to singleton

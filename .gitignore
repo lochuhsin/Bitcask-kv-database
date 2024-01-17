@@ -7,8 +7,7 @@ cli/cli
 app
 .DS_Store
 test/*.DS_Store
-cpu.pprof
-mem.pprof
 *.pprof
 *.test
 *main
+docs/

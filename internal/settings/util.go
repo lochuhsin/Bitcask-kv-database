@@ -16,6 +16,8 @@ func InitENV() {
 		MemoryModel:       "hash",
 		MemoryCountLimit:  1000000,
 		SegFileCountLimit: 100,
+		HttpPort:          ":8080",
+		GrpcPort:          ":9090",
 	}
 	err := godotenv.Load(ENVPATH)
 

@@ -10,6 +10,10 @@ import (
 	"rebitcask/server/chorepb"
 	"rebitcask/server/rebitcaskpb"
 
+	_ "rebitcask/docs"
+
+	"rebitcask/internal/settings"
+
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"     // swagger embed files
 	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
@@ -26,8 +30,7 @@ func (s *grpcServer) GetHeartBeat(context.Context, *chorepb.GetHeartBeatRequest)
 	}, nil
 }
 
-func runGRPC() {
-	port := ":9090"
+func runGRPC(port string) {
 	rbServer := grpcServer{}
 	lst, err := net.Listen("tcp", port)
 	if err != nil {
@@ -41,15 +44,14 @@ func runGRPC() {
 
 func main() {
 	rebitcask.Init()
+	env := settings.ENV
 	r := gin.Default()
 	core.Routes(r)
 	chore.Routes(r)
-	port := ":8000"
-	ginSwagger.WrapHandler(swaggerfiles.Handler, ginSwagger.URL("http://localhost:8000/swagger/doc.json"))
 
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	// use channel to handle goroutine shut down
-	go runGRPC()
-
-	r.Run(port) // listen and serve on 0.0.0.0:8080
+	go runGRPC(env.GrpcPort)
+	r.Run(env.HttpPort) // listen and serve on 0.0.0.0:8080
 
 }

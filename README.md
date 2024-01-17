@@ -69,6 +69,9 @@ time.
 - [ ]  Implement graceful exit
 
 ---
+### Setup
+- Swagger Path: http://localhost:8080/swagger/index.html
+
 ### How to ....use?
 1. Used as library:
 

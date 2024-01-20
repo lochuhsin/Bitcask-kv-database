@@ -168,8 +168,8 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 <!-- CONTACT -->
 ## Contact
-[@Email](lochuhsin@gmail.com)
-[@linkedin](https://www.linkedin.com/in/lochuhsin/)
+- [@Email](lochuhsin@gmail.com)
+- [@linkedin](https://www.linkedin.com/in/lochuhsin/)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

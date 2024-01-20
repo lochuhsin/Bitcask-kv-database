@@ -7,10 +7,14 @@ import (
 var MemModel IMemory
 var mOnce sync.Once
 
-func MemoryInit(mType ModelType) {
+func InitMemory(mType ModelType) {
 	mOnce.Do(func() {
 		if MemModel == nil {
 			MemModel = MemoryTypeSelector(mType)
 		}
 	})
+}
+
+func GetMemoryStorage() IMemory {
+	return MemModel
 }

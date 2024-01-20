@@ -51,6 +51,6 @@ const SEGMENT_LOG_FILE = "s.log"
  * Convert to segment scheduler parameters
  */
 
-const TASK_POOL_SIZE = 1000
+const TASK_POOL_SIZE = 100
 
 const WORKER_COUNT = 30

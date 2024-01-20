@@ -11,6 +11,7 @@ type Manager struct {
 }
 
 func NewSegmentManager() *Manager {
+	// TODO: Convert to dependecy injection
 	return &Manager{collection: NewSegmentCollection()}
 }
 
@@ -47,18 +48,15 @@ func (s *Manager) Get(k dao.NilString) (val dao.Base, status bool) {
 }
 
 func (s *Manager) ConvertToSegment(m memory.IMemory) {
-	/**
-	 * First we generate a new segment
-	 */
 	pairs := m.GetAll()
 	seg := NewSegment(int64(s.collection.GetSegmentCount()))
-	segIndex := InitSegmentIndex(seg.id)
+	segIndex := NewSegmentIndex(seg.id)
 	seg.pIndex = &segIndex
 
 	// Write to segment file and generate segment index, metadata in the same time
-	writeSegmentToFile(&seg, pairs)
-	writeSegmentMetadata(&seg)
-	writeSegmentIndexToFile(&seg)
+	segmentToFile(&seg, pairs)
+	segmentToMetadata(&seg)
+	segmentIndexToFile(&seg)
 
 	s.collection.Add(seg)
 }

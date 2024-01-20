@@ -3,9 +3,12 @@ package service
 import (
 	"rebitcask/internal/dao"
 	"rebitcask/internal/memory"
-	"rebitcask/internal/scheduler"
 	"rebitcask/internal/settings"
+	"rebitcask/internal/task"
 	"sync"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 var muSegConverter = &sync.Mutex{}
@@ -21,17 +24,12 @@ func MGet(k dao.NilString) (val dao.Base, status bool) {
 	 * 3. Get from schedumere
 	 */
 
-	val, status = memory.MemModel.Get(k)
+	val, status = memory.GetMemoryStorage().Get(k)
 	if status {
 		return val, status
 	}
 
 	val, status = getFromTaskPool(k)
-	if status {
-		return val, status
-	}
-
-	val, status = getFromSchedulerPool(k)
 	if status {
 		return val, status
 	}
@@ -50,8 +48,9 @@ func MSet(k dao.NilString, v dao.Base) {
 	if err != nil {
 		panic(err)
 	}
+	mStorage := memory.GetMemoryStorage()
 	// write to memory
-	for memory.MemModel.Isfrozen() {
+	for mStorage.Isfrozen() {
 		/**
 		 * This for loop is a workaround when the memory is under the process of
 		 * converting to segment. In this case, the memory model is frozen, in which
@@ -70,8 +69,8 @@ func MSet(k dao.NilString, v dao.Base) {
 		 */
 
 	}
-	memory.MemModel.Set(pair)
-	memoryToSegment(memory.MemModel)
+	mStorage.Set(pair)
+	dumpMemory(mStorage)
 }
 
 func MDelete(k dao.NilString) {
@@ -82,8 +81,8 @@ func MDelete(k dao.NilString) {
 	if err != nil {
 		panic(err)
 	}
-
-	for memory.MemModel.Isfrozen() {
+	mStorage := memory.GetMemoryStorage()
+	for mStorage.Isfrozen() {
 		/**
 		 * This for loop is a workaround when the memory is under the process of
 		 * converting to segment. In this case, the memory model is frozen, in which
@@ -102,8 +101,8 @@ func MDelete(k dao.NilString) {
 		 */
 
 	}
-	memory.MemModel.Set(pair)
-	memoryToSegment(memory.MemModel)
+	mStorage.Set(pair)
+	dumpMemory(mStorage)
 }
 
 func mLog(pair dao.Pair) error {
@@ -112,49 +111,49 @@ func mLog(pair dao.Pair) error {
 }
 
 func getFromTaskPool(k dao.NilString) (val dao.Base, status bool) {
-	tasks := scheduler.TaskPool.GetWaitingTasks()
-	for _, t := range tasks {
-		m, status := t.GetMemory().Get(k)
+	pool := task.GetTaskPool()
+	for _, t := range pool.GetByOrder() {
+		val, status := t.M.Get(k)
 		if status {
-			return m, status
+			return val, status
 		}
 	}
 	return nil, false
 }
 
-func getFromSchedulerPool(k dao.NilString) (val dao.Base, status bool) {
-	tasks := scheduler.Sched.GetByOrder()
-	for _, t := range tasks {
-		m, status := t.GetMemory().Get(k)
-		if status {
-			return m, status
-		}
-	}
-	return nil, false
-}
-
-func memoryToSegment(m memory.IMemory) (bool, error) {
+func dumpMemory(m memory.IMemory) (bool, error) {
 	/**
-	 * TODO:
-	 * 1. We need a lock to make sure that when the memModel is under
-	 * the convertion to segment, the memory model is not allowed to
-	 * perform write operations, which means frozen.
+	 * TODO: not sure how to speed this up
+	 * Since double checking locking pattern is not working in
+	 * Go memory model
+	 */
+	muSegConverter.Lock()
+	if m.GetSize() > settings.ENV.MemoryCountLimit {
+		m.Setfrozen(true)
+		createTask(m)
+		m.Reset()
+	}
+	muSegConverter.Unlock()
+	return true, nil
+}
+
+func createTask(m memory.IMemory) {
+	/**
+	 * Note: Adding task to task pool and adding task id to tChan
+	 * should be considered atomic.
 	 *
-	 * In this scenario, we need a mechanism, that is able to create
-	 * a new memory model to store the new write operation
+	 * Still trying to figure out the mutex mechanism here.
 	 */
 
-	if m.GetSize() > settings.ENV.MemoryCountLimit {
-		muSegConverter.Lock()
-		if m.GetSize() > settings.ENV.MemoryCountLimit {
-			m.Setfrozen(true)
-			newM := m.Clone()
+	tPool := task.GetTaskPool()
+	tChan := task.GetTaskChan()
+	newM := m.Clone() // doing snapshot
 
-			task := scheduler.ConvertMemoToTask(newM)
-			scheduler.AddTask(task)
-			memory.MemModel.Reset()
-		}
-		muSegConverter.Unlock()
+	t := task.Task{
+		Timestamp: time.Now().UnixNano(),
+		Id:        task.TaskId(uuid.New().String()), // avoiding this in the future
+		M:         newM,
 	}
-	return true, nil
+	tPool.Set(t.Id, t)
+	tChan <- t.Id
 }

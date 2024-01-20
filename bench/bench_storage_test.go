@@ -45,9 +45,9 @@ func BenchmarkStorageGet(b *testing.B) {
 }
 
 func BenchmarkStorageDelete(b *testing.B) {
-	keys, _ := GenerateLowDuplicateRandom(b.N)
-	for _, k := range keys {
-		_ = rebitcask.Delete(k)
+	keys, vals := GenerateLowDuplicateRandom(b.N)
+	for i, k := range keys {
+		_ = rebitcask.Set(k, vals[i])
 	}
 }
 

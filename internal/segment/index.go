@@ -20,7 +20,7 @@ type PrimaryIndex struct {
 	offsetMap map[dao.NilString]OffsetLen
 }
 
-func InitSegmentIndex(sid string) PrimaryIndex {
+func NewSegmentIndex(sid string) PrimaryIndex {
 	return PrimaryIndex{offsetMap: map[dao.NilString]OffsetLen{}}
 }
 

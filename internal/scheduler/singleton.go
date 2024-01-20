@@ -1,49 +1,24 @@
 package scheduler
 
-import (
-	"rebitcask/internal/settings"
-	"sync"
-)
+import "sync"
 
-/**
- * TODO: Fuck !!, I need to manage this simultaneously .... still thinking the better way
- */
 var (
-	TaskPool *taskPool
-	tpOnce   sync.Once
-
-	TaskChan chan task
-	tcOnce   sync.Once
-
-	Sched   *Scheduler
-	schOnce sync.Once
+	scheduler *Scheduler
+	sOnce     sync.Once
 )
 
-func TaskPoolInit() {
-	tpOnce.Do(func() {
-		if TaskPool == nil {
-			TaskPool = &taskPool{
-				queue: []task{},
-				mu:    sync.Mutex{},
+func InitScheduler() {
+	sOnce.Do(
+		func() {
+			if scheduler == nil {
+				scheduler = NewScheduler()
+				go scheduler.TaskSignalListner()
+				go scheduler.TaskPoolListener()
 			}
-		}
-	})
+		},
+	)
 }
 
-func TaskChannelInit() {
-	tcOnce.Do(func() {
-		if TaskChan == nil {
-			TaskChan = make(chan task, settings.TASK_POOL_SIZE)
-		}
-	})
-}
-
-func SchedulerInit() {
-	schOnce.Do(func() {
-		if Sched == nil {
-			Sched = NewScheduler()
-			go Sched.StartTaskScheduling()
-			go Sched.StartTaskSignalHandler()
-		}
-	})
+func GetScheduler() *Scheduler {
+	return scheduler
 }

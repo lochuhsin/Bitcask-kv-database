@@ -20,7 +20,7 @@ func getSegmentMetaDataFilePath(segId string) string {
 	return fmt.Sprintf("%v%v%v%v", settings.ENV.DataPath, settings.SEGMENT_FILE_FOLDER, segId, settings.SEGMENT_FILE_METADATA_EXT)
 }
 
-func writeSegmentToFile(s *Segment, pairs []dao.Pair) {
+func segmentToFile(s *Segment, pairs []dao.Pair) {
 	/**
 	 * Note, assuming that key in pairs are sorted in ascending order
 	 */
@@ -54,7 +54,7 @@ func writeSegmentToFile(s *Segment, pairs []dao.Pair) {
 	s.keyCount = len(pairs)
 }
 
-func writeSegmentMetadata(s *Segment) {
+func segmentToMetadata(s *Segment) {
 	filePath := getSegmentMetaDataFilePath(s.id)
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777) //TODO: optimize the mode
 	if err != nil {
@@ -73,7 +73,7 @@ func writeSegmentMetadata(s *Segment) {
 	writer.Flush()
 }
 
-func writeSegmentIndexToFile(segment *Segment) {
+func segmentIndexToFile(segment *Segment) {
 	filePath := getSegmentIndexFilePath(segment.id)
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777) //TODO: optimize the mode
 	if err != nil {

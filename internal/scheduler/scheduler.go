@@ -1,66 +1,65 @@
 package scheduler
 
 import (
-	"fmt"
 	"rebitcask/internal/segment"
 	"rebitcask/internal/settings"
+	"rebitcask/internal/task"
 )
 
-type taskSignal struct {
-	id     taskId
-	status taskStatus
+type status struct {
+	id     task.TaskId
+	status tStatus
 }
 
 type Scheduler struct {
-	/**
-	 * fuck, we need a datastructure that is O(1) for create / delete and O(n) in loop
-	 * objects in order, therefore i choose ordered map
-	 */
-	processPool TaskOrderedMap
-	taskSignal  chan taskSignal
+	statusChan      chan status
+	workerSemaphore chan struct{}
 }
 
 func NewScheduler() *Scheduler {
 	return &Scheduler{
-		processPool: *InitTaskOrderedMap(),
-		taskSignal:  make(chan taskSignal, settings.WORKER_COUNT),
+		statusChan:      make(chan status, 1000),
+		workerSemaphore: make(chan struct{}, settings.WORKER_COUNT)}
+}
+
+// Long running listener for tasks
+func (s *Scheduler) TaskPoolListener() {
+
+	tChan := task.GetTaskChan()
+	for taskId := range tChan {
+		s.workerSemaphore <- struct{}{}
+		go s.taskWorker(taskId)
 	}
 }
 
-// Daemon goroutine
-func (s *Scheduler) StartTaskScheduling() {
-
-	for t := range TaskChan {
-		tPool, err := TaskPool.Pop()
-		if !err {
-			panic("something went wrong, task pool should sync with task chen")
+// Long running listener for finshed task signals
+func (s *Scheduler) TaskSignalListner() {
+	/**
+	 * When the channel recieves a task finised signal,
+	 * Remove the task from task pool
+	 */
+	tPool := task.GetTaskPool()
+	for ts := range s.statusChan {
+		if ts.status != FINISHED {
+			panic("Some thing went wrong")
 		}
-		if tPool.id != t.id {
-			panic(fmt.Sprintf("In consistent task id: %v, %v", tPool.id, t.id))
-		}
-
-		s.processPool.Set(t.id, t)
-		go s.WriteToSegment(t)
+		tPool.Delete(ts.id)
+		<-s.workerSemaphore // releasing the position in semaphore
 	}
 }
 
-func (s *Scheduler) WriteToSegment(t task) {
-	segment.SegManager.ConvertToSegment(t.m)
-	s.taskSignal <- taskSignal{
-		id:     t.id,
+// worker
+func (s *Scheduler) taskWorker(tid task.TaskId) {
+	tPool := task.GetTaskPool()
+	task, st := tPool.Get(tid)
+	if !st {
+		panic("Got empty tasks, this shouldn't happen")
+	}
+
+	manager := segment.GetSegmentManager()
+	manager.ConvertToSegment(task.M)
+	s.statusChan <- status{
+		id:     tid,
 		status: FINISHED,
 	}
-}
-
-// Daemon goroutine
-func (s *Scheduler) StartTaskSignalHandler() {
-	for signal := range s.taskSignal {
-		if signal.status == FINISHED {
-			s.processPool.Delete(signal.id)
-		}
-	}
-}
-
-func (s *Scheduler) GetByOrder() []task {
-	return s.processPool.GetByOrder()
 }

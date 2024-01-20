@@ -1,9 +1,9 @@
 package scheduler
 
-type taskStatus string
+type tStatus string
 
 const (
-	PROCESSING taskStatus = "processing"
-	FINISHED   taskStatus = "finished"
-	FALIED     taskStatus = "failed"
+	PROCESSING tStatus = "processing"
+	FINISHED   tStatus = "finished"
+	FALIED     tStatus = "failed"
 )

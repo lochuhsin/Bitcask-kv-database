@@ -140,7 +140,7 @@ func (s *Collection) GetSegmentByLevel(level int) ([]Segment, bool) {
 
 func (s *Collection) GetLevel() int {
 	s.Lock()
-	level := len(s.levelMap)
+	level := s.maxLevel + 1
 	s.Unlock()
 	return level
 }

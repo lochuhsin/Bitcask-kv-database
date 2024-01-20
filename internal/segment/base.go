@@ -21,8 +21,6 @@ import (
  *
  * Each segment accompanies a segment index
  * which contains all the key and offset to the segment
- *
- * Then we have another
  */
 
 type Segment struct {
@@ -100,29 +98,29 @@ func (s *Segment) GetbyOffset(key dao.NilString, offset int, datalen int) (dao.B
 }
 
 type Collection struct {
-	mu       sync.Mutex
+	sync.Mutex
 	levelMap map[int][]Segment // using 2-d array, index of segments
 	maxLevel int               // whenever a compaction starts, adjust this maxLevel
 	segCount int
 }
 
 func NewSegmentCollection() Collection {
-	return Collection{levelMap: map[int][]Segment{}, maxLevel: 0, segCount: 0, mu: sync.Mutex{}}
+	return Collection{levelMap: map[int][]Segment{}, maxLevel: 0, segCount: 0}
 }
 
 func (s *Collection) Add(seg Segment) {
-	s.mu.Lock()
+	s.Lock()
 	if _, ok := s.levelMap[seg.level]; !ok {
 		s.levelMap[seg.level] = []Segment{}
 	}
 	s.levelMap[seg.level] = append(s.levelMap[seg.level], seg)
 	s.segCount++
-	s.mu.Unlock()
+	s.Unlock()
 }
 
 func (s *Collection) GetSegmentCountByLevel(level int) (int, bool) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.Lock()
+	defer s.Unlock()
 	if segments, ok := s.levelMap[level]; ok {
 		return len(segments), true
 	}
@@ -130,8 +128,8 @@ func (s *Collection) GetSegmentCountByLevel(level int) (int, bool) {
 }
 
 func (s *Collection) GetSegmentByLevel(level int) ([]Segment, bool) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
+	s.Lock()
+	defer s.Unlock()
 	if segments, ok := s.levelMap[level]; ok {
 		newSegments := make([]Segment, len(segments))
 		copy(newSegments, segments)
@@ -141,16 +139,16 @@ func (s *Collection) GetSegmentByLevel(level int) ([]Segment, bool) {
 }
 
 func (s *Collection) GetLevel() int {
-	s.mu.Lock()
+	s.Lock()
 	level := len(s.levelMap)
-	s.mu.Unlock()
+	s.Unlock()
 	return level
 }
 
 func (s *Collection) GetSegmentCount() int {
-	s.mu.Lock()
+	s.Lock()
 	count := s.segCount
-	s.mu.Unlock()
+	s.Unlock()
 	return count
 }
 

@@ -35,7 +35,8 @@ func segmentToFile(s *Segment, pairs []dao.Pair) {
 
 	curroffset := 0
 	s.smallestKey = pairs[0].Key.Val // the first key is the smallest value
-	for _, p := range pairs {        // TODO: convert this pair to generator pattern, hide inside segment, we don't need to know if the data needs to be serialized
+	// TODO: convert this pair to generator pattern, hide inside segment, we don't need to know if the data needs to be serialized
+	for _, p := range pairs {
 		data, err := dao.Serialize(p)
 		if err != nil {
 			panic("Error while serializing data")
@@ -49,7 +50,7 @@ func segmentToFile(s *Segment, pairs []dao.Pair) {
 		curroffset += offset
 	}
 	writer.Flush()
-
+	file.Sync()
 	s.smallestKey = pairs[0].Key.GetVal().(string)
 	s.keyCount = len(pairs)
 }
@@ -71,6 +72,8 @@ func segmentToMetadata(s *Segment) {
 		panic("something went wrong while writing segment metadata")
 	}
 	writer.Flush()
+	// We don't need to fd.Sync() metadata, since the read is not necessarily to do
+	// immediately read, like Get operation
 }
 
 func segmentIndexToFile(segment *Segment) {
@@ -92,7 +95,10 @@ func segmentIndexToFile(segment *Segment) {
 			panic("something went wrong while writing to segment")
 		}
 	}
+
 	writer.Flush()
+	// We don't need to fd.Sync() metadata, since the read is not necessarily to do
+	// immediately read, like Get operation, since this index is mainly for crash recovery
 }
 
 // TODO: refactor this

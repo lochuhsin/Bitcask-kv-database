@@ -1,9 +1,9 @@
 package segment
 
 import (
-	"fmt"
 	"rebitcask/internal/dao"
 	"rebitcask/internal/memory"
+	"sort"
 )
 
 type Manager struct {
@@ -16,31 +16,39 @@ func NewSegmentManager() *Manager {
 }
 
 func (s *Manager) Get(k dao.NilString) (val dao.Base, status bool) {
-	iter := NewSegmentCollectionIterator()
-	for iter.hasNext(&s.collection) {
-		segment, err := iter.getNext(&s.collection)
-		if err != nil {
-			panic("something went wrong with looping segments")
-		}
-		if k.GetVal().(string) < segment.smallestKey {
+	/**
+	 * We search the segements in each level.
+	 * The problem with first level is that their might be duplicate keys.
+	 * Therefore we need to sort the segments by timestamp (the larger timestamp
+	 * comes to the front). This part could be optimized by adding a specific field
+	 * that stores un-compressed segements.
+	 *
+	 * segments in other levels are simpler. No duplicate keys.
+	 */
+	for level := 0; level <= s.collection.GetLevel(); level++ {
+		segments, status := s.collection.GetSegmentByLevel(level)
+		if !status {
 			continue
 		}
-		sid := segment.id
-		sIndex := segment.pIndex
-		if sIndex == nil {
-			fmt.Println(sid, status, sIndex)
-			panic("index not found")
+		if level == 0 {
+			sort.Slice(segments, func(i, j int) bool {
+				return segments[i].timestamp > segments[j].timestamp
+			})
 		}
 
-		offsetLen, ok := sIndex.Get(k)
-
-		if ok {
-			val, status := segment.GetbyOffset(k, offsetLen.Offset, offsetLen.Len)
-			return val, status
-		} else {
-			// since segIndex is primary index, we assume that
-			// this index will always be consistent with segment
-			continue
+		for _, seg := range segments {
+			if k.GetVal().(string) < seg.smallestKey {
+				continue
+			}
+			offsetLen, ok := seg.pIndex.Get(k)
+			if ok {
+				val, status := seg.GetbyOffset(k, offsetLen.Offset, offsetLen.Len)
+				return val, status
+			} else {
+				// since segIndex is primary index, we assume that
+				// this index will always be consistent with segment
+				continue
+			}
 		}
 	}
 

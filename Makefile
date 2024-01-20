@@ -50,3 +50,7 @@ cpu_profile-it:
 .PHONY: mem_profile-it
 mem_profile-it:
 	go test ./bench -bench=. -benchmem -memprofile=mem.pprof && go tool pprof mem.pprof
+
+.PHONY: init
+init:
+	go mod tidy && swag init -g ./cmd/main.go -o ./docs

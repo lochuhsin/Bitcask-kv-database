@@ -1,108 +1,211 @@
-# Re-Bitcask
+<!-- PROJECT LOGO -->
+<br />
+<div align="center">
+  <a href="https://github.com/othneildrew/Best-README-Template">
+    <img src="images/logo.png" alt="Logo" width="80" height="80">
+  </a>
 
-#### A redemption journey from a backend software engineer
+  <h3 align="center">Re Bitcask</h3>
 
----
-### Description:
-This is a redemption journey of a backend engineer.<br> 
-Trying to re-implement
-bitcask key-value storage database mechanism to understand how
-database underlying works.<br>
-In short, this is a project re-implementing Key/Value storage with log style
-storage mechanism.
+  <p align="center">
+    The journey to re implement bitcask and turn into distributed kv database.
+  </p>
+</div>
 
-Why log style ?
-Since this is an append only storage mechanism, that is every create, update, delete operation
-will append data to log file. As this takes only O(1) operation in general.
-Therefore it is very efficient for write heavy stuff.
 
-However the read operation will be significant slow, since there are several layers to approach
-in order to find if the data is in database.
 
-First it ask bloomfilter, to see if data is in.
-Second, search in memory, since it contains most recent data.
-Third, if data is not in memory, search segments (Where SSTable is implemented).
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgments">Acknowledgments</a></li>
+  </ol>
+</details>
 
-Therefore unlike B-tree implementation, there are several layers to look up, as it consumes a lot of
-time.
 
----
-### Feature
-1. Basic Key/Value Storage mechanism
-   1. Get
-   2. Set
-   3. Delete
-2. The database could be tuned using environment variable
-    ```text
-    LOG_FOLDER_PATH="./log/"
-   
-    TOMBSTONE="abcdefghijklmnopqrstuvwxyz"
-   
-    MEMORY_KEY_COUNT_LIMIT=50000
-   
-    FILE_BYTE_LIMIT=30000
-   
-    SEGMENT_FILE_COUNT_LIMIT=3
-    ```
-3. Currently, using AVL-Tree as memory table (Could be change to Binary Search Tree). There will more types
-   of tree based indexing mechanism.
 
-4. Could be used as standalone server.
+<!-- ABOUT THE PROJECT -->
+## About The Project
 
-5. Optimize for heavy write
+As a backend/ml engineer, I have worked with many kinds of databases. SQL/NoSQL, KeyValue, Document, Read-Heavy, and Write-Heavy databases. However, I never had a chance to really understand the implementation details of the databases. Like indexing, search, caching, versioning, and even distributed data store. Therefore, I decided to implement my own databases, start from the most simplest one, the Bitcask database and keep involving to distributed K/V store. 
 
----
-### Future Panning
-- [x]  Basic Get, Set, Delete mechanism  
+### Design Spec:
+Briefly describe the requirements and secnerio.
+* Key Value storage
+* Write-heavy
+* The size of data should be 10 times larger than memory.
+* Support crash recovery
+* Distributed storage
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+### Built With:
+This section lists the the main packages, In general most of the core functions were built from the ground.
+In other words, re-inventing the wheel lol.  Such as SSTables, Segment file, Primary index ...etc.
+
+* [![Gin][gin-gonic]][gin-url]
+* [![gRPC-go][gRPC]][gRPC-url]
+* [![Gin-Swagger][swagger]][swagger-url]
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- GETTING STARTED -->
+## Getting Started
+
+This is an example of how you may give instructions on setting up your project locally.
+To get a local copy up and running follow these simple example steps.
+
+### Prerequisites
+
+This is an example of how to list things you need to use the software and how to install them.
+* npm
+  ```sh
+  npm install npm@latest -g
+  ```
+
+### Installation
+
+_Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
+
+1. Get a free API Key at [https://example.com](https://example.com)
+2. Clone the repo
+   ```sh
+   git clone https://github.com/your_username_/Project-Name.git
+   ```
+3. Install NPM packages
+   ```sh
+   npm install
+   ```
+4. Enter your API in `config.js`
+   ```js
+   const API_KEY = 'ENTER YOUR API';
+   ```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- USAGE EXAMPLES -->
+## Usage
+
+Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+
+_For more examples, please refer to the [Documentation](https://example.com)_
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- ROADMAP -->
+## Roadmap
+
+### Implementation Roadmap
+- [x]  Basic Get / Set / Delete Methods 
 - [x]  Implement vanilla hashtable key value storage
 - [x]  Implement Segment storage,
-- [x]  Implement Seek file header method (file.sync or writer.flush)
-- [x]  Implement Binary Search Tree memory style
-- [x]  Re-implement Get, Set storage method
-- [x]  Implement SSTable (**Sorted String Table**) (Last one is implement compress function) （Finished)
-- [x]  Implement AVL Tree
-- [x]  Implement BloomFilter and cache mechanism for Read
-- [x]  Supporting backend compression periodically
-- [ ]  Implement range based key query
-- [ ]  Implement Red-Black Tree
-- [ ]  Support more generic types
-- [ ]  Implement graceful exit
+- [x]  Implement SSTable (**Sorted String Table**)
+- [x]  Implement Binary Search Tree for in memory storage
+- [x]  Implement BloomFilter and cache mechanism for Read (Drop currently, might move to segment level)
+- [x]  Implement Asynchronous TaskPool for SSTable
+- [x]  Implement Primary Index for Segments
+- [x]  Setup gRPC for cluster storage communication
+- [ ]  Implement Red-Black Tree for in memory storage
+- [ ]  Implement Raft algorithm
+- [ ]  Implement Graceful exit, Crash recovery
+- [ ]  Implement Range based key query
+- [ ]  Add more tests for each package.
 
----
-### Development Setup
-- Install swag, gin-swag ...etc
-- Install protoc-gen-go, protoc-gen-go-grpc, protoc (proto3)
-- Go 1.21 +
-- go mod tidy
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### How to ....use?
-1. Used as library:
 
-`git clone project`
 
-`go mod tidy`
+<!-- CONTRIBUTING -->
+## Contributing
 
-```go
-package foo
-import "rebitcask/src"
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-src.Get(key)
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
 
-src.Set(key, value)
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
-src.Delete(key)
-```
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-2. Used as Server:
-```bash
-cd rebitcask/cli
 
-go mod tidy
 
-create rebitcask.env or using default
+<!-- LICENSE -->
+## License
 
-go build .
+Distributed under the MIT License. See `LICENSE` for more information.
 
-go run ./cli
-```
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+
+
+<!-- CONTACT -->
+## Contact
+
+Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
+
+Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- ACKNOWLEDGMENTS -->
+## Acknowledgments
+
+Use this space to list resources you find helpful and would like to give credit to. I've included a few of my favorites to kick things off!
+
+* [Choose an Open Source License](https://choosealicense.com)
+* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
+* [Malven's Flexbox Cheatsheet](https://flexbox.malven.co/)
+* [Malven's Grid Cheatsheet](https://grid.malven.co/)
+* [Img Shields](https://shields.io)
+* [GitHub Pages](https://pages.github.com)
+* [Font Awesome](https://fontawesome.com)
+* [React Icons](https://react-icons.github.io/react-icons/search)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+[license-shield]: https://img.shields.io/github/license/othneildrew/Best-README-Template.svg?style=for-the-badge
+[license-url]: https://github.com/othneildrew/Best-README-Template/blob/master/LICENSE.txt
+[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+[linkedin-url]: https://linkedin.com/in/othneildrew
+[gin-gonic]:https://img.shields.io/badge/gin-gonic?style=for-the-badge&logo=gin&logoColor=trasnparent&labelColor=black&color=black
+[gin-url]: https://github.com/gin-gonic/gin?tab=readme-ov-file
+[gRPC]: https://img.shields.io/badge/grpc-go?style=for-the-badge&logo=grpc-go&logoColor=trasnparent&labelColor=black&color=black
+[gRPC-url]:https://github.com/grpc/grpc-go
+[React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
+[swagger]: https://img.shields.io/badge/gin-swagger?style=for-the-badge&logo=swagger&logoColor=trasnparent&labelColor=black&color=black
+[swagger-url]:https://github.com/swaggo/gin-swagger

@@ -10,4 +10,3 @@ test/*.DS_Store
 *.pprof
 *.test
 *main
-docs/

@@ -13,7 +13,7 @@ func InitScheduler() {
 			if scheduler == nil {
 				scheduler = NewScheduler()
 				go scheduler.TaskSignalListner()
-				go scheduler.TaskPoolListener()
+				go scheduler.TaskChanListener()
 			}
 		},
 	)

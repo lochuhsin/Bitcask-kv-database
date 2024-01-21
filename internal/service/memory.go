@@ -67,7 +67,6 @@ func MSet(k dao.NilString, v dao.Base) {
 		 * Therefore, we should be able to reimplement to the second method, in near future.
 		 *
 		 */
-
 	}
 	mStorage.Set(pair)
 	dumpMemory(mStorage)

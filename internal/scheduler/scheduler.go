@@ -23,7 +23,7 @@ func NewScheduler() *Scheduler {
 }
 
 // Long running listener for tasks
-func (s *Scheduler) TaskPoolListener() {
+func (s *Scheduler) TaskChanListener() {
 
 	tChan := task.GetTaskChan()
 	for taskId := range tChan {

@@ -133,38 +133,3 @@ func (bst *BinarySearchTree) get(root *bstnode, k dao.NilString) (val dao.Base) 
 		return bst.get(root.right, k)
 	}
 }
-
-func (bst *BinarySearchTree) Reset() {
-	bst.root = nil
-	bst.size = 0
-	bst.frozen = false
-}
-
-func (bst *BinarySearchTree) Setfrozen(frozen bool) {
-	bst.frozen = true
-}
-
-func (bst *BinarySearchTree) Isfrozen() bool {
-	return bst.frozen
-}
-
-func (bst *BinarySearchTree) Clone() IMemory {
-	newBst := NewBinarySearchTree()
-	newBst.root = bst.clone(bst.root)
-	return newBst
-}
-
-func (bst *BinarySearchTree) clone(oNode *bstnode) *bstnode {
-	if oNode == nil {
-		return nil
-	}
-
-	initNewNode := bstnode{
-		key: oNode.key,
-		val: oNode.val,
-	}
-
-	initNewNode.left = bst.clone(oNode.left)
-	initNewNode.right = bst.clone(oNode.right)
-	return &initNewNode
-}

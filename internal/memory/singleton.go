@@ -4,17 +4,17 @@ import (
 	"sync"
 )
 
-var MemModel IMemory
+var mStorage *memoryStorage
 var mOnce sync.Once
 
-func InitMemory(mType ModelType) {
+func InitMemoryStorage(mType ModelType) {
 	mOnce.Do(func() {
-		if MemModel == nil {
-			MemModel = MemoryTypeSelector(mType)
+		if mStorage == nil {
+			mStorage = NewMemoryStorage()
 		}
 	})
 }
 
-func GetMemoryStorage() IMemory {
-	return MemModel
+func GetMemoryStorage() *memoryStorage {
+	return mStorage
 }

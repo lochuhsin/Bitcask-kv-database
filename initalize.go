@@ -7,7 +7,6 @@ import (
 	"rebitcask/internal/scheduler"
 	"rebitcask/internal/segment"
 	"rebitcask/internal/settings"
-	"rebitcask/internal/task"
 )
 
 func Init() {
@@ -22,8 +21,7 @@ func Init() {
 	os.MkdirAll(segDir, os.ModePerm)
 	os.MkdirAll(indexDir, os.ModePerm)
 
-	memory.InitMemory(memory.ModelType(settings.ENV.MemoryModel))
+	memory.InitMemoryStorage(memory.ModelType(settings.ENV.MemoryModel))
 	segment.InitSegment()
-	task.InitTaskRelated()
 	scheduler.InitScheduler()
 }

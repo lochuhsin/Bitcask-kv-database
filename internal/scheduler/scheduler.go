@@ -1,13 +1,13 @@
 package scheduler
 
 import (
+	"rebitcask/internal/memory"
 	"rebitcask/internal/segment"
 	"rebitcask/internal/settings"
-	"rebitcask/internal/task"
 )
 
 type status struct {
-	id     task.TaskId
+	id     memory.BlockId
 	status tStatus
 }
 
@@ -24,11 +24,10 @@ func NewScheduler() *Scheduler {
 
 // Long running listener for tasks
 func (s *Scheduler) TaskChanListener() {
-
-	tChan := task.GetTaskChan()
-	for taskId := range tChan {
+	BlockIdChan := memory.GetMemoryStorage().GetBlockIdChan()
+	for blockId := range BlockIdChan {
 		s.workerSemaphore <- struct{}{}
-		go s.taskWorker(taskId)
+		go s.taskWorker(blockId)
 	}
 }
 
@@ -38,28 +37,28 @@ func (s *Scheduler) TaskSignalListner() {
 	 * When the channel recieves a task finised signal,
 	 * Remove the task from task pool
 	 */
-	tPool := task.GetTaskPool()
+	mStorage := memory.GetMemoryStorage()
 	for ts := range s.statusChan {
 		if ts.status != FINISHED {
 			panic("Some thing went wrong")
 		}
-		tPool.Delete(ts.id)
+		mStorage.RemoveMemoryBlock(ts.id)
 		<-s.workerSemaphore // releasing the position in semaphore
 	}
 }
 
 // worker
-func (s *Scheduler) taskWorker(tid task.TaskId) {
-	tPool := task.GetTaskPool()
-	task, st := tPool.Get(tid)
+func (s *Scheduler) taskWorker(id memory.BlockId) {
+	mStorage := memory.GetMemoryStorage()
+	block, st := mStorage.GetMemoryBlock(id)
 	if !st {
 		panic("Got empty tasks, this shouldn't happen")
 	}
 
 	manager := segment.GetSegmentManager()
-	manager.ConvertToSegment(task.M)
+	manager.ConvertToSegment(block.Memory)
 	s.statusChan <- status{
-		id:     tid,
+		id:     id,
 		status: FINISHED,
 	}
 }

@@ -10,8 +10,4 @@ type IMemory interface {
 	GetSize() int
 	GetAll() []dao.Pair // Expected order by key from small to large
 	GetAllValueUnder(dao.NilString) []dao.Pair
-	Reset()
-	Isfrozen() bool
-	Setfrozen(bool)
-	Clone() IMemory
 }

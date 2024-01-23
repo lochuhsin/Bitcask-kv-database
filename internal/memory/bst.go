@@ -11,6 +11,7 @@ type bstnode struct {
 	left  *bstnode
 	right *bstnode
 }
+
 type BinarySearchTree struct {
 	root   *bstnode
 	size   int
@@ -88,34 +89,6 @@ func (bst *BinarySearchTree) set(root *bstnode, key dao.NilString, val dao.Base)
 		return root
 	}
 	return nil
-}
-
-// GetAllValueUnder TODO: Optimize this
-func (bst *BinarySearchTree) GetAllValueUnder(key dao.NilString) []dao.Pair {
-	valueList := make([]dao.Pair, 0)
-	bst.inorder(bst.root, &valueList)
-
-	if len(valueList) == 0 {
-		return make([]dao.Pair, 0)
-	}
-
-	if valueList[0].Key.IsLarger(key) {
-		return make([]dao.Pair, 0)
-	}
-
-	if _k := valueList[len(valueList)-1].Key; _k.IsSmaller(key) || _k.IsEqual(key) {
-		return valueList
-	}
-
-	stopIndex := -1
-	for i := 0; i < len(valueList); i++ {
-		_k := valueList[i].Key
-		if _k.IsLarger(key) {
-			stopIndex = i
-			break
-		}
-	}
-	return valueList[0:stopIndex]
 }
 
 func (bst *BinarySearchTree) get(root *bstnode, k dao.NilString) (val dao.Base) {

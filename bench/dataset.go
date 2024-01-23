@@ -11,8 +11,8 @@ func GenerateLowDuplicateRandom(dataCount int) ([]string, []string) {
 	keyLen := 50
 	valLen := 50
 	rand.New(rand.NewSource(time.Now().UnixNano()))
-	keys := make([]string, 0, dataCount)
-	vals := make([]string, 0, dataCount)
+	keys := make([]string, dataCount)
+	vals := make([]string, dataCount)
 	count := 0
 	for i := 0; i < dataCount; i++ {
 		k := make([]byte, keyLen)
@@ -23,8 +23,8 @@ func GenerateLowDuplicateRandom(dataCount int) ([]string, []string) {
 		for m := range v {
 			v[m] = LETTERS[rand.Intn(len(LETTERS))]
 		}
-		keys = append(keys, string(k))
-		vals = append(vals, string(v))
+		keys[i] = string(k)
+		vals[i] = string(v)
 		count += 1
 	}
 	return keys, vals

@@ -3,7 +3,6 @@ package scheduler
 import (
 	"rebitcask/internal/memory"
 	"rebitcask/internal/segment"
-	"rebitcask/internal/settings"
 )
 
 type status struct {
@@ -12,21 +11,17 @@ type status struct {
 }
 
 type Scheduler struct {
-	statusChan      chan status
-	workerSemaphore chan struct{}
+	statusChan chan status
 }
 
 func NewScheduler() *Scheduler {
-	return &Scheduler{
-		statusChan:      make(chan status, 1000),
-		workerSemaphore: make(chan struct{}, settings.WORKER_COUNT)}
+	return &Scheduler{statusChan: make(chan status, 1000)}
 }
 
 // Long running listener for tasks
 func (s *Scheduler) TaskChanListener() {
 	BlockIdChan := memory.GetMemoryStorage().GetBlockIdChan()
 	for blockId := range BlockIdChan {
-		s.workerSemaphore <- struct{}{}
 		go s.taskWorker(blockId)
 	}
 }
@@ -43,7 +38,6 @@ func (s *Scheduler) TaskSignalListner() {
 			panic("Some thing went wrong")
 		}
 		mStorage.RemoveMemoryBlock(ts.id)
-		<-s.workerSemaphore // releasing the position in semaphore
 	}
 }
 

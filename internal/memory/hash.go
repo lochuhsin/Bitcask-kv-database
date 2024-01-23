@@ -53,18 +53,3 @@ func (m *Hash) GetAll() []dao.Pair {
 	})
 	return arr
 }
-
-func (m *Hash) GetAllValueUnder(k dao.NilString) []dao.Pair {
-	arr := make([]dao.Pair, 0, len(m.keyvalue))
-	for _k, v := range m.keyvalue {
-		if _k.IsSmaller(k) {
-			arr = append(arr, dao.Pair{
-				Key:        _k,
-				Val:        v.val,
-				CreateTime: v.createTime,
-			})
-
-		}
-	}
-	return arr
-}

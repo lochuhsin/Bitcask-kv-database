@@ -28,8 +28,7 @@ type memoryStorage struct {
 	/**
 	 * TODO: ----------------------------------------------------------------
 	 * This is an implementation of BucketMemory, use ring queue (circular queue)
-	 * to optimize this
-	 *
+	 * to optimize this.
 	 */
 	blockMap       map[BlockId]*node
 	top            *node
@@ -91,7 +90,6 @@ func (m *memoryStorage) Get(key dao.NilString) (dao.Base, bool) {
 	// loop backwards, from latest to oldest task
 	// and skip the first sentinel node
 	node := m.currNode
-
 	// the second condition stops when it reaches the
 	// top node, which is also a sentinel node
 	for node != nil && node.b != nil {
@@ -99,7 +97,6 @@ func (m *memoryStorage) Get(key dao.NilString) (dao.Base, bool) {
 		if status {
 			return val, status
 		}
-
 		node = node.prev
 	}
 	return nil, false
@@ -111,7 +108,6 @@ func (m *memoryStorage) Set(pair dao.Pair) {
 	m.currNode.b.Memory.Set(pair)
 	if m.currNode.b.Memory.GetSize() >= settings.ENV.MemoryCountLimit {
 		// add current block to task chan and replace currentblock id to new one
-
 		m.blockTaskQueue <- m.currNode.b.Id
 		m.currNode = m.genNewNode()
 	}
@@ -124,14 +120,12 @@ func (m *memoryStorage) genNewNode() *node {
 		Memory:    MemoryTypeSelector(ModelType(settings.ENV.MemoryModel)),
 		Timestamp: time.Now().UnixNano(),
 	}
-
 	newNode := node{
 		b:    &newBlock,
 		next: nil,
 		prev: nil,
 	}
-	newNode.prev = m.bottom.prev
-	newNode.next = m.bottom
+	newNode.prev, newNode.next = m.bottom.prev, m.bottom
 	m.bottom.prev = &newNode
 	m.blockMap[newBlockId] = &newNode
 	return &newNode

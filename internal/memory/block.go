@@ -19,15 +19,15 @@ type Block struct {
 }
 
 type node struct {
-	b    *Block
-	next *node
-	prev *node
+	block *Block
+	next  *node
+	prev  *node
 }
 
 type memoryStorage struct {
 	/**
 	 * TODO: ----------------------------------------------------------------
-	 * This is an implementation of BucketMemory, use ring queue (circular queue)
+	 * This is an implementation of Bucket Hashmap, use ring queue (circular queue)
 	 * to optimize this.
 	 */
 	blockMap       map[BlockId]*node
@@ -46,7 +46,7 @@ func NewMemoryStorage() *memoryStorage {
 	top, bottom := &node{}, &node{}
 	top.next, bottom.prev = bottom, top
 	pool := &memoryStorage{
-		blockMap:       map[BlockId]*node{},
+		blockMap:       make(map[BlockId]*node, 100),
 		top:            top,
 		bottom:         bottom,
 		currNode:       nil,
@@ -60,7 +60,7 @@ func (m *memoryStorage) GetMemoryBlock(id BlockId) (Block, bool) {
 	m.Lock()
 	defer m.Unlock()
 	node, ok := m.blockMap[id]
-	return *node.b, ok
+	return *node.block, ok
 }
 
 func (m *memoryStorage) RemoveMemoryBlock(id BlockId) error {
@@ -88,12 +88,11 @@ func (m *memoryStorage) Get(key dao.NilString) (dao.Base, bool) {
 	}
 
 	// loop backwards, from latest to oldest task
-	// and skip the first sentinel node
 	node := m.currNode
 	// the second condition stops when it reaches the
 	// top node, which is also a sentinel node
-	for node != nil && node.b != nil {
-		val, status := node.b.Memory.Get(key)
+	for node != nil && node.block != nil {
+		val, status := node.block.Memory.Get(key)
 		if status {
 			return val, status
 		}
@@ -105,10 +104,10 @@ func (m *memoryStorage) Get(key dao.NilString) (dao.Base, bool) {
 func (m *memoryStorage) Set(pair dao.Pair) {
 	m.Lock()
 	defer m.Unlock()
-	m.currNode.b.Memory.Set(pair)
-	if m.currNode.b.Memory.GetSize() >= settings.ENV.MemoryCountLimit {
+	m.currNode.block.Memory.Set(pair)
+	if m.currNode.block.Memory.GetSize() >= settings.ENV.MemoryCountLimit {
 		// add current block to task chan and replace currentblock id to new one
-		m.blockTaskQueue <- m.currNode.b.Id
+		m.blockTaskQueue <- m.currNode.block.Id
 		m.currNode = m.genNewNode()
 	}
 }
@@ -121,9 +120,9 @@ func (m *memoryStorage) genNewNode() *node {
 		Timestamp: time.Now().UnixNano(),
 	}
 	newNode := node{
-		b:    &newBlock,
-		next: nil,
-		prev: nil,
+		block: &newBlock,
+		next:  nil,
+		prev:  nil,
 	}
 	newNode.prev, newNode.next = m.bottom.prev, m.bottom
 	m.bottom.prev = &newNode

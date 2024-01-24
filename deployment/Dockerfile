@@ -6,8 +6,10 @@ COPY . .
 
 RUN go mod tidy
 
-RUN go build -o app server/cmd/main.go
+RUN go build -o app cmd/main.go
 
 CMD ["./app"]
 
-EXPOSE 8000
+EXPOSE 8080
+
+EXPOSE 9090

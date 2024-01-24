@@ -1,0 +1,11 @@
+
+version: "3.8"
+services:
+  backend-app:
+    restart: always
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+    ports:
+      - "8080:8080"
+      - "9090:9090"

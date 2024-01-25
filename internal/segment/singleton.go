@@ -12,7 +12,8 @@ var (
 func InitSegment() {
 	segManagerOnce.Do(func() {
 		if SegManager == nil {
-			SegManager = NewSegmentManager()
+			manager := NewSegmentManager()
+			SegManager = &manager
 		}
 	})
 }

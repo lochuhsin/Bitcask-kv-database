@@ -11,5 +11,5 @@ func SGet(k dao.NilString) (val dao.Base, status bool) {
 	 * 1. data
 	 * 2. status which indicates whether the key exists or not
 	 */
-	return segment.SegManager.Get(k)
+	return segment.SegManager.GetValue(k)
 }

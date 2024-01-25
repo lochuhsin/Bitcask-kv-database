@@ -1,10 +1,12 @@
-package segment
+package scheduler
 
 import (
 	"bufio"
 	"fmt"
 	"os"
 	"rebitcask/internal/dao"
+	"rebitcask/internal/memory"
+	"rebitcask/internal/segment"
 	"rebitcask/internal/settings"
 )
 
@@ -20,11 +22,14 @@ func getSegmentMetaDataFilePath(segId string) string {
 	return fmt.Sprintf("%v%v%v%v", settings.ENV.DataPath, settings.SEGMENT_FILE_FOLDER, segId, settings.SEGMENT_FILE_METADATA_EXT)
 }
 
-func segmentToFile(s *Segment, pairs []dao.Pair) {
+func memBlockToFile(memBlock memory.Block) segment.Segment {
 	/**
 	 * Note, assuming that key in pairs are sorted in ascending order
 	 */
-	filePath := getSegmentFilePath(s.Id)
+	blockId := string(memBlock.Id)
+	pairs := memBlock.Memory.GetAll()
+
+	filePath := getSegmentFilePath(blockId)
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777) //TODO: optimize the mode
 	if err != nil {
 		panic(err)
@@ -32,10 +37,8 @@ func segmentToFile(s *Segment, pairs []dao.Pair) {
 	defer file.Close()
 
 	writer := bufio.NewWriter(file)
-
 	curroffset := 0
-	s.smallestKey = pairs[0].Key.Val // the first key is the smallest value
-	// TODO: convert this pair to generator pattern, hide inside segment, we don't need to know if the data needs to be serialized
+	pIndex := segment.NewSegmentIndex(blockId)
 	for _, p := range pairs {
 		data, err := dao.Serialize(p)
 		if err != nil {
@@ -46,17 +49,17 @@ func segmentToFile(s *Segment, pairs []dao.Pair) {
 			panic("something went wrong while writing to segment")
 		}
 		// offset minus data saparater = the length of the data
-		s.pIndex.Set(p.Key, curroffset, offset-len([]byte(settings.DATASAPARATER)))
+		pIndex.Set(p.Key, curroffset, offset-len([]byte(settings.DATASAPARATER)))
 		curroffset += offset
 	}
 	writer.Flush()
 	file.Sync()
-	s.smallestKey = pairs[0].Key.GetVal().(string)
-	s.keyCount = len(pairs)
+	segment := segment.NewSegment(blockId, &pIndex, pairs[0].Key.GetVal().(string), len(pairs))
+	return segment
 }
 
-func segmentToMetadata(s *Segment) {
-	filePath := getSegmentMetaDataFilePath(s.Id)
+func genSegmentMetadataFile(sId string, level int) {
+	filePath := getSegmentMetaDataFilePath(sId)
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777) //TODO: optimize the mode
 	if err != nil {
 		panic(err)
@@ -67,7 +70,7 @@ func segmentToMetadata(s *Segment) {
 	 * Currently only store level information for segment manager to backup
 	 */
 	writer := bufio.NewWriter(file)
-	_, err = writer.WriteString(fmt.Sprintf("level::%v", s.Level))
+	_, err = writer.WriteString(fmt.Sprintf("level::%v", level))
 	if err != nil {
 		panic("something went wrong while writing segment metadata")
 	}
@@ -76,8 +79,8 @@ func segmentToMetadata(s *Segment) {
 	// immediately read, like Get operation
 }
 
-func segmentIndexToFile(segment *Segment) {
-	filePath := getSegmentIndexFilePath(segment.Id)
+func genSegmentIndexFile(sId string, pIndex *segment.PrimaryIndex) {
+	filePath := getSegmentIndexFilePath(sId)
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777) //TODO: optimize the mode
 	if err != nil {
 		panic(err)
@@ -86,9 +89,7 @@ func segmentIndexToFile(segment *Segment) {
 
 	writer := bufio.NewWriter(file)
 
-	offsetMap := segment.pIndex.OffsetMap
-
-	for key, val := range offsetMap {
+	for key, val := range pIndex.OffsetMap {
 		data := segmentIndexSerialize(key.Format(), val.Format())
 		_, err := writer.WriteString(data + settings.DATASAPARATER)
 		if err != nil {

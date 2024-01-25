@@ -17,18 +17,18 @@ func (o OffsetLen) Format() string {
 // contains the key offset in segment
 // physical position
 type PrimaryIndex struct {
-	offsetMap map[dao.NilString]OffsetLen
+	OffsetMap map[dao.NilString]OffsetLen
 }
 
 func NewSegmentIndex(sid string) PrimaryIndex {
-	return PrimaryIndex{offsetMap: map[dao.NilString]OffsetLen{}}
+	return PrimaryIndex{OffsetMap: map[dao.NilString]OffsetLen{}}
 }
 
 func (s *PrimaryIndex) Set(k dao.NilString, offset, len int) {
-	s.offsetMap[k] = OffsetLen{offset, len}
+	s.OffsetMap[k] = OffsetLen{offset, len}
 }
 
 func (s *PrimaryIndex) Get(k dao.NilString) (OffsetLen, bool) {
-	offset, ok := s.offsetMap[k]
+	offset, ok := s.OffsetMap[k]
 	return offset, ok
 }

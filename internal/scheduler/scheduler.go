@@ -43,14 +43,17 @@ func (s *Scheduler) TaskSignalListner() {
 
 // worker
 func (s *Scheduler) taskWorker(id memory.BlockId) {
+	manager := segment.GetSegmentManager()
 	mStorage := memory.GetMemoryStorage()
 	block, st := mStorage.GetMemoryBlock(id)
 	if !st {
 		panic("Got empty tasks, this shouldn't happen")
 	}
+	seg := memBlockToFile(block)
+	genSegmentMetadataFile(seg.Id, seg.Level)
+	genSegmentIndexFile(seg.Id, seg.GetPrimayIndex())
 
-	manager := segment.GetSegmentManager()
-	manager.ConvertToSegment(block.Memory)
+	manager.Add(seg)
 	s.statusChan <- status{
 		id:     id,
 		status: FINISHED,

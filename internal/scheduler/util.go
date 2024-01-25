@@ -24,10 +24,10 @@ func getSegmentMetaDataFilePath(segId string) string {
 
 func memBlockToFile(memBlock memory.Block) segment.Segment {
 	/**
-	 * Note, assuming that key in pairs are sorted in ascending order
+	 * Note, assuming that key in entries are sorted in ascending order
 	 */
 	blockId := string(memBlock.Id)
-	pairs := memBlock.Memory.GetAll()
+	entry := memBlock.Memory.GetAll()
 
 	filePath := getSegmentFilePath(blockId)
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777) //TODO: optimize the mode
@@ -39,7 +39,7 @@ func memBlockToFile(memBlock memory.Block) segment.Segment {
 	writer := bufio.NewWriter(file)
 	curroffset := 0
 	pIndex := segment.NewSegmentIndex(blockId)
-	for _, p := range pairs {
+	for _, p := range entry {
 		data, err := dao.Serialize(p)
 		if err != nil {
 			panic("Error while serializing data")
@@ -54,7 +54,7 @@ func memBlockToFile(memBlock memory.Block) segment.Segment {
 	}
 	writer.Flush()
 	file.Sync()
-	segment := segment.NewSegment(blockId, &pIndex, pairs[0].Key.GetVal().(string), len(pairs))
+	segment := segment.NewSegment(blockId, &pIndex, entry[0].Key.GetVal().(string), len(entry))
 	return segment
 }
 

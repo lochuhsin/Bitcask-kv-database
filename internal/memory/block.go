@@ -1,7 +1,6 @@
 package memory
 
 import (
-	"errors"
 	"rebitcask/internal/dao"
 	"rebitcask/internal/settings"
 	"sync"
@@ -30,7 +29,7 @@ type memoryStorage struct {
 	 * This is an implementation of Bucket Hashmap, use ring queue (circular queue)
 	 * to optimize this.
 	 */
-	blockMap       map[BlockId]*node
+	blockMap       sync.Map
 	top            *node
 	bottom         *node
 	currNode       *node
@@ -46,36 +45,36 @@ func NewMemoryStorage() *memoryStorage {
 	top, bottom := &node{}, &node{}
 	top.next, bottom.prev = bottom, top
 	pool := &memoryStorage{
-		blockMap:       make(map[BlockId]*node, 100),
+		blockMap:       sync.Map{},
 		top:            top,
 		bottom:         bottom,
 		currNode:       nil,
 		blockTaskQueue: make(chan BlockId, settings.WORKER_COUNT),
 	}
-	pool.currNode = pool.genNewNode()
+	pool.genNewNode()
 	return pool
 }
 
 func (m *memoryStorage) GetMemoryBlock(id BlockId) (Block, bool) {
 	m.Lock()
 	defer m.Unlock()
-	node, ok := m.blockMap[id]
+	val, ok := m.blockMap.Load(id)
+	node := val.(*node)
 	return *node.block, ok
 }
 
 func (m *memoryStorage) RemoveMemoryBlock(id BlockId) error {
 	m.Lock()
 	defer m.Unlock()
-	if len(m.blockMap) == 0 {
-		return errors.New("deleting empty taskOrderedMap is not allowed")
-	}
-	if _, ok := m.blockMap[id]; !ok {
+	val, ok := m.blockMap.Load(id)
+	if !ok {
 		panic("task id not found in ordered map, data is missing")
 	}
-	node := m.blockMap[id]
+
+	node := val.(*node)
 	node.prev.next = node.next
 	node.next.prev = node.prev
-	delete(m.blockMap, id)
+	m.blockMap.Delete(id)
 	return nil
 }
 
@@ -83,15 +82,11 @@ func (m *memoryStorage) Get(key dao.NilString) (dao.Base, bool) {
 	m.Lock()
 	defer m.Unlock()
 
-	if len(m.blockMap) == 0 {
-		return nil, false
-	}
-
 	// loop backwards, from latest to oldest task
 	node := m.currNode
 	// the second condition stops when it reaches the
 	// top node, which is also a sentinel node
-	for node != nil && node.block != nil {
+	for node.block != nil {
 		val, status := node.block.Memory.Get(key)
 		if status {
 			return val, status
@@ -101,18 +96,18 @@ func (m *memoryStorage) Get(key dao.NilString) (dao.Base, bool) {
 	return nil, false
 }
 
-func (m *memoryStorage) Set(pair dao.Pair) {
+func (m *memoryStorage) Set(entry dao.Entry) {
 	m.Lock()
 	defer m.Unlock()
-	m.currNode.block.Memory.Set(pair)
+	m.currNode.block.Memory.Set(entry)
 	if m.currNode.block.Memory.GetSize() >= settings.ENV.MemoryCountLimit {
 		// add current block to task chan and replace currentblock id to new one
 		m.blockTaskQueue <- m.currNode.block.Id
-		m.currNode = m.genNewNode()
+		m.genNewNode()
 	}
 }
 
-func (m *memoryStorage) genNewNode() *node {
+func (m *memoryStorage) genNewNode() {
 	newBlockId := BlockId(uuid.New().String())
 	newBlock := Block{
 		Id:        newBlockId,
@@ -126,8 +121,8 @@ func (m *memoryStorage) genNewNode() *node {
 	}
 	newNode.prev, newNode.next = m.bottom.prev, m.bottom
 	m.bottom.prev = &newNode
-	m.blockMap[newBlockId] = &newNode
-	return &newNode
+	m.blockMap.Store(newBlockId, &newNode)
+	m.currNode = &newNode
 }
 
 func (m *memoryStorage) GetBlockIdChan() chan BlockId {

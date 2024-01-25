@@ -27,34 +27,34 @@ func (bst *BinarySearchTree) GetSize() int {
 	return bst.size
 }
 
-func (bst *BinarySearchTree) GetAll() []dao.Pair {
-	kvPair := make([]dao.Pair, 0, bst.size)
-	bst.inorder(bst.root, &kvPair)
-	return kvPair
+func (bst *BinarySearchTree) GetAll() []dao.Entry {
+	entry := make([]dao.Entry, 0, bst.size)
+	bst.inorder(bst.root, &entry)
+	return entry
 }
 
-func (bst *BinarySearchTree) inorder(root *bstnode, kvPair *[]dao.Pair) {
+func (bst *BinarySearchTree) inorder(root *bstnode, entry *[]dao.Entry) {
 	if root == nil {
 		return
 	}
 
 	if root.left != nil {
-		bst.inorder(root.left, kvPair)
+		bst.inorder(root.left, entry)
 	}
 
-	*kvPair = append(*kvPair, dao.Pair{
+	*entry = append(*entry, dao.Entry{
 		Key: root.key,
 		Val: root.val,
 	})
 
 	if root.right != nil {
-		bst.inorder(root.right, kvPair)
+		bst.inorder(root.right, entry)
 	}
 }
 
-func (bst *BinarySearchTree) Set(p dao.Pair) {
+func (bst *BinarySearchTree) Set(entry dao.Entry) {
 	bst.setMu.Lock()
-	k, v := p.Key, p.Val
+	k, v := entry.Key, entry.Val
 	bst.root = bst.set(bst.root, k, v)
 	bst.setMu.Unlock()
 }

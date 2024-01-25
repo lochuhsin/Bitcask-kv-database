@@ -8,11 +8,11 @@ import (
 	"strings"
 )
 
-func Serialize(k Pair) (string, error) {
+func Serialize(k Entry) (string, error) {
 	return fmt.Sprintf("CRC::%v::%v::%v", k.CreateTime, k.Key.Format(), k.Val.Format()), nil
 }
 
-func DeSerialize(line string) (Pair, error) {
+func DeSerialize(line string) (Entry, error) {
 	// CRC::TimeStamp::KeyDataType::KeyLen::Key::ValueDataType::ValueLen::Value
 	strList := strings.Split(line, "::")
 	// crc = strList[0] for validation usage
@@ -37,7 +37,7 @@ func DeSerialize(line string) (Pair, error) {
 	if err != nil {
 		panic(err)
 	}
-	return Pair{
+	return Entry{
 		Key:        keyData.(NilString),
 		Val:        valData,
 		CreateTime: int64(ts),

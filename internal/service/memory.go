@@ -14,12 +14,12 @@ func MGet(k dao.NilString) (val dao.Base, status bool) {
 }
 
 func MSet(k dao.NilString, v dao.Base) {
-	pair := dao.InitPair(k, v)
+	entry := dao.InitEntry(k, v)
 	mStorage := memory.GetMemoryStorage()
-	mStorage.Set(pair)
+	mStorage.Set(entry)
 }
 
 func MDelete(k dao.NilString) {
-	pair := dao.InitTombPair(k)
-	memory.GetMemoryStorage().Set(pair)
+	entry := dao.InitTombEntry(k)
+	memory.GetMemoryStorage().Set(entry)
 }

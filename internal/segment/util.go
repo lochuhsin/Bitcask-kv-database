@@ -20,9 +20,9 @@ func getSegmentMetaDataFilePath(segId string) string {
 	return fmt.Sprintf("%v%v%v%v", settings.ENV.DataPath, settings.SEGMENT_FILE_FOLDER, segId, settings.SEGMENT_FILE_METADATA_EXT)
 }
 
-func segmentToFile(s *Segment, pairs []dao.Pair) {
+func segmentToFile(s *Segment, entry []dao.Entry) {
 	/**
-	 * Note, assuming that key in pairs are sorted in ascending order
+	 * Note, assuming that key in entries are sorted in ascending order
 	 */
 	filePath := getSegmentFilePath(s.Id)
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777) //TODO: optimize the mode
@@ -34,9 +34,9 @@ func segmentToFile(s *Segment, pairs []dao.Pair) {
 	writer := bufio.NewWriter(file)
 
 	curroffset := 0
-	s.smallestKey = pairs[0].Key.Val // the first key is the smallest value
-	// TODO: convert this pair to generator pattern, hide inside segment, we don't need to know if the data needs to be serialized
-	for _, p := range pairs {
+	s.smallestKey = entry[0].Key.Val // the first key is the smallest value
+	// TODO: convert this entry to generator pattern, hide inside segment, we don't need to know if the data needs to be serialized
+	for _, p := range entry {
 		data, err := dao.Serialize(p)
 		if err != nil {
 			panic("Error while serializing data")
@@ -51,8 +51,8 @@ func segmentToFile(s *Segment, pairs []dao.Pair) {
 	}
 	writer.Flush()
 	file.Sync()
-	s.smallestKey = pairs[0].Key.GetVal().(string)
-	s.keyCount = len(pairs)
+	s.smallestKey = entry[0].Key.GetVal().(string)
+	s.keyCount = len(entry)
 }
 
 func segmentToMetadata(s *Segment) {

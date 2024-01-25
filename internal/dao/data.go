@@ -185,20 +185,20 @@ func (i NilTomb) GetType() DataType {
 	return Tombstone
 }
 
-type Pair struct {
+type Entry struct {
 	Key        NilString
 	Val        Base
 	CreateTime int64 // timestamp time.Now().UnixMicro()
 }
 
-func InitPair(key NilString, val Base) Pair {
-	return Pair{
+func InitEntry(key NilString, val Base) Entry {
+	return Entry{
 		key, val, time.Now().UnixMicro(),
 	}
 }
 
-func InitTombPair(key NilString) Pair {
-	return Pair{
+func InitTombEntry(key NilString) Entry {
+	return Entry{
 		key, NilTomb{}, time.Now().UnixMicro(),
 	}
 }

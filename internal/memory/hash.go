@@ -28,21 +28,21 @@ func (m *Hash) Get(k dao.NilString) (b dao.Base, status bool) {
 	return nil, false
 }
 
-func (m *Hash) Set(pair dao.Pair) {
-	m.keyvalue[pair.Key] = value{pair.CreateTime, pair.Val}
+func (m *Hash) Set(entry dao.Entry) {
+	m.keyvalue[entry.Key] = value{entry.CreateTime, entry.Val}
 }
 
 func (m *Hash) GetSize() int {
 	return len(m.keyvalue)
 }
 
-func (m *Hash) GetAll() []dao.Pair {
+func (m *Hash) GetAll() []dao.Entry {
 	/**
 	 * TODO: implement sort feature
 	 */
-	arr := make([]dao.Pair, 0, len(m.keyvalue))
+	arr := make([]dao.Entry, 0, len(m.keyvalue))
 	for k, v := range m.keyvalue {
-		arr = append(arr, dao.Pair{
+		arr = append(arr, dao.Entry{
 			Key:        k,
 			Val:        v.val,
 			CreateTime: v.createTime,

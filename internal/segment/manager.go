@@ -50,13 +50,13 @@ func (s *Segment) Get(k dao.NilString) (dao.Base, bool) {
 	scanner := bufio.NewScanner(fd)
 	for scanner.Scan() {
 		line := scanner.Text()
-		pair, err := dao.DeSerialize(line) // Figure out a better way to split between keys
+		entry, err := dao.DeSerialize(line) // Figure out a better way to split between keys
 		if err != nil {
 			panic("Something went wrong while deserializing data")
 		}
 
-		if pair.Key.IsEqual(k) {
-			return pair.Val, true
+		if entry.Key.IsEqual(k) {
+			return entry.Val, true
 		}
 	}
 
@@ -88,18 +88,18 @@ func (s *Segment) GetFromPrimaryIndex(key dao.NilString) (dao.Base, bool) {
 	if n != datalen {
 		panic("something went wrong wuth the segment data, length doesn't match")
 	}
-	pair, err := dao.DeSerialize(string(byteBuffer))
+	entry, err := dao.DeSerialize(string(byteBuffer))
 
 	if err != nil {
 		panic("is the data valid?")
 	}
 
 	// validate key match
-	if !pair.Key.IsEqual(key) {
+	if !entry.Key.IsEqual(key) {
 		panic("Key does not match the value")
 	}
 
-	return pair.Val, true
+	return entry.Val, true
 }
 
 func (s *Segment) GetPrimayIndex() *PrimaryIndex {
@@ -164,7 +164,6 @@ func (s *Manager) GetValue(k dao.NilString) (val dao.Base, status bool) {
 			})
 		}
 		for _, seg := range segments {
-
 			if k.GetVal().(string) < seg.smallestKey {
 				continue
 			}

@@ -64,6 +64,9 @@ func (m *blockStorage) removeMemoryBlock(id BlockId) error {
 	node.prev.next = node.next
 	node.next.prev = node.prev
 	delete(m.blockMap, id)
+	if m.currNode.block.Id == id {
+		m.currNode = nil
+	}
 	return nil
 }
 
@@ -90,7 +93,25 @@ func (m *blockStorage) createNewBlock(modelType ModelType) {
 }
 
 func (m *blockStorage) getCurrentBlock() *Block {
+	if m.currNode == nil {
+		return nil
+	}
 	return m.currNode.block
+}
+
+func (m *blockStorage) iterateExistingBlocks() []*Block {
+	// iterate backwards
+	node := m.currNode
+	blocks := []*Block{}
+	for node != nil && node.block != nil {
+		blocks = append(blocks, node.block)
+		node = node.prev
+	}
+	return blocks
+}
+
+func (m *blockStorage) getBlockCount() int {
+	return len(m.blockMap)
 }
 
 type memoryManager struct {
@@ -115,8 +136,14 @@ func NewMemoryManager(bStorage *blockStorage, entryCountLimit, blockIdChanSize i
 func (m *memoryManager) Get(key dao.NilString) (dao.Base, bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	curretBlock := m.bStorage.getCurrentBlock()
-	return curretBlock.Memory.Get(key)
+	blocks := m.bStorage.iterateExistingBlocks()
+	for _, block := range blocks {
+		val, status := block.Memory.Get(key)
+		if status {
+			return val, status
+		}
+	}
+	return nil, false
 }
 
 func (m *memoryManager) Set(entry dao.Entry) error {
@@ -127,7 +154,7 @@ func (m *memoryManager) Set(entry dao.Entry) error {
 	memory := m.bStorage.getCurrentBlock().Memory
 	memory.Set(entry)
 	// 2. check memory block condition if meets
-	if memory.GetSize() > m.entryCountLimit {
+	if memory.GetSize() >= m.entryCountLimit {
 		bid := m.bStorage.getCurrentBlockId()
 		// 3. add new memory block
 		m.bStorage.createNewBlock(m.modelType)

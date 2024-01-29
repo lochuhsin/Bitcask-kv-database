@@ -21,7 +21,7 @@ func Init() {
 	os.MkdirAll(segDir, os.ModePerm)
 	os.MkdirAll(indexDir, os.ModePerm)
 
-	memory.InitMemoryStorage(memory.ModelType(settings.ENV.MemoryModel))
+	memory.InitMemoryManager(memory.ModelType(settings.ENV.MemoryModel))
 	segment.InitSegment()
 	scheduler.InitScheduler()
 }

@@ -20,7 +20,7 @@ func NewScheduler() *Scheduler {
 
 // Long running listener for tasks
 func (s *Scheduler) TaskChanListener() {
-	BlockIdChan := memory.GetMemoryStorage().GetBlockIdChan()
+	BlockIdChan := memory.GetMemoryManager().GetBlockIdQueue()
 	for blockId := range BlockIdChan {
 		go s.taskWorker(blockId)
 	}
@@ -32,7 +32,7 @@ func (s *Scheduler) TaskSignalListner() {
 	 * When the channel recieves a task finised signal,
 	 * Remove the task from task pool
 	 */
-	mStorage := memory.GetMemoryStorage()
+	mStorage := memory.GetMemoryManager()
 	for ts := range s.statusChan {
 		if ts.status != FINISHED {
 			panic("Some thing went wrong")
@@ -44,12 +44,9 @@ func (s *Scheduler) TaskSignalListner() {
 // worker
 func (s *Scheduler) taskWorker(id memory.BlockId) {
 	manager := segment.GetSegmentManager()
-	mStorage := memory.GetMemoryStorage()
-	block, st := mStorage.GetMemoryBlock(id)
-	if !st {
-		panic("Got empty tasks, this shouldn't happen")
-	}
-	seg := memBlockToFile(block)
+	mStorage := memory.GetMemoryManager()
+	block := mStorage.GetMemoryBlock(id)
+	seg := memBlockToFile(*block)
 	genSegmentMetadataFile(seg.Id, seg.Level)
 	genSegmentIndexFile(seg.Id, seg.GetPrimayIndex())
 

@@ -1,20 +1,25 @@
 package memory
 
 import (
+	"rebitcask/internal/settings"
 	"sync"
 )
 
-var mStorage *memoryStorage
+var mManager *memoryManager
 var mOnce sync.Once
 
-func InitMemoryStorage(mType ModelType) {
+func InitMemoryManager(mType ModelType) {
 	mOnce.Do(func() {
-		if mStorage == nil {
-			mStorage = NewMemoryStorage()
-		}
+		mStorage := NewMemoryStorage()
+		mManager = NewMemoryManager(
+			mStorage,
+			settings.ENV.MemoryCountLimit,
+			settings.WORKER_COUNT,
+			ModelType(settings.ENV.MemoryModel),
+		)
 	})
 }
 
-func GetMemoryStorage() *memoryStorage {
-	return mStorage
+func GetMemoryManager() *memoryManager {
+	return mManager
 }

@@ -1,7 +1,7 @@
 
 .PHONY: test
 test: # vanilla test
-	go test ./test -race -count=1
+	go test ./... -race -count=1
 
 .PHONY: test-timeout
 test-timeout:

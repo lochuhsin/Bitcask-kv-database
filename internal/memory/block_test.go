@@ -58,7 +58,6 @@ func TestMemoryStorageBlockOrder(t *testing.T) {
 	}
 
 }
-
 func TestMemoryStorageRemoveBlock(t *testing.T) {
 	mBlockStorage := NewMemoryStorage()
 	count := 100

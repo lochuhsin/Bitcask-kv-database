@@ -4,6 +4,7 @@ import (
 	"rebitcask/discovery/api/bootstrap"
 	"rebitcask/discovery/api/cluster"
 	_ "rebitcask/discovery/docs"
+	"rebitcask/discovery/settings"
 
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files" // swagger embed files
@@ -15,12 +16,11 @@ func main() {
 	 * Setting up server as
 	 * http://localhost:8765/_rebitcask/........
 	 */
-	port := ":8765"
+	Init()
 	r := gin.Default()
-
 	r.Group("/_rebitcask") // main prefix
 	bootstrap.Routes(r)
 	cluster.Routes(r)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-	r.Run(port)
+	r.Run(settings.Config.HTTP_PORT)
 }

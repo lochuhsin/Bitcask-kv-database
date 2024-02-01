@@ -23,6 +23,7 @@ func NewDefaultConfiguration() config {
 		HTTP_PORT:            ":8765",
 	}
 }
+
 func NewConfiguration(envPaths []string, options ...Option) config {
 	newConfig := NewDefaultConfiguration()
 	err := godotenv.Load(envPaths...)
@@ -33,12 +34,11 @@ func NewConfiguration(envPaths []string, options ...Option) config {
 	} else {
 		fmt.Println("either unable to locate or open the env file")
 		fmt.Println("using default values")
-
 	}
 	return newConfig
 }
 
-func setClusterMemberCount() Option {
+func SetClusterMemberCount() Option {
 	return func(conf *config) {
 		if clusterMemberCount := os.Getenv("CLUSTER_MEMBER_COUNT"); clusterMemberCount != "" {
 			count, err := strconv.Atoi(clusterMemberCount)
@@ -50,6 +50,14 @@ func setClusterMemberCount() Option {
 	}
 }
 
-func setHttpPort() Option {
-	return func(conf *config) {}
+func SetHttpPort() Option {
+	return func(conf *config) {
+		if port := os.Getenv("HTTP_PORT"); port != "" {
+			if port[0] != ':' {
+				conf.HTTP_PORT = ":" + port
+			} else {
+				conf.HTTP_PORT = port
+			}
+		}
+	}
 }

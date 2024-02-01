@@ -11,15 +11,15 @@ import (
 )
 
 func getSegmentFilePath(segId string) string {
-	return fmt.Sprintf("%v%v%v%v", settings.Config.DataFolderPath, settings.SEGMENT_FILE_FOLDER, segId, settings.SEGMENT_FILE_EXT)
+	return fmt.Sprintf("%v%v%v%v", settings.Config.DATA_FOLDER_PATH, settings.SEGMENT_FILE_FOLDER, segId, settings.SEGMENT_FILE_EXT)
 }
 
 func getSegmentIndexFilePath(segId string) string {
-	return fmt.Sprintf("%v%v%v%v", settings.Config.DataFolderPath, settings.INDEX_FILE_FOLDER, segId, settings.SEGMENT_KEY_OFFSET_FILE_EXT)
+	return fmt.Sprintf("%v%v%v%v", settings.Config.DATA_FOLDER_PATH, settings.INDEX_FILE_FOLDER, segId, settings.SEGMENT_KEY_OFFSET_FILE_EXT)
 }
 
 func getSegmentMetaDataFilePath(segId string) string {
-	return fmt.Sprintf("%v%v%v%v", settings.Config.DataFolderPath, settings.SEGMENT_FILE_FOLDER, segId, settings.SEGMENT_FILE_METADATA_EXT)
+	return fmt.Sprintf("%v%v%v%v", settings.Config.DATA_FOLDER_PATH, settings.SEGMENT_FILE_FOLDER, segId, settings.SEGMENT_FILE_METADATA_EXT)
 }
 
 func memBlockToFile(memBlock memory.Block) segment.Segment {
@@ -44,12 +44,12 @@ func memBlockToFile(memBlock memory.Block) segment.Segment {
 		if err != nil {
 			panic("Error while serializing data")
 		}
-		offset, err := writer.WriteString(data + settings.DATASAPARATER)
+		offset, err := writer.WriteString(data + settings.DATA_SEPARATOR)
 		if err != nil {
 			panic("something went wrong while writing to segment")
 		}
 		// offset minus data saparater = the length of the data
-		pIndex.Set(p.Key, curroffset, offset-len([]byte(settings.DATASAPARATER)))
+		pIndex.Set(p.Key, curroffset, offset-len([]byte(settings.DATA_SEPARATOR)))
 		curroffset += offset
 	}
 	writer.Flush()
@@ -91,7 +91,7 @@ func genSegmentIndexFile(sId string, pIndex *segment.PrimaryIndex) {
 
 	for key, val := range pIndex.OffsetMap {
 		data := segmentIndexSerialize(key.Format(), val.Format())
-		_, err := writer.WriteString(data + settings.DATASAPARATER)
+		_, err := writer.WriteString(data + settings.DATA_SEPARATOR)
 		if err != nil {
 			panic("something went wrong while writing to segment")
 		}

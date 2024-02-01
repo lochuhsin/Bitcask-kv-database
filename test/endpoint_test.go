@@ -51,7 +51,7 @@ func TestMain(m *testing.M) {
 func TestStorageDelete(t *testing.T) {
 
 	env := settings.Config
-	dataCount := env.MemoryCountLimit*1 + 1
+	dataCount := env.MEMORY_COUNT_LIMIT*1 + 1
 	keys, _ := GenerateLowDuplicateRandom(dataCount)
 	for _, k := range keys {
 		err := rebitcask.Delete(k)
@@ -64,7 +64,7 @@ func TestStorageDelete(t *testing.T) {
 func TestStorageSetGet(t *testing.T) {
 
 	env := settings.Config
-	dataCount := env.MemoryCountLimit*5 + 1
+	dataCount := env.MEMORY_COUNT_LIMIT*5 + 1
 
 	keys, vals := GenerateLowDuplicateRandom(dataCount)
 	for i, k := range keys {

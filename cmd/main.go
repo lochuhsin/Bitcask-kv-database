@@ -27,7 +27,7 @@ func main() {
 
 	// starts swagger at localhost:port/swagger/index.html
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-	go runGRPC(env.GrpcPort)
-	r.Run(env.HttpPort) // listen and serve on 0.0.0.0:8080
+	go runGRPC(env.GRPC_PORT)
+	r.Run(env.HTTP_PORT) // listen and serve on 0.0.0.0:8080
 
 }

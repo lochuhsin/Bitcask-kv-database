@@ -18,26 +18,26 @@ var Config config
 type Opt func(*config)
 
 type config struct {
-	DataFolderPath    string
-	Tombstone         string
-	NilData           string
-	MemoryCountLimit  int
-	MemoryModel       string
-	SegFileCountLimit int // used for merge segments or change to other
-	HttpPort          string
-	GrpcPort          string
+	DATA_FOLDER_PATH         string
+	TOMBSTONE                string
+	NIL_DATA_REP             string
+	MEMORY_COUNT_LIMIT       int
+	MEMORY_MODEL             string
+	SEGMENT_FILE_COUNT_LIMIT int // used for merge segments or change to other
+	HTTP_PORT                string
+	GRPC_PORT                string
 }
 
 func NewDefaultConfiguration() config {
 	return config{
-		DataFolderPath:    "./rbData/",
-		Tombstone:         "!@#$%^&*()_+",
-		NilData:           ")(*&^)!@!@#$%^&*()",
-		MemoryModel:       "hash",
-		MemoryCountLimit:  1000000,
-		SegFileCountLimit: 100,
-		HttpPort:          ":8080",
-		GrpcPort:          ":9090",
+		DATA_FOLDER_PATH:         "./rbData/",
+		TOMBSTONE:                "!@#$%^&*()_+",
+		NIL_DATA_REP:             ")(*&^)!@!@#$%^&*()",
+		MEMORY_MODEL:             "hash",
+		MEMORY_COUNT_LIMIT:       1000000,
+		SEGMENT_FILE_COUNT_LIMIT: 100,
+		HTTP_PORT:                ":8080",
+		GRPC_PORT:                ":9090",
 	}
 }
 
@@ -60,7 +60,7 @@ func NewConfiguration(envPaths []string, options ...Opt) config {
 func setDataFolderPath() Opt {
 	return func(conf *config) {
 		if DataPath := os.Getenv("DATA_FOLDER_PATH"); DataPath != "" {
-			conf.DataFolderPath = DataPath
+			conf.DATA_FOLDER_PATH = DataPath
 		}
 	}
 }
@@ -68,7 +68,7 @@ func setDataFolderPath() Opt {
 func setTombstone() Opt {
 	return func(conf *config) {
 		if tombstone := os.Getenv("TOMBSTONE"); tombstone != "" {
-			conf.Tombstone = tombstone
+			conf.TOMBSTONE = tombstone
 		}
 	}
 }
@@ -76,7 +76,7 @@ func setTombstone() Opt {
 func setNilData() Opt {
 	return func(conf *config) {
 		if nilData := os.Getenv("NILDATA"); nilData != "" {
-			conf.NilData = nilData
+			conf.NIL_DATA_REP = nilData
 		}
 	}
 }
@@ -88,7 +88,7 @@ func setMemoryCountLimit() Opt {
 			if err != nil {
 				panic(err)
 			}
-			conf.MemoryCountLimit = limit
+			conf.MEMORY_COUNT_LIMIT = limit
 		}
 	}
 }
@@ -96,7 +96,7 @@ func setMemoryCountLimit() Opt {
 func setMemoryModel() Opt {
 	return func(conf *config) {
 		if memoryModel := os.Getenv("MEMORY_MODEL"); memoryModel != "" {
-			conf.MemoryModel = memoryModel
+			conf.MEMORY_MODEL = memoryModel
 		}
 	}
 }
@@ -108,7 +108,7 @@ func setSegmentFileCountLimit() Opt {
 			if err != nil {
 				panic(err)
 			}
-			conf.SegFileCountLimit = limit
+			conf.SEGMENT_FILE_COUNT_LIMIT = limit
 		}
 	}
 }
@@ -117,9 +117,9 @@ func setHttpPort() Opt {
 	return func(conf *config) {
 		if port := os.Getenv("HTTP_PORT"); port != "" {
 			if port[0] != ':' {
-				conf.HttpPort = ":" + port
+				conf.HTTP_PORT = ":" + port
 			} else {
-				conf.HttpPort = port
+				conf.HTTP_PORT = port
 			}
 		}
 	}
@@ -129,9 +129,9 @@ func setGrpcPort() Opt {
 	return func(conf *config) {
 		if port := os.Getenv("GRPC_PORT"); port != "" {
 			if port[0] != ':' {
-				conf.GrpcPort = ":" + "port"
+				conf.GRPC_PORT = ":" + "port"
 			} else {
-				conf.GrpcPort = "port"
+				conf.GRPC_PORT = "port"
 			}
 		}
 	}

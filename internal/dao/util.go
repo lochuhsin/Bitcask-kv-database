@@ -49,7 +49,7 @@ func toBaseType(valtype, val string) (Base, error) {
 	var data Base
 
 	isNil := false
-	if val == settings.Config.NilData {
+	if val == settings.Config.NIL_DATA_REP {
 		isNil = true
 	}
 

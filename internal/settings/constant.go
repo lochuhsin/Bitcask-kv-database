@@ -1,8 +1,6 @@
 package settings
 
-const ENV_PATH = "./rebitcask.env"
-
-const DATASAPARATER = ".."
+const DATA_SEPARATOR = ".."
 
 const SEGMENT_FILE_EXT = ".sst"
 

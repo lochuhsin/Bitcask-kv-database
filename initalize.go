@@ -17,12 +17,12 @@ func Init(envPaths ...string) {
 	settings.InitConfig(envPaths...)
 	config := settings.Config
 
-	segDir := fmt.Sprintf("%s%s", config.DataFolderPath, settings.SEGMENT_FILE_FOLDER)
-	indexDir := fmt.Sprintf("%s%s", config.DataFolderPath, settings.INDEX_FILE_FOLDER)
+	segDir := fmt.Sprintf("%s%s", config.DATA_FOLDER_PATH, settings.SEGMENT_FILE_FOLDER)
+	indexDir := fmt.Sprintf("%s%s", config.DATA_FOLDER_PATH, settings.INDEX_FILE_FOLDER)
 	os.MkdirAll(segDir, os.ModePerm)
 	os.MkdirAll(indexDir, os.ModePerm)
 
-	memory.InitMemoryManager(memory.ModelType(settings.Config.MemoryModel))
+	memory.InitMemoryManager(memory.ModelType(settings.Config.MEMORY_MODEL))
 	segment.InitSegmentManager()
 	scheduler.InitScheduler()
 }

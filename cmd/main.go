@@ -1,15 +1,10 @@
 package main
 
 import (
-	"context"
 	"flag"
-	"fmt"
-	"net"
 	"rebitcask"
 	"rebitcask/api/chore"
 	"rebitcask/api/core"
-	"rebitcask/server/chorepb"
-	"rebitcask/server/rebitcaskpb"
 
 	_ "rebitcask/docs"
 
@@ -18,30 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"     // swagger embed files
 	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
-	"google.golang.org/grpc"
 )
-
-type grpcServer struct {
-	rebitcaskpb.UnimplementedRebitcaskServiceServer
-}
-
-func (s *grpcServer) GetHeartBeat(context.Context, *chorepb.GetHeartBeatRequest) (*chorepb.GetHeartBeatResponse, error) {
-	return &chorepb.GetHeartBeatResponse{
-		Status: 200,
-	}, nil
-}
-
-func runGRPC(port string) {
-	rbServer := grpcServer{}
-	lst, err := net.Listen("tcp", port)
-	if err != nil {
-		panic("unable to listen port " + port)
-	}
-	s := grpc.NewServer()
-	rebitcaskpb.RegisterRebitcaskServiceServer(s, &rbServer)
-	fmt.Println("Starting grpc server on " + port)
-	s.Serve(lst)
-}
 
 func main() {
 	flag.Var(&envPaths, "envfiles", "Specifies the env files")

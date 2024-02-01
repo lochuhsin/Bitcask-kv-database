@@ -27,9 +27,13 @@ build-escape:
 run:
 	swag init -g ./cmd/main.go -o ./docs && go build -o app ./cmd && ./app
 
+.PHONY: run-race
+run-race:
+	swag init -g ./cmd/main.go -o ./docs && go build -race -o app ./cmd && ./app
+
 .PHONY: run-prod
 run:
-	go build -o app cmd/ && ./app
+	go build -o app ./cmd && ./app
 
 .PHONY: all_profile
 all_profile:

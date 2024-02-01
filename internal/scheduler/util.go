@@ -11,15 +11,15 @@ import (
 )
 
 func getSegmentFilePath(segId string) string {
-	return fmt.Sprintf("%v%v%v%v", settings.ENV.DataPath, settings.SEGMENT_FILE_FOLDER, segId, settings.SEGMENT_FILE_EXT)
+	return fmt.Sprintf("%v%v%v%v", settings.Config.DataFolderPath, settings.SEGMENT_FILE_FOLDER, segId, settings.SEGMENT_FILE_EXT)
 }
 
 func getSegmentIndexFilePath(segId string) string {
-	return fmt.Sprintf("%v%v%v%v", settings.ENV.DataPath, settings.INDEX_FILE_FOLDER, segId, settings.SEGMENT_KEY_OFFSET_FILE_EXT)
+	return fmt.Sprintf("%v%v%v%v", settings.Config.DataFolderPath, settings.INDEX_FILE_FOLDER, segId, settings.SEGMENT_KEY_OFFSET_FILE_EXT)
 }
 
 func getSegmentMetaDataFilePath(segId string) string {
-	return fmt.Sprintf("%v%v%v%v", settings.ENV.DataPath, settings.SEGMENT_FILE_FOLDER, segId, settings.SEGMENT_FILE_METADATA_EXT)
+	return fmt.Sprintf("%v%v%v%v", settings.Config.DataFolderPath, settings.SEGMENT_FILE_FOLDER, segId, settings.SEGMENT_FILE_METADATA_EXT)
 }
 
 func memBlockToFile(memBlock memory.Block) segment.Segment {

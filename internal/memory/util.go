@@ -15,7 +15,7 @@ func MemoryTypeSelector(mType ModelType) IMemory {
 	// 	m = memory.InitRedBlackTree()
 
 	default:
-		panic("memory model not implemented errir")
+		panic("memory model not implemented error")
 	}
 	return m
 }

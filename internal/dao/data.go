@@ -67,7 +67,7 @@ func (i NilByte) Format() string {
 }
 
 func (i NilTomb) Format() string {
-	return fmt.Sprintf("%v::%v::%v", Tombstone, len(settings.ENV.Tombstone), settings.ENV.Tombstone)
+	return fmt.Sprintf("%v::%v::%v", Tombstone, len(settings.Config.Tombstone), settings.Config.Tombstone)
 
 }
 
@@ -178,7 +178,7 @@ type NilTomb struct {
 }
 
 func (i NilTomb) GetVal() any {
-	return settings.ENV.Tombstone
+	return settings.Config.Tombstone
 	// return tombstone value in envVar initialization
 }
 func (i NilTomb) GetType() DataType {

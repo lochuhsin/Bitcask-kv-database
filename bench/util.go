@@ -20,5 +20,5 @@ func testTimer(fn func(t *testing.T), t *testing.T) {
 }
 
 func removeSegment() {
-	os.RemoveAll(settings.ENV.DataPath)
+	os.RemoveAll(settings.Config.DataFolderPath)
 }

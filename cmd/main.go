@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"net"
 	"rebitcask"
@@ -43,15 +44,17 @@ func runGRPC(port string) {
 }
 
 func main() {
-	rebitcask.Init()
-	env := settings.ENV
+	flag.Var(&envPaths, "envfiles", "Specifies the env files")
+	flag.Parse()
+	rebitcask.Init([]string(envPaths)...)
+
+	env := settings.Config
 	r := gin.Default()
 	core.Routes(r)
 	chore.Routes(r)
 
 	// starts swagger at localhost:port/swagger/index.html
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-	// use channel to handle goroutine shut down
 	go runGRPC(env.GrpcPort)
 	r.Run(env.HttpPort) // listen and serve on 0.0.0.0:8080
 

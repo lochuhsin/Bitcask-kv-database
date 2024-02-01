@@ -9,7 +9,7 @@ import (
 )
 
 func setup() {
-	rebitcask.Init()
+	rebitcask.Init(".env.test")
 }
 
 func teardown() {
@@ -50,7 +50,7 @@ func TestMain(m *testing.M) {
 
 func TestStorageDelete(t *testing.T) {
 
-	env := settings.ENV
+	env := settings.Config
 	dataCount := env.MemoryCountLimit*1 + 1
 	keys, _ := GenerateLowDuplicateRandom(dataCount)
 	for _, k := range keys {
@@ -63,7 +63,7 @@ func TestStorageDelete(t *testing.T) {
 
 func TestStorageSetGet(t *testing.T) {
 
-	env := settings.ENV
+	env := settings.Config
 	dataCount := env.MemoryCountLimit*5 + 1
 
 	keys, vals := GenerateLowDuplicateRandom(dataCount)

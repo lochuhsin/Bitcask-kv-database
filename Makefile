@@ -13,23 +13,23 @@ test-concurrent:
 
 .PHONY: build
 build:
-	go build -o app cmd/main.go
+	go build -o app ./cmd
 
 .PHONY: build-race
 build-race:
-	go build -race -o app cmd/main.go 
+	go build -race -o app ./cmd
 
 .PHONY: build-escape
 build-escape:
-	go build -gcflags "-m -l" -o app cmd/main.go
+	go build -gcflags "-m -l" -o app ./cmd
 
 .PHONY: run
 run:
-	swag init -g ./cmd/main.go -o ./docs && go build -o app cmd/main.go && ./app
+	swag init -g ./cmd/main.go -o ./docs && go build -o app ./cmd && ./app
 
 .PHONY: run-prod
 run:
-	go build -o app cmd/main.go && ./app
+	go build -o app cmd/ && ./app
 
 .PHONY: all_profile
 all_profile:

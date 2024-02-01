@@ -1,20 +1,6 @@
 package settings
 
-type envVar struct {
-	DataPath          string
-	Tombstone         string
-	NilData           string
-	MemoryCountLimit  int
-	MemoryModel       string
-	SegFileCountLimit int // used for merge segments or change to other
-	HttpPort          string
-	GrpcPort          string
-}
-
-// TODO: Convert this to singleton
-var ENV envVar
-
-const ENVPATH = "./rebitcask.env"
+const ENV_PATH = "./rebitcask.env"
 
 const DATASAPARATER = ".."
 

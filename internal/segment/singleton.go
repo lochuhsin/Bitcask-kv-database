@@ -9,7 +9,7 @@ var (
 	segManagerOnce sync.Once
 )
 
-func InitSegment() {
+func InitSegmentManager() {
 	segManagerOnce.Do(func() {
 		if SegManager == nil {
 			manager := NewSegmentManager()

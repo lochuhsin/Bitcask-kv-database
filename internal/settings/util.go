@@ -8,6 +8,10 @@ import (
 	"github.com/joho/godotenv"
 )
 
+/**
+ * These should be completely rewrite in more go
+ * option way
+ */
 func InitENV() {
 	ENV = envVar{
 		DataPath:          "./rbData/",

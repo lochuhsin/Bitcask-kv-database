@@ -1,7 +1,7 @@
 
 version: "3.8"
 services:
-  backend-app:
+  backend-app1:
     restart: always
     build:
       context: .
@@ -9,3 +9,27 @@ services:
     ports:
       - "8080:8080"
       - "9090:9090"
+
+  backend-app2:
+    restart: always
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+
+  backend-app3:
+    restart: always
+
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+
+    network:
+      - networkName
+

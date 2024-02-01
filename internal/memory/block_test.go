@@ -56,8 +56,8 @@ func TestMemoryStorageBlockOrder(t *testing.T) {
 			t.Error("iterate blocks id mismatch")
 		}
 	}
-
 }
+
 func TestMemoryStorageRemoveBlock(t *testing.T) {
 	mBlockStorage := NewMemoryStorage()
 	count := 100

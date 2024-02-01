@@ -29,7 +29,7 @@ func getHandler(c *gin.Context) {
 }
 
 func postHandler(c *gin.Context) {
-	obj := dataRequestSerializer{}
+	obj := dataRequestSchema{}
 	c.Bind(&obj)
 	rebitcask.Set(obj.Key, obj.Value)
 	log.Println(obj.Key, obj.Value)
@@ -37,7 +37,7 @@ func postHandler(c *gin.Context) {
 }
 
 func putHandler(c *gin.Context) {
-	obj := dataRequestSerializer{}
+	obj := dataRequestSchema{}
 	c.Bind(&obj)
 	err := rebitcask.Set(obj.Key, obj.Value)
 	if err != nil {
@@ -47,7 +47,7 @@ func putHandler(c *gin.Context) {
 }
 
 func patchHandler(c *gin.Context) {
-	obj := dataRequestSerializer{}
+	obj := dataRequestSchema{}
 	c.Bind(&obj)
 
 	err := rebitcask.Set(obj.Key, obj.Value)
@@ -58,7 +58,7 @@ func patchHandler(c *gin.Context) {
 }
 
 func deleteHandler(c *gin.Context) {
-	obj := dataRequestSerializer{}
+	obj := dataRequestSchema{}
 	c.Bind(&obj)
 	err := rebitcask.Delete(obj.Key)
 	if err != nil {

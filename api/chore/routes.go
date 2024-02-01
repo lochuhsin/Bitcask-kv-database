@@ -11,6 +11,6 @@ func Routes(route *gin.Engine) {
 		c.String(http.StatusOK, "")
 	})
 	route.GET("/healthz", func(c *gin.Context) {
-		c.String(http.StatusOK, "Hello, world")
+		c.String(http.StatusOK, "ok")
 	})
 }

@@ -1,6 +1,6 @@
 package core
 
-type dataRequestSerializer struct {
+type dataRequestSchema struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
 }

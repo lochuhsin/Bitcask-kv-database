@@ -49,6 +49,7 @@ func main() {
 	core.Routes(r)
 	chore.Routes(r)
 
+	// starts swagger at localhost:port/swagger/index.html
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	// use channel to handle goroutine shut down
 	go runGRPC(env.GrpcPort)

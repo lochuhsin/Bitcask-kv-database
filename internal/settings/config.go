@@ -15,7 +15,7 @@ import (
  */
 var Config config
 
-type Opt func(*config)
+type Option func(*config)
 
 type config struct {
 	DATA_FOLDER_PATH         string
@@ -41,7 +41,7 @@ func NewDefaultConfiguration() config {
 	}
 }
 
-func NewConfiguration(envPaths []string, options ...Opt) config {
+func NewConfiguration(envPaths []string, options ...Option) config {
 	newConfig := NewDefaultConfiguration()
 	err := godotenv.Load(envPaths...)
 	if err == nil {
@@ -57,7 +57,7 @@ func NewConfiguration(envPaths []string, options ...Opt) config {
 	return newConfig
 }
 
-func setDataFolderPath() Opt {
+func setDataFolderPath() Option {
 	return func(conf *config) {
 		if DataPath := os.Getenv("DATA_FOLDER_PATH"); DataPath != "" {
 			conf.DATA_FOLDER_PATH = DataPath
@@ -65,7 +65,7 @@ func setDataFolderPath() Opt {
 	}
 }
 
-func setTombstone() Opt {
+func setTombstone() Option {
 	return func(conf *config) {
 		if tombstone := os.Getenv("TOMBSTONE"); tombstone != "" {
 			conf.TOMBSTONE = tombstone
@@ -73,7 +73,7 @@ func setTombstone() Opt {
 	}
 }
 
-func setNilData() Opt {
+func setNilData() Option {
 	return func(conf *config) {
 		if nilData := os.Getenv("NILDATA"); nilData != "" {
 			conf.NIL_DATA_REP = nilData
@@ -81,7 +81,7 @@ func setNilData() Opt {
 	}
 }
 
-func setMemoryCountLimit() Opt {
+func setMemoryCountLimit() Option {
 	return func(conf *config) {
 		if memoryCountLimit := os.Getenv("MEMORY_COUNT_LIMIT"); memoryCountLimit != "" {
 			limit, err := strconv.Atoi(memoryCountLimit)
@@ -93,7 +93,7 @@ func setMemoryCountLimit() Opt {
 	}
 }
 
-func setMemoryModel() Opt {
+func setMemoryModel() Option {
 	return func(conf *config) {
 		if memoryModel := os.Getenv("MEMORY_MODEL"); memoryModel != "" {
 			conf.MEMORY_MODEL = memoryModel
@@ -101,7 +101,7 @@ func setMemoryModel() Opt {
 	}
 }
 
-func setSegmentFileCountLimit() Opt {
+func setSegmentFileCountLimit() Option {
 	return func(conf *config) {
 		if segmentFileCountLimit := os.Getenv("SEGMENT_FILE_COUNT_LIMIT"); segmentFileCountLimit != "" {
 			limit, err := strconv.Atoi(segmentFileCountLimit)
@@ -113,7 +113,7 @@ func setSegmentFileCountLimit() Opt {
 	}
 }
 
-func setHttpPort() Opt {
+func setHttpPort() Option {
 	return func(conf *config) {
 		if port := os.Getenv("HTTP_PORT"); port != "" {
 			if port[0] != ':' {
@@ -125,7 +125,7 @@ func setHttpPort() Opt {
 	}
 }
 
-func setGrpcPort() Opt {
+func setGrpcPort() Option {
 	return func(conf *config) {
 		if port := os.Getenv("GRPC_PORT"); port != "" {
 			if port[0] != ':' {

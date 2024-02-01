@@ -1,9 +1,5 @@
 package main
 
-import (
-	"rebitcask/discovery/settings"
-)
-
-func initialize() {
-	settings.SetupEnv()
+func Init() {
+	// settings.NewConfiguration()
 }

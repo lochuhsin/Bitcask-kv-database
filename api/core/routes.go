@@ -7,6 +7,5 @@ func Routes(route *gin.Engine) {
 	coreRoute.GET("/", getHandler)
 	coreRoute.POST("/", postHandler)
 	coreRoute.PATCH("/", patchHandler)
-	coreRoute.PUT("/", putHandler)
 	coreRoute.DELETE("/", deleteHandler)
 }

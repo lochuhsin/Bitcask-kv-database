@@ -15,19 +15,39 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/core": {
+        "/": {
             "get": {
-                "description": "do ping",
+                "description": "root path handler",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "tags": [
-                    "example"
+                "summary": "root path handler",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/chore.rootResponseSchema"
+                        }
+                    }
+                }
+            }
+        },
+        "/core": {
+            "get": {
+                "description": "get value by key",
+                "summary": "get value by key",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "query database with key",
+                        "name": "key",
+                        "in": "query",
+                        "required": true
+                    }
                 ],
-                "summary": "ping example",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -35,6 +55,150 @@ const docTemplate = `{
                             "type": "string"
                         }
                     }
+                }
+            },
+            "post": {
+                "description": "insert key / value",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "insert key / value",
+                "parameters": [
+                    {
+                        "description": "request body for create an entry",
+                        "name": "RequestBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/core.dataRequestSchema"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/core.dataRequestSchema"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "delete key",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "delete key",
+                "parameters": [
+                    {
+                        "description": "request body for delete an entry",
+                        "name": "RequestBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/core.dataDeleteSchema"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/core.dataDeleteSchema"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "description": "update key / value",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "update key / value",
+                "parameters": [
+                    {
+                        "description": "request body for update an entry",
+                        "name": "RequestBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/core.dataRequestSchema"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/core.dataRequestSchema"
+                        }
+                    }
+                }
+            }
+        },
+        "/healthz": {
+            "get": {
+                "description": "healthz check endpoint",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "healthz check endpoint",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/chore.healthzResponseSchema"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "chore.healthzResponseSchema": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "chore.rootResponseSchema": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "core.dataDeleteSchema": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                }
+            }
+        },
+        "core.dataRequestSchema": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
                 }
             }
         }

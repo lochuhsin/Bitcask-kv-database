@@ -1,19 +1,125 @@
+definitions:
+  chore.healthzResponseSchema:
+    properties:
+      message:
+        type: string
+    type: object
+  chore.rootResponseSchema:
+    properties:
+      message:
+        type: string
+    type: object
+  core.dataDeleteSchema:
+    properties:
+      key:
+        type: string
+    type: object
+  core.dataRequestSchema:
+    properties:
+      key:
+        type: string
+      value:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
-  /core:
+  /:
     get:
       consumes:
       - application/json
-      description: do ping
+      description: root path handler
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
+            $ref: '#/definitions/chore.rootResponseSchema'
+      summary: root path handler
+  /core:
+    delete:
+      consumes:
+      - application/json
+      description: delete key
+      parameters:
+      - description: request body for delete an entry
+        in: body
+        name: RequestBody
+        required: true
+        schema:
+          $ref: '#/definitions/core.dataDeleteSchema'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/core.dataDeleteSchema'
+      summary: delete key
+    get:
+      description: get value by key
+      parameters:
+      - description: query database with key
+        in: query
+        name: key
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
             type: string
-      summary: ping example
-      tags:
-      - example
+      summary: get value by key
+    patch:
+      consumes:
+      - application/json
+      description: update key / value
+      parameters:
+      - description: request body for update an entry
+        in: body
+        name: RequestBody
+        required: true
+        schema:
+          $ref: '#/definitions/core.dataRequestSchema'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/core.dataRequestSchema'
+      summary: update key / value
+    post:
+      consumes:
+      - application/json
+      description: insert key / value
+      parameters:
+      - description: request body for create an entry
+        in: body
+        name: RequestBody
+        required: true
+        schema:
+          $ref: '#/definitions/core.dataRequestSchema'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/core.dataRequestSchema'
+      summary: insert key / value
+  /healthz:
+    get:
+      consumes:
+      - application/json
+      description: healthz check endpoint
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/chore.healthzResponseSchema'
+      summary: healthz check endpoint
 swagger: "2.0"

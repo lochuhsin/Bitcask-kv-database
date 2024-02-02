@@ -32,7 +32,7 @@ run-race:
 	swag init -g ./cmd/main.go -o ./docs && go build -race -o app ./cmd && ./app
 
 .PHONY: run-prod
-run:
+run-prod:
 	go build -o app ./cmd && ./app
 
 .PHONY: all_profile

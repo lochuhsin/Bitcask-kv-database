@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  discovery-app:
+    restart: always
+    build:
+      context: .
+      dockerfile: deployment/discovery.Dockerfile
+    ports: 
+      - "8765:8765"
+    networks:
+      - discovery
+      - cluster-discovery
+
+networks:
+  discovery:
+    driver: bridge
+
+  cluster-discovery:
+    name: cluster
+    external: True

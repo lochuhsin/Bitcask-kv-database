@@ -39,7 +39,7 @@ func NewDefaultConfiguration() config {
 		SEGMENT_FILE_COUNT_LIMIT: 100,
 		HTTP_PORT:                ":8080",
 		GRPC_PORT:                ":9090",
-		DISCOVERY_HOST:           "http://discovery:8765/",
+		DISCOVERY_HOST:           "http://discovery-app:8765/",
 	}
 }
 

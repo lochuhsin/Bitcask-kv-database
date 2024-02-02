@@ -1,3 +1,5 @@
+########################################################
+# rebitcask
 
 .PHONY: test
 test: # vanilla test
@@ -24,16 +26,23 @@ build-escape:
 	swag init -g ./cmd/main.go -o ./docs && go build -gcflags "-m -l" -o app ./cmd
 
 .PHONY: run
-run:
-	swag init -g ./cmd/main.go -o ./docs && go build -o app ./cmd && ./app
+run: build
+	./app
 
 .PHONY: run-race
-run-race:
-	swag init -g ./cmd/main.go -o ./docs && go build -race -o app ./cmd && ./app
+run-race: build-race
+	./app
 
-.PHONY: run-prod
-run-prod:
-	go build -o app ./cmd && ./app
+.PHONY: run-compose
+run-compose:
+	docker-compose -f docker-compose.yml up -d
+
+.PHONY: stop-compose
+stop-compose:
+	docker-compose -f docker-compose.yml stop
+
+########################################################
+# Profiling
 
 .PHONY: all_profile
 all_profile:
@@ -41,24 +50,42 @@ all_profile:
 
 .PHONY: cpu_profile
 cpu_profile:
-	go test ./bench -bench=. -benchmem -cpuprofile=cpu.pprof
+	go tool pprof -http=":8080" cpu.pprof
 
 .PHONY: mem_profile
 mem_profile:
-	go test ./bench -bench=. -benchmem -memprofile=mem.pprof
+	go tool pprof -http=":8080" mem.pprof
 
-.PHONY: cpu_profile-it
-cpu_profile-it:
-	go test ./bench -bench=. -benchmem -cpuprofile=cpu.pprof && go tool pprof cpu.pprof
-
-.PHONY: mem_profile-it
-mem_profile-it:
-	go test ./bench -bench=. -benchmem -memprofile=mem.pprof && go tool pprof mem.pprof
+########################################################
+# Chore
 
 .PHONY: init
 init: init-network
-	go mod tidy && go install github.com/swaggo/swag/cmd/swag@latest && swag init -g ./cmd/main.go -o ./docs
+	go mod tidy && go install github.com/swaggo/swag/cmd/swag@latest
 
 .PHONY: init-network
 init-network:
-	@bash ./init-network.sh	
+	@bash ./scripts/init-network.sh	
+
+########################################################
+# Discovery server commands
+
+.PHONY: discovery-init
+discovery-init: init-network
+	go mod tidy && go install github.com/swaggo/swag/cmd/swag@latest
+
+.PHONY: discovery-build
+discovery-build:
+	cd discovery && swag init -g ./cmd/main.go -o ./docs && cd ../ && go build -o app.discovery ./discovery/cmd
+
+.PHONY: discovery-run
+discovery-run: discovery-build
+	./app.discovery
+
+.PHONY: discovery-run-compose
+discovery-run-compose:
+	docker-compose -f docker-compose-discovery.yml up -d
+
+.PHONY: discovery-stop-compose
+discovery-stop-compose:
+	docker-compose -f docker-compose-discovery.yml down

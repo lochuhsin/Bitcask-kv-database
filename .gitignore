@@ -11,3 +11,4 @@ test/*.DS_Store
 *.test
 *main
 *discoveryapp
+app.discovery

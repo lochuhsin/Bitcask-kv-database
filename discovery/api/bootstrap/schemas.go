@@ -1,8 +1,12 @@
 package bootstrap
 
-type registerSchema struct {
+type registerRequestSchema struct {
 	Name string `json:"serverName"`
 	Ip   string `json:"serverIP"`
+}
+
+type registerResponseSchema struct {
+	Message string `json:"message"`
 }
 
 type peerSchema struct {
@@ -10,6 +14,6 @@ type peerSchema struct {
 	Ip   string `json:"serverIP"`
 }
 
-type peerListSchema struct {
+type peerListResponseSchema struct {
 	Peers []peerSchema `json:"peers"`
 }

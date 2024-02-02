@@ -6,6 +6,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// @Summary cluster status
+// @Schemes http
+// @Description cluster status
+// @Success 200 {object} ClusterStatusSchema
+// @Router /cluster/status [get]
 func getStatusHandler(c *gin.Context) {
 	/**
 	 * Responses the cluster status
@@ -18,9 +23,14 @@ func getStatusHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, &ClusterStatusSchema{Status: GREEN})
 }
 
+// @Summary cluster configuration
+// @Schemes http
+// @Description cluster configuration
+// @Success 200 {object} ClusterConfigurationSchema
+// @Router /cluster/configuration [get]
 func getConfigHandler(c *gin.Context) {
 	/**
 	 * Retrieves the cluster configuration
 	 */
-	c.JSON(http.StatusOK, &ClusterConfigrationSchema{10})
+	c.JSON(http.StatusOK, &ClusterConfigurationSchema{10})
 }

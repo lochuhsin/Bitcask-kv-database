@@ -14,7 +14,169 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {}
+    "paths": {
+        "/bootstrap/peers": {
+            "get": {
+                "description": "get all cluster members",
+                "summary": "get all registered cluster members",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/bootstrap.peerListResponseSchema"
+                        }
+                    }
+                }
+            }
+        },
+        "/bootstrap/register": {
+            "post": {
+                "description": "register cluster members",
+                "summary": "register cluster members",
+                "parameters": [
+                    {
+                        "description": "register cluster members",
+                        "name": "RequestBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/bootstrap.registerRequestSchema"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/bootstrap.registerResponseSchema"
+                        }
+                    }
+                }
+            }
+        },
+        "/cluster/configuration": {
+            "get": {
+                "description": "cluster configuration",
+                "summary": "cluster configuration",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/cluster.ClusterConfigurationSchema"
+                        }
+                    }
+                }
+            }
+        },
+        "/cluster/status": {
+            "get": {
+                "description": "cluster status",
+                "summary": "cluster status",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/cluster.ClusterStatusSchema"
+                        }
+                    }
+                }
+            }
+        },
+        "/healthz": {
+            "get": {
+                "description": "healthz endpoint",
+                "summary": "healthz endpoint",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/chore.healthzResponseSchema"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "bootstrap.peerListResponseSchema": {
+            "type": "object",
+            "properties": {
+                "peers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/bootstrap.peerSchema"
+                    }
+                }
+            }
+        },
+        "bootstrap.peerSchema": {
+            "type": "object",
+            "properties": {
+                "serverIP": {
+                    "type": "string"
+                },
+                "serverName": {
+                    "type": "string"
+                }
+            }
+        },
+        "bootstrap.registerRequestSchema": {
+            "type": "object",
+            "properties": {
+                "serverIP": {
+                    "type": "string"
+                },
+                "serverName": {
+                    "type": "string"
+                }
+            }
+        },
+        "bootstrap.registerResponseSchema": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "chore.healthzResponseSchema": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "cluster.ClusterConfigurationSchema": {
+            "type": "object",
+            "properties": {
+                "memberCount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "cluster.ClusterStatus": {
+            "type": "string",
+            "enum": [
+                "red",
+                "yello",
+                "green"
+            ],
+            "x-enum-varnames": [
+                "RED",
+                "YELLO",
+                "GREEN"
+            ]
+        },
+        "cluster.ClusterStatusSchema": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "$ref": "#/definitions/cluster.ClusterStatus"
+                }
+            }
+        }
+    }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it

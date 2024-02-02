@@ -4,6 +4,6 @@ type ClusterStatusSchema struct {
 	Status ClusterStatus `json:"status"`
 }
 
-type ClusterConfigrationSchema struct {
+type ClusterConfigurationSchema struct {
 	MemberCount int `json:"memberCount"`
 }

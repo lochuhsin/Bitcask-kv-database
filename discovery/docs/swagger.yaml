@@ -1,4 +1,108 @@
+definitions:
+  bootstrap.peerListResponseSchema:
+    properties:
+      peers:
+        items:
+          $ref: '#/definitions/bootstrap.peerSchema'
+        type: array
+    type: object
+  bootstrap.peerSchema:
+    properties:
+      serverIP:
+        type: string
+      serverName:
+        type: string
+    type: object
+  bootstrap.registerRequestSchema:
+    properties:
+      serverIP:
+        type: string
+      serverName:
+        type: string
+    type: object
+  bootstrap.registerResponseSchema:
+    properties:
+      message:
+        type: string
+    type: object
+  chore.healthzResponseSchema:
+    properties:
+      message:
+        type: string
+    type: object
+  cluster.ClusterConfigurationSchema:
+    properties:
+      memberCount:
+        type: integer
+    type: object
+  cluster.ClusterStatus:
+    enum:
+    - red
+    - yello
+    - green
+    type: string
+    x-enum-varnames:
+    - RED
+    - YELLO
+    - GREEN
+  cluster.ClusterStatusSchema:
+    properties:
+      status:
+        $ref: '#/definitions/cluster.ClusterStatus'
+    type: object
 info:
   contact: {}
-paths: {}
+paths:
+  /bootstrap/peers:
+    get:
+      description: get all cluster members
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/bootstrap.peerListResponseSchema'
+      summary: get all registered cluster members
+  /bootstrap/register:
+    post:
+      description: register cluster members
+      parameters:
+      - description: register cluster members
+        in: body
+        name: RequestBody
+        required: true
+        schema:
+          $ref: '#/definitions/bootstrap.registerRequestSchema'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/bootstrap.registerResponseSchema'
+      summary: register cluster members
+  /cluster/configuration:
+    get:
+      description: cluster configuration
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cluster.ClusterConfigurationSchema'
+      summary: cluster configuration
+  /cluster/status:
+    get:
+      description: cluster status
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cluster.ClusterStatusSchema'
+      summary: cluster status
+  /healthz:
+    get:
+      description: healthz endpoint
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/chore.healthzResponseSchema'
+      summary: healthz endpoint
 swagger: "2.0"

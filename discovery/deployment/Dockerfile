@@ -4,12 +4,10 @@ WORKDIR /app
 
 COPY . .
 
-RUN make init
+RUN go mod tidy
 
 RUN make build
 
 CMD ["./app"]
 
-EXPOSE 8080
-
-EXPOSE 9090
+EXPOSE 8765

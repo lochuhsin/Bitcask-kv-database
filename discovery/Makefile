@@ -13,15 +13,15 @@ test-concurrent:
 
 .PHONY: build
 build:
-	go build -o app ./cmd
+	swag init -g ./cmd/main.go -o ./docs && go build -o app ./cmd
 
 .PHONY: build-race
 build-race:
-	go build -race -o app ./cmd
+	swag init -g ./cmd/main.go -o ./docs && go build -race -o app ./cmd
 
 .PHONY: build-escape
 build-escape:
-	go build -gcflags "-m -l" -o app ./cmd
+	swag init -g ./cmd/main.go -o ./docs && go build -gcflags "-m -l" -o app ./cmd
 
 .PHONY: run
 run:
@@ -56,5 +56,9 @@ mem_profile-it:
 	go test ./bench -bench=. -benchmem -memprofile=mem.pprof && go tool pprof mem.pprof
 
 .PHONY: init
-init:
-	go mod tidy && swag init -g ./cmd/main.go -o ./docs
+init: init-network
+	go mod tidy && go install github.com/swaggo/swag/cmd/swag@latest && swag init -g ./cmd/main.go -o ./docs
+
+.PHONY: init-network
+init-network:
+	./init-network.sh	

@@ -26,6 +26,7 @@ type config struct {
 	SEGMENT_FILE_COUNT_LIMIT int // used for merge segments or change to other
 	HTTP_PORT                string
 	GRPC_PORT                string
+	DISCOVERY_HOST           string
 }
 
 func NewDefaultConfiguration() config {
@@ -38,6 +39,7 @@ func NewDefaultConfiguration() config {
 		SEGMENT_FILE_COUNT_LIMIT: 100,
 		HTTP_PORT:                ":8080",
 		GRPC_PORT:                ":9090",
+		DISCOVERY_HOST:           "http://discovery:8765/",
 	}
 }
 
@@ -133,6 +135,14 @@ func setGrpcPort() Option {
 			} else {
 				conf.GRPC_PORT = "port"
 			}
+		}
+	}
+}
+
+func setDiscoveryHost() Option {
+	return func(conf *config) {
+		if host := os.Getenv("DISCOVERY_HOST"); host != "" {
+			conf.DISCOVERY_HOST = host
 		}
 	}
 }

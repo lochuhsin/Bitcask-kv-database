@@ -1,0 +1,16 @@
+version: 3.8
+
+services:
+  discovery-app:
+    - ports: "8765:8765"
+  networks:
+    - cluster-discovery
+
+
+networks:
+  discovery-host:
+    driver: bridge
+
+  cluster-discovery:
+    name: cluster
+    external: True

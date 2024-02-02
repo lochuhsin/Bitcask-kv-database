@@ -1,7 +1,7 @@
 
 version: "3.8"
 services:
-  backend-app1:
+  rebitcask-app1:
     restart: always
     build:
       context: .
@@ -9,27 +9,26 @@ services:
     ports:
       - "8080:8080"
       - "9090:9090"
+    networks:
+      - members
+      - cluster-members
 
-  backend-app2:
+  rebitcask-app2:
     restart: always
     build:
       context: .
       dockerfile: deployment/Dockerfile
     ports:
-      - "8080:8080"
-      - "9090:9090"
+      - "8081:8080"
+      - "9091:9090"
+    networks:
+      - members
+      - cluster-members
+      
+networks:
+  members:
+    driver: bridge
 
-  backend-app3:
-    restart: always
-
-    build:
-      context: .
-      dockerfile: deployment/Dockerfile
-
-    ports:
-      - "8080:8080"
-      - "9090:9090"
-
-    network:
-      - networkName
-
+  cluster-members:
+    name: cluster
+    external: True

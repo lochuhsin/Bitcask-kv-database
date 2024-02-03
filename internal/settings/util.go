@@ -22,6 +22,7 @@ func InitConfig(envPaths ...string) {
 				setSegmentFileCountLimit(),
 				setTombstone(),
 				setDiscoveryHost(),
+				setServerName(),
 			)
 		},
 	)

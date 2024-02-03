@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/goccy/go-json"
+	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 )
 
@@ -27,6 +28,7 @@ type config struct {
 	HTTP_PORT                string
 	GRPC_PORT                string
 	DISCOVERY_HOST           string
+	SERVER_NAME              string // used for cluster register
 }
 
 func NewDefaultConfiguration() config {
@@ -39,7 +41,8 @@ func NewDefaultConfiguration() config {
 		SEGMENT_FILE_COUNT_LIMIT: 100,
 		HTTP_PORT:                ":8080",
 		GRPC_PORT:                ":9090",
-		DISCOVERY_HOST:           "http://discovery-app:8765/",
+		DISCOVERY_HOST:           "http://discovery-app:8765",
+		SERVER_NAME:              uuid.New().String(),
 	}
 }
 
@@ -143,6 +146,14 @@ func setDiscoveryHost() Option {
 	return func(conf *config) {
 		if host := os.Getenv("DISCOVERY_HOST"); host != "" {
 			conf.DISCOVERY_HOST = host
+		}
+	}
+}
+
+func setServerName() Option {
+	return func(conf *config) {
+		if name := os.Getenv("SERVER_NAME"); name != "" {
+			conf.SERVER_NAME = name
 		}
 	}
 }

@@ -34,7 +34,7 @@ run-race: build-race
 	./app
 
 .PHONY: run-compose
-run-compose:
+run-compose: init-network
 	docker-compose -f docker-compose.yml up -d
 
 .PHONY: stop-compose
@@ -83,7 +83,7 @@ discovery-run: discovery-build
 	./app.discovery
 
 .PHONY: discovery-run-compose
-discovery-run-compose:
+discovery-run-compose: init-network
 	docker-compose -f docker-compose-discovery.yml up -d
 
 .PHONY: discovery-stop-compose

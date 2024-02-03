@@ -18,6 +18,13 @@ var Config config
 
 type Option func(*config)
 
+type Mode string
+
+const (
+	STANDALONE Mode = "standalone"
+	CLUSTER    Mode = "cluster"
+)
+
 type config struct {
 	DATA_FOLDER_PATH         string
 	TOMBSTONE                string
@@ -29,6 +36,7 @@ type config struct {
 	GRPC_PORT                string
 	DISCOVERY_HOST           string
 	SERVER_NAME              string // used for cluster register
+	MODE                     Mode
 }
 
 func NewDefaultConfiguration() config {
@@ -43,6 +51,7 @@ func NewDefaultConfiguration() config {
 		GRPC_PORT:                ":9090",
 		DISCOVERY_HOST:           "http://discovery-app:8765",
 		SERVER_NAME:              uuid.New().String(),
+		MODE:                     STANDALONE,
 	}
 }
 
@@ -154,6 +163,22 @@ func setServerName() Option {
 	return func(conf *config) {
 		if name := os.Getenv("SERVER_NAME"); name != "" {
 			conf.SERVER_NAME = name
+		}
+	}
+}
+
+func setMode() Option {
+	return func(c *config) {
+		if mode := os.Getenv("MODE"); mode != "" {
+			switch Mode(mode) {
+			case STANDALONE:
+				c.MODE = STANDALONE
+			case CLUSTER:
+				c.MODE = CLUSTER
+			default:
+				fmt.Printf("Invalid mode: %v, using default, %v \n", mode, STANDALONE)
+				c.MODE = STANDALONE
+			}
 		}
 	}
 }

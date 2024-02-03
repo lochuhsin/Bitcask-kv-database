@@ -33,13 +33,13 @@ run: build
 run-race: build-race
 	./app
 
-.PHONY: run-compose
-run-compose: init-network
+.PHONY: compose-up
+compose-up: init-network
 	docker-compose -f docker-compose.yml up -d
 
-.PHONY: stop-compose
-stop-compose:
-	docker-compose -f docker-compose.yml stop
+.PHONY: compose-down
+compose-down:
+	docker-compose -f docker-compose.yml down
 
 ########################################################
 # Profiling
@@ -82,10 +82,10 @@ discovery-build:
 discovery-run: discovery-build
 	./app.discovery
 
-.PHONY: discovery-run-compose
-discovery-run-compose: init-network
+.PHONY: compose-up-discovery
+compose-up-discovery: init-network
 	docker-compose -f docker-compose-discovery.yml up -d
 
-.PHONY: discovery-stop-compose
-discovery-stop-compose:
+.PHONY: compose-down-discovery
+compose-down-discovery:
 	docker-compose -f docker-compose-discovery.yml down

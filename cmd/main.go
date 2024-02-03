@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"rebitcask"
 	"rebitcask/api/chore"
 	"rebitcask/api/core"
@@ -16,9 +15,22 @@ import (
 )
 
 func main() {
-	flag.Var(&envPaths, "envfiles", "Specifies the env files")
-	flag.Parse()
-	rebitcask.Init([]string(envPaths)...)
+	flags := ParseFlags()
+	rebitcask.Init(flags.envPaths...)
+
+	if settings.Config.MODE == settings.CLUSTER {
+		func() {
+			/**
+			 * 1. register to discvery server
+			 * 2. wait the server status to become yellow
+			 * 3. retrive all existing peerlist from server
+			 * 4. request back to server that everything is ok
+			 * 5. wait the server to become green
+			 * 6. start running raft ...
+			 */
+
+		}()
+	}
 
 	env := settings.Config
 	r := gin.Default()

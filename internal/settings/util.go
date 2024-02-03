@@ -23,6 +23,7 @@ func InitConfig(envPaths ...string) {
 				setTombstone(),
 				setDiscoveryHost(),
 				setServerName(),
+				setMode(),
 			)
 		},
 	)

@@ -2,6 +2,8 @@ package cluster
 
 import (
 	"net/http"
+	"rebitcask/discovery/cache"
+	"rebitcask/discovery/settings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -33,4 +35,50 @@ func getConfigHandler(c *gin.Context) {
 	 * Retrieves the cluster configuration
 	 */
 	c.JSON(http.StatusOK, &ClusterConfigurationSchema{10})
+}
+
+// @BasePath /api/v1
+
+// @Summary register cluster members
+// @Schemes http
+// @Description register cluster members
+// @Param RequestBody body registerRequestSchema true "register cluster members"
+// @Success 200 {object} registerResponseSchema
+// @Router /cluster/register [post]
+func registerHandler(c *gin.Context) {
+	obj := registerRequestSchema{}
+	c.Bind(&obj)
+	/**
+	 * Register the rebitcask components to the cluster
+	 */
+	status := cache.PeerCache.Add(c.Request.Context(), cache.PeerCacheSchema(obj))
+	if !status {
+		c.JSON(http.StatusBadRequest, registerResponseSchema{
+			Message: "Invalid operation, the seats were full",
+		})
+		return
+	}
+
+	// TODO: definitely is a bug ...
+	// since we are doing two operations in concurrency programming lol
+	if cache.PeerCache.Count(c.Request.Context()) == settings.Config.CLUSTER_MEMBER_COUNT {
+		cache.ClusterCache.Set(c.Request.Context(), cache.ClusterStatus, YELLO)
+	}
+
+	c.JSON(http.StatusAccepted, registerResponseSchema{
+		Message: "ok",
+	})
+}
+
+// @Summary get all registered cluster members
+// @Schemes http
+// @Description get all cluster members
+// @Success 200 {object} peerListResponseSchema
+// @Router /cluster/peers [get]
+func retrievePeersHandler(c *gin.Context) {
+	/**
+	 * Retrieving the list of all existing members
+	 * in the cluster
+	 */
+	c.JSON(http.StatusOK, peerListResponseSchema{})
 }

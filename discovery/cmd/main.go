@@ -1,7 +1,6 @@
 package main
 
 import (
-	"rebitcask/discovery/api/bootstrap"
 	"rebitcask/discovery/api/cluster"
 	_ "rebitcask/discovery/docs"
 	"rebitcask/discovery/settings"
@@ -19,7 +18,6 @@ func main() {
 	Init()
 	r := gin.Default()
 	r.Group("/_rebitcask") // main prefix
-	bootstrap.Routes(r)
 	cluster.Routes(r)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	r.Run(settings.Config.HTTP_PORT)

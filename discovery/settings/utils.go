@@ -8,8 +8,9 @@ import (
 func SetupConfig(envPaths ...string) {
 	Config = NewConfiguration(
 		envPaths,
-		SetClusterMemberCount(),
-		SetHttpPort(),
+		setClusterMemberCount(),
+		setHttpPort(),
+		setClusterWaitMemberTimeout(),
 	)
 	configString, _ := json.MarshalIndent(Config, "", "\t")
 	fmt.Println(string(configString))

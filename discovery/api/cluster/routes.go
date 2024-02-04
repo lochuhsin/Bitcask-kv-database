@@ -6,4 +6,6 @@ func Routes(route *gin.Engine) {
 	r := route.Group("/cluster")
 	r.GET("/status", getStatusHandler)
 	r.GET("/configuration", getConfigHandler)
+	r.POST("/register/", registerHandler)
+	r.GET("/peers", retrievePeersHandler)
 }

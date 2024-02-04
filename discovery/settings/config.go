@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/joho/godotenv"
 )
@@ -11,16 +12,24 @@ import (
 var Config config
 
 type config struct {
-	CLUSTER_MEMBER_COUNT int
-	HTTP_PORT            string
+	CLUSTER_MEMBER_COUNT        int
+	HTTP_PORT                   string
+	REDIS_HOST                  string
+	REDIS_PASSWORD              string
+	REDIS_DEFAULT_DB            int
+	CLUSTER_WAIT_MEMBER_TIMEOUT time.Duration
 }
 
 type Option func(*config)
 
 func NewDefaultConfiguration() config {
 	return config{
-		CLUSTER_MEMBER_COUNT: 3,
-		HTTP_PORT:            ":8765",
+		CLUSTER_MEMBER_COUNT:        3,
+		HTTP_PORT:                   ":8765",
+		REDIS_HOST:                  "redis:6379",
+		REDIS_PASSWORD:              "",
+		REDIS_DEFAULT_DB:            0,
+		CLUSTER_WAIT_MEMBER_TIMEOUT: time.Second * 30,
 	}
 }
 
@@ -38,7 +47,7 @@ func NewConfiguration(envPaths []string, options ...Option) config {
 	return newConfig
 }
 
-func SetClusterMemberCount() Option {
+func setClusterMemberCount() Option {
 	return func(conf *config) {
 		if clusterMemberCount := os.Getenv("CLUSTER_MEMBER_COUNT"); clusterMemberCount != "" {
 			count, err := strconv.Atoi(clusterMemberCount)
@@ -50,7 +59,7 @@ func SetClusterMemberCount() Option {
 	}
 }
 
-func SetHttpPort() Option {
+func setHttpPort() Option {
 	return func(conf *config) {
 		if port := os.Getenv("HTTP_PORT"); port != "" {
 			if port[0] != ':' {
@@ -58,6 +67,18 @@ func SetHttpPort() Option {
 			} else {
 				conf.HTTP_PORT = port
 			}
+		}
+	}
+}
+
+func setClusterWaitMemberTimeout() Option {
+	return func(c *config) {
+		if timeout := os.Getenv("CLUSTER_WAIT_MEMBER_TIMEOUT"); timeout != "" {
+			t, err := strconv.Atoi(timeout)
+			if err != nil || t < 0 {
+				panic(fmt.Sprintf("invalid timeout value: %v", timeout))
+			}
+			c.CLUSTER_WAIT_MEMBER_TIMEOUT = time.Second * time.Duration(t)
 		}
 	}
 }

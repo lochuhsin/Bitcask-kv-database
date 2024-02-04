@@ -31,7 +31,7 @@ func (c *Client) Register(name string, ip string) {
 			if err != nil {
 				panic(err)
 			}
-			url := fmt.Sprintf("%v/%v", c.host, "bootstrap/register/")
+			url := fmt.Sprintf("%v/%v", c.host, "cluster/register/")
 			return http.Post(url, "application/json", bytes.NewReader(j))
 		},
 	)
@@ -52,7 +52,7 @@ func (c *Client) GetClusterStatus() (getClusterStatusSchema, error) {
 func (c *Client) GetPeers() (peerListResponseSchema, error) {
 	resp := c.sendRequest(
 		func() (*http.Response, error) {
-			url := fmt.Sprintf("%v/%v", c.host, "bootstrap/peers")
+			url := fmt.Sprintf("%v/%v", c.host, "cluster/peers")
 			return http.Get(url)
 		},
 	)
@@ -79,7 +79,7 @@ func (c *Client) sendRequest(f func() (*http.Response, error)) *http.Response {
 		fmt.Printf("Retry count left: %v \n", retryCount)
 		time.Sleep(time.Second * time.Duration(delay))
 		retryCount--
-		delay *= int(c.backOffFactor)
+		delay *= c.backOffFactor
 	}
 
 	if retryCount <= 0 {

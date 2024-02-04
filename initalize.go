@@ -11,7 +11,7 @@ func Init(envPaths ...string) {
 	/**
 	 * Should call this, whenever the server is up
 	 */
-	settings.InitConfig(envPaths...)
+	settings.SetupConfig(envPaths...)
 	settings.SetUpDirectory()
 	memory.InitMemoryManager(memory.ModelType(settings.Config.MEMORY_MODEL))
 	segment.InitSegmentManager()

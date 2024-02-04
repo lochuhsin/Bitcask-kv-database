@@ -4,9 +4,9 @@ WORKDIR /app
 
 COPY . .
 
-RUN make discovery-init
+RUN make init-discovery
 
-RUN make discovery-build
+RUN make build-discovery
 
 CMD ["./app.discovery"]
 

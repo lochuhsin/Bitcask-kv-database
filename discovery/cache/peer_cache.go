@@ -49,11 +49,11 @@ func (p *peerCache) Count(ctx context.Context) int {
 	client := GetClient()
 	// NOTE: 1000 is a magic number that is way larger then the amount of the cluster
 	// refactor this
-	result, _, err := client.Scan(ctx, cursor, fmt.Sprintf("%v::*", *p), 1000).Result()
+	keys, _, err := client.Scan(ctx, cursor, fmt.Sprintf("%v::*", *p), 1000).Result()
 	if err != nil {
 		panic(err)
 	}
-	return len(result)
+	return len(keys)
 }
 
 func (p *peerCache) GetAll(ctx context.Context) []PeerCacheSchema {
@@ -61,16 +61,18 @@ func (p *peerCache) GetAll(ctx context.Context) []PeerCacheSchema {
 	client := GetClient()
 	// NOTE: 1000 is a magic number that is way larger then the amount of the cluster
 	// refactor this
-	result, _, err := client.Scan(ctx, cursor, fmt.Sprintf("%v::*", *p), 1000).Result()
+	keys, _, err := client.Scan(ctx, cursor, fmt.Sprintf("%v::*", *p), 1000).Result()
 	if err != nil {
 		panic(err)
 	}
 
-	peers := make([]PeerCacheSchema, len(result))
+	values := client.MGet(ctx, keys...).Val()
+	peers := make([]PeerCacheSchema, len(values))
 
-	for i, r := range result {
+	for i, v := range values {
+		fmt.Println(v)
 		obj := PeerCacheSchema{}
-		json.Unmarshal([]byte(r), &obj)
+		json.Unmarshal([]byte(v.(string)), &obj)
 		peers[i] = obj
 	}
 	return peers

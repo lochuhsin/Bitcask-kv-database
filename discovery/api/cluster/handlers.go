@@ -80,5 +80,13 @@ func retrievePeersHandler(c *gin.Context) {
 	 * Retrieving the list of all existing members
 	 * in the cluster
 	 */
-	c.JSON(http.StatusOK, peerListResponseSchema{})
+	peers := cache.PeerCache.GetAll(c.Request.Context())
+	peerResponses := make([]peerSchema, len(peers))
+	for i, p := range peers {
+		peerResponses[i] = peerSchema(p)
+	}
+
+	c.JSON(http.StatusOK, peerListResponseSchema{
+		Peers: peerResponses,
+	})
 }

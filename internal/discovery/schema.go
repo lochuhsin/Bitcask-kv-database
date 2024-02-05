@@ -5,16 +5,16 @@ type registerRequestSchema struct {
 	ServerName string `json:"serverName"`
 }
 
-type status string
+type ClusterStatus string
 
 const (
-	RED    status = "red"
-	GREEN  status = "green"
-	Yellow status = "yellow"
+	RED    ClusterStatus = "red"
+	GREEN  ClusterStatus = "green"
+	Yellow ClusterStatus = "yellow"
 )
 
 type getClusterStatusSchema struct {
-	Status status `json:"status"`
+	Status ClusterStatus `json:"status"`
 }
 
 type peerSchema struct {

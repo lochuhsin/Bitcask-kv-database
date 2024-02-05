@@ -35,6 +35,98 @@ const docTemplate = `{
                 }
             }
         },
+        "/cluster/configuration": {
+            "get": {
+                "description": "cluster configuration",
+                "summary": "cluster configuration",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/cluster.ClusterConfigurationSchema"
+                        }
+                    }
+                }
+            }
+        },
+        "/cluster/finished-peer/": {
+            "post": {
+                "description": "get all cluster members",
+                "summary": "get all registered cluster members",
+                "parameters": [
+                    {
+                        "description": "when the peer finished everything, waiting cluster to startup call this api",
+                        "name": "RequestBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cluster.peerSchema"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/cluster.peerSchema"
+                        }
+                    }
+                }
+            }
+        },
+        "/cluster/peers": {
+            "get": {
+                "description": "get all cluster members",
+                "summary": "get all registered cluster members",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/cluster.peerListResponseSchema"
+                        }
+                    }
+                }
+            }
+        },
+        "/cluster/register": {
+            "post": {
+                "description": "register cluster members",
+                "summary": "register cluster members",
+                "parameters": [
+                    {
+                        "description": "register cluster members",
+                        "name": "RequestBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cluster.registerRequestSchema"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/cluster.registerResponseSchema"
+                        }
+                    }
+                }
+            }
+        },
+        "/cluster/status": {
+            "get": {
+                "description": "cluster status",
+                "summary": "cluster status",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/cluster.ClusterStatusSchema"
+                        }
+                    }
+                }
+            }
+        },
         "/core": {
             "get": {
                 "description": "get value by key",
@@ -147,19 +239,13 @@ const docTemplate = `{
         },
         "/healthz": {
             "get": {
-                "description": "healthz check endpoint",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "healthz check endpoint",
+                "description": "healthz endpoint",
+                "summary": "healthz endpoint",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/chore.healthzResponseSchema"
+                            "$ref": "#/definitions/rebitcask_discovery_api_chore.healthzResponseSchema"
                         }
                     }
                 }
@@ -167,7 +253,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "chore.healthzResponseSchema": {
+        "chore.rootResponseSchema": {
             "type": "object",
             "properties": {
                 "message": {
@@ -175,7 +261,69 @@ const docTemplate = `{
                 }
             }
         },
-        "chore.rootResponseSchema": {
+        "cluster.ClusterConfigurationSchema": {
+            "type": "object",
+            "properties": {
+                "memberCount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "cluster.ClusterStatus": {
+            "type": "string",
+            "enum": [
+                "red",
+                "yello",
+                "green"
+            ],
+            "x-enum-varnames": [
+                "RED",
+                "YELLO",
+                "GREEN"
+            ]
+        },
+        "cluster.ClusterStatusSchema": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "$ref": "#/definitions/cluster.ClusterStatus"
+                }
+            }
+        },
+        "cluster.peerListResponseSchema": {
+            "type": "object",
+            "properties": {
+                "peers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cluster.peerSchema"
+                    }
+                }
+            }
+        },
+        "cluster.peerSchema": {
+            "type": "object",
+            "properties": {
+                "serverIP": {
+                    "type": "string"
+                },
+                "serverName": {
+                    "type": "string"
+                }
+            }
+        },
+        "cluster.registerRequestSchema": {
+            "type": "object",
+            "properties": {
+                "serverIP": {
+                    "type": "string"
+                },
+                "serverName": {
+                    "type": "string"
+                }
+            }
+        },
+        "cluster.registerResponseSchema": {
             "type": "object",
             "properties": {
                 "message": {
@@ -198,6 +346,22 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "rebitcask_api_chore.healthzResponseSchema": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "rebitcask_discovery_api_chore.healthzResponseSchema": {
+            "type": "object",
+            "properties": {
+                "message": {
                     "type": "string"
                 }
             }

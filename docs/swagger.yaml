@@ -1,10 +1,51 @@
 definitions:
-  chore.healthzResponseSchema:
+  chore.rootResponseSchema:
     properties:
       message:
         type: string
     type: object
-  chore.rootResponseSchema:
+  cluster.ClusterConfigurationSchema:
+    properties:
+      memberCount:
+        type: integer
+    type: object
+  cluster.ClusterStatus:
+    enum:
+    - red
+    - yello
+    - green
+    type: string
+    x-enum-varnames:
+    - RED
+    - YELLO
+    - GREEN
+  cluster.ClusterStatusSchema:
+    properties:
+      status:
+        $ref: '#/definitions/cluster.ClusterStatus'
+    type: object
+  cluster.peerListResponseSchema:
+    properties:
+      peers:
+        items:
+          $ref: '#/definitions/cluster.peerSchema'
+        type: array
+    type: object
+  cluster.peerSchema:
+    properties:
+      serverIP:
+        type: string
+      serverName:
+        type: string
+    type: object
+  cluster.registerRequestSchema:
+    properties:
+      serverIP:
+        type: string
+      serverName:
+        type: string
+    type: object
+  cluster.registerResponseSchema:
     properties:
       message:
         type: string
@@ -19,6 +60,16 @@ definitions:
       key:
         type: string
       value:
+        type: string
+    type: object
+  rebitcask_api_chore.healthzResponseSchema:
+    properties:
+      message:
+        type: string
+    type: object
+  rebitcask_discovery_api_chore.healthzResponseSchema:
+    properties:
+      message:
         type: string
     type: object
 info:
@@ -37,6 +88,66 @@ paths:
           schema:
             $ref: '#/definitions/chore.rootResponseSchema'
       summary: root path handler
+  /cluster/configuration:
+    get:
+      description: cluster configuration
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cluster.ClusterConfigurationSchema'
+      summary: cluster configuration
+  /cluster/finished-peer/:
+    post:
+      description: get all cluster members
+      parameters:
+      - description: when the peer finished everything, waiting cluster to startup
+          call this api
+        in: body
+        name: RequestBody
+        required: true
+        schema:
+          $ref: '#/definitions/cluster.peerSchema'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cluster.peerSchema'
+      summary: get all registered cluster members
+  /cluster/peers:
+    get:
+      description: get all cluster members
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cluster.peerListResponseSchema'
+      summary: get all registered cluster members
+  /cluster/register:
+    post:
+      description: register cluster members
+      parameters:
+      - description: register cluster members
+        in: body
+        name: RequestBody
+        required: true
+        schema:
+          $ref: '#/definitions/cluster.registerRequestSchema'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cluster.registerResponseSchema'
+      summary: register cluster members
+  /cluster/status:
+    get:
+      description: cluster status
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cluster.ClusterStatusSchema'
+      summary: cluster status
   /core:
     delete:
       consumes:
@@ -111,15 +222,11 @@ paths:
       summary: insert key / value
   /healthz:
     get:
-      consumes:
-      - application/json
-      description: healthz check endpoint
-      produces:
-      - application/json
+      description: healthz endpoint
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/chore.healthzResponseSchema'
-      summary: healthz check endpoint
+            $ref: '#/definitions/rebitcask_discovery_api_chore.healthzResponseSchema'
+      summary: healthz endpoint
 swagger: "2.0"

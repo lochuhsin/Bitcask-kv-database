@@ -1,7 +1,6 @@
 package cluster
 
 import (
-	"fmt"
 	"net/http"
 	"rebitcask/discovery/cache"
 	"rebitcask/discovery/settings"
@@ -105,7 +104,6 @@ func finishedPeerHandler(c *gin.Context) {
 	// since we are doing two operations in concurrency programming lol
 	counter.Add(context)
 	if counter.Count(context) >= settings.Config.CLUSTER_MEMBER_COUNT {
-		fmt.Println("%v, %v", counter.Count(context), settings.Config.CLUSTER_MEMBER_COUNT)
 		cache.ClusterCache.Set(context, cache.Status, string(GREEN))
 	}
 }

@@ -15,15 +15,15 @@ test-concurrent:
 
 .PHONY: build
 build:
-	swag init -g ./cmd/main.go -o ./docs && go build -o app ./cmd
+	swag init -g ./cmd/main.go -o ./docs --exclude ./discovery && go build -o app ./cmd
 
 .PHONY: build-race
 build-race:
-	swag init -g ./cmd/main.go -o ./docs && go build -race -o app ./cmd
+	swag init -g ./cmd/main.go -o ./docs --exclude ./discovery && go build -race -o app ./cmd
 
 .PHONY: build-escape
 build-escape:
-	swag init -g ./cmd/main.go -o ./docs && go build -gcflags "-m -l" -o app ./cmd
+	swag init -g ./cmd/main.go -o ./docs --exclude ./discovery && go build -gcflags "-m -l" -o app ./cmd
 
 .PHONY: run
 run: build

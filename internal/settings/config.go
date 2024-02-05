@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
@@ -37,6 +38,7 @@ type config struct {
 	DISCOVERY_HOST           string
 	SERVER_NAME              string // used for cluster register
 	MODE                     Mode
+	CLUSTER_SETUP            bool
 }
 
 func NewDefaultConfiguration() config {
@@ -52,6 +54,7 @@ func NewDefaultConfiguration() config {
 		DISCOVERY_HOST:           "http://discovery-app:8765",
 		SERVER_NAME:              uuid.New().String(),
 		MODE:                     STANDALONE,
+		CLUSTER_SETUP:            false,
 	}
 }
 
@@ -178,6 +181,19 @@ func setMode() Option {
 			default:
 				fmt.Printf("Invalid mode: %v, using default, %v \n", mode, STANDALONE)
 				c.MODE = STANDALONE
+			}
+		}
+	}
+}
+
+func setClusterSetup() Option {
+	return func(conf *config) {
+		if cluster := strings.ToLower(os.Getenv("CLUSTER_SETUP")); cluster != "" {
+
+			if cluster == "true" {
+				conf.CLUSTER_SETUP = true
+			} else {
+				conf.CLUSTER_SETUP = false
 			}
 		}
 	}

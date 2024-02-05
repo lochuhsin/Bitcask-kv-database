@@ -8,7 +8,7 @@ import (
 )
 
 func setup() {
-	rebitcask.Init(".env.bench")
+	rebitcask.Setup(".env.bench")
 }
 
 func teardown() {

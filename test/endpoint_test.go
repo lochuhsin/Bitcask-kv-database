@@ -9,7 +9,7 @@ import (
 )
 
 func setup() {
-	rebitcask.Init(".env.test")
+	rebitcask.Setup(".env.test")
 }
 
 func teardown() {

@@ -16,14 +16,14 @@ import (
 
 func main() {
 	flags := ParseFlags()
-	rebitcask.Init(flags.envPaths...)
+	rebitcask.Setup(flags.envPaths...)
 
 	if settings.Config.MODE == settings.CLUSTER {
 		func() {
 			/**
-			 * 1. register to discvery server
+			 * 1. register to discovery server
 			 * 2. wait the server status to become yellow
-			 * 3. retrive all existing peerlist from server
+			 * 3. retrieve all existing peer list from server
 			 * 4. request back to server that everything is ok
 			 * 5. wait the server to become green
 			 * 6. start running raft ...
@@ -31,12 +31,10 @@ func main() {
 
 		}()
 	}
-
 	env := settings.Config
 	r := gin.Default()
 	core.Routes(r)
 	chore.Routes(r)
-
 	// starts swagger at localhost:port/swagger/index.html
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	go runGRPC(env.GRPC_PORT)

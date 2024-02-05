@@ -24,6 +24,7 @@ func SetupConfig(envPaths ...string) {
 				setDiscoveryHost(),
 				setServerName(),
 				setMode(),
+				setClusterSetup(),
 			)
 		},
 	)

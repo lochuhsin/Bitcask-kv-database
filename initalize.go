@@ -7,7 +7,7 @@ import (
 	"rebitcask/internal/settings"
 )
 
-func Init(envPaths ...string) {
+func Setup(envPaths ...string) {
 	/**
 	 * Should call this, whenever the server is up
 	 */

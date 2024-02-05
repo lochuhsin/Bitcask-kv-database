@@ -8,4 +8,5 @@ func Routes(route *gin.Engine) {
 	r.GET("/configuration", getConfigHandler)
 	r.POST("/register/", registerHandler)
 	r.GET("/peers", retrievePeersHandler)
+	r.POST("/finished-peer/", finishedPeerHandler)
 }

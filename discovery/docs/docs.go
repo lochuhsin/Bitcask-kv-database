@@ -15,7 +15,46 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/bootstrap/peers": {
+        "/cluster/configuration": {
+            "get": {
+                "description": "cluster configuration",
+                "summary": "cluster configuration",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/cluster.ClusterConfigurationSchema"
+                        }
+                    }
+                }
+            }
+        },
+        "/cluster/finished-peer/": {
+            "post": {
+                "description": "get all cluster members",
+                "summary": "get all registered cluster members",
+                "parameters": [
+                    {
+                        "description": "when the peer finished everything, waiting cluster to startup call this api",
+                        "name": "RequestBody",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cluster.peerSchema"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/cluster.peerSchema"
+                        }
+                    }
+                }
+            }
+        },
+        "/cluster/peers": {
             "get": {
                 "description": "get all cluster members",
                 "summary": "get all registered cluster members",
@@ -23,13 +62,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/bootstrap.peerListResponseSchema"
+                            "$ref": "#/definitions/cluster.peerListResponseSchema"
                         }
                     }
                 }
             }
         },
-        "/bootstrap/register": {
+        "/cluster/register": {
             "post": {
                 "description": "register cluster members",
                 "summary": "register cluster members",
@@ -40,7 +79,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/bootstrap.registerRequestSchema"
+                            "$ref": "#/definitions/cluster.registerRequestSchema"
                         }
                     }
                 ],
@@ -48,21 +87,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/bootstrap.registerResponseSchema"
-                        }
-                    }
-                }
-            }
-        },
-        "/cluster/configuration": {
-            "get": {
-                "description": "cluster configuration",
-                "summary": "cluster configuration",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/cluster.ClusterConfigurationSchema"
+                            "$ref": "#/definitions/cluster.registerResponseSchema"
                         }
                     }
                 }
@@ -98,47 +123,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "bootstrap.peerListResponseSchema": {
-            "type": "object",
-            "properties": {
-                "peers": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/bootstrap.peerSchema"
-                    }
-                }
-            }
-        },
-        "bootstrap.peerSchema": {
-            "type": "object",
-            "properties": {
-                "serverIP": {
-                    "type": "string"
-                },
-                "serverName": {
-                    "type": "string"
-                }
-            }
-        },
-        "bootstrap.registerRequestSchema": {
-            "type": "object",
-            "properties": {
-                "serverIP": {
-                    "type": "string"
-                },
-                "serverName": {
-                    "type": "string"
-                }
-            }
-        },
-        "bootstrap.registerResponseSchema": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "type": "string"
-                }
-            }
-        },
         "chore.healthzResponseSchema": {
             "type": "object",
             "properties": {
@@ -173,6 +157,47 @@ const docTemplate = `{
             "properties": {
                 "status": {
                     "$ref": "#/definitions/cluster.ClusterStatus"
+                }
+            }
+        },
+        "cluster.peerListResponseSchema": {
+            "type": "object",
+            "properties": {
+                "peers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/cluster.peerSchema"
+                    }
+                }
+            }
+        },
+        "cluster.peerSchema": {
+            "type": "object",
+            "properties": {
+                "serverIP": {
+                    "type": "string"
+                },
+                "serverName": {
+                    "type": "string"
+                }
+            }
+        },
+        "cluster.registerRequestSchema": {
+            "type": "object",
+            "properties": {
+                "serverIP": {
+                    "type": "string"
+                },
+                "serverName": {
+                    "type": "string"
+                }
+            }
+        },
+        "cluster.registerResponseSchema": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
                 }
             }
         }

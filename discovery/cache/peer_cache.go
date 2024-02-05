@@ -28,6 +28,7 @@ var PeerCache peerCache = "peer"
 
 var pMu sync.Mutex
 
+// Refactor this ... Shouldn't be using mutex here or settings
 func (p *peerCache) Add(ctx context.Context, peer PeerCacheSchema) bool {
 	pMu.Lock()
 	defer pMu.Unlock()

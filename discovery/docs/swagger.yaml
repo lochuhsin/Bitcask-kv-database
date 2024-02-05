@@ -1,30 +1,4 @@
 definitions:
-  bootstrap.peerListResponseSchema:
-    properties:
-      peers:
-        items:
-          $ref: '#/definitions/bootstrap.peerSchema'
-        type: array
-    type: object
-  bootstrap.peerSchema:
-    properties:
-      serverIP:
-        type: string
-      serverName:
-        type: string
-    type: object
-  bootstrap.registerRequestSchema:
-    properties:
-      serverIP:
-        type: string
-      serverName:
-        type: string
-    type: object
-  bootstrap.registerResponseSchema:
-    properties:
-      message:
-        type: string
-    type: object
   chore.healthzResponseSchema:
     properties:
       message:
@@ -50,34 +24,35 @@ definitions:
       status:
         $ref: '#/definitions/cluster.ClusterStatus'
     type: object
+  cluster.peerListResponseSchema:
+    properties:
+      peers:
+        items:
+          $ref: '#/definitions/cluster.peerSchema'
+        type: array
+    type: object
+  cluster.peerSchema:
+    properties:
+      serverIP:
+        type: string
+      serverName:
+        type: string
+    type: object
+  cluster.registerRequestSchema:
+    properties:
+      serverIP:
+        type: string
+      serverName:
+        type: string
+    type: object
+  cluster.registerResponseSchema:
+    properties:
+      message:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
-  /bootstrap/peers:
-    get:
-      description: get all cluster members
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/bootstrap.peerListResponseSchema'
-      summary: get all registered cluster members
-  /bootstrap/register:
-    post:
-      description: register cluster members
-      parameters:
-      - description: register cluster members
-        in: body
-        name: RequestBody
-        required: true
-        schema:
-          $ref: '#/definitions/bootstrap.registerRequestSchema'
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/bootstrap.registerResponseSchema'
-      summary: register cluster members
   /cluster/configuration:
     get:
       description: cluster configuration
@@ -87,6 +62,48 @@ paths:
           schema:
             $ref: '#/definitions/cluster.ClusterConfigurationSchema'
       summary: cluster configuration
+  /cluster/finished-peer/:
+    post:
+      description: get all cluster members
+      parameters:
+      - description: when the peer finished everything, waiting cluster to startup
+          call this api
+        in: body
+        name: RequestBody
+        required: true
+        schema:
+          $ref: '#/definitions/cluster.peerSchema'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cluster.peerSchema'
+      summary: get all registered cluster members
+  /cluster/peers:
+    get:
+      description: get all cluster members
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cluster.peerListResponseSchema'
+      summary: get all registered cluster members
+  /cluster/register:
+    post:
+      description: register cluster members
+      parameters:
+      - description: register cluster members
+        in: body
+        name: RequestBody
+        required: true
+        schema:
+          $ref: '#/definitions/cluster.registerRequestSchema'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/cluster.registerResponseSchema'
+      summary: register cluster members
   /cluster/status:
     get:
       description: cluster status

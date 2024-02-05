@@ -89,3 +89,11 @@ compose-up-discovery: init-network
 .PHONY: compose-down-discovery
 compose-down-discovery:
 	docker-compose -f docker-compose-discovery.yml down
+
+.PHONY: compose-build-discovery
+compose-build-discovery: 
+	docker-compose -f docker-compose-discovery.yml build 
+
+.PHONY: compose-build-up-discovery
+compose-build-up-discovery: compose-build-discovery
+	make compose-up-discovery

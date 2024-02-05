@@ -1,6 +1,7 @@
 package cluster
 
 import (
+	"fmt"
 	"net/http"
 	"rebitcask/discovery/cache"
 	"rebitcask/discovery/settings"
@@ -21,8 +22,8 @@ func getStatusHandler(c *gin.Context) {
 	 * 2. Yellow
 	 * 3. Red
 	 */
-
-	c.JSON(http.StatusOK, &ClusterStatusSchema{Status: GREEN})
+	status := ClusterStatus(cache.ClusterCache.Get(c.Request.Context(), cache.Status))
+	c.JSON(http.StatusOK, &ClusterStatusSchema{Status: status})
 }
 
 // @Summary cluster configuration
@@ -38,7 +39,6 @@ func getConfigHandler(c *gin.Context) {
 }
 
 // @BasePath /api/v1
-
 // @Summary register cluster members
 // @Schemes http
 // @Description register cluster members
@@ -59,10 +59,10 @@ func registerHandler(c *gin.Context) {
 		return
 	}
 
-	// TODO: definitely is a bug ...
+	// TODO: definitely a bug ...
 	// since we are doing two operations in concurrency programming lol
 	if cache.PeerCache.Count(c.Request.Context()) == settings.Config.CLUSTER_MEMBER_COUNT {
-		cache.ClusterCache.Set(c.Request.Context(), cache.ClusterStatus, YELLO)
+		cache.ClusterCache.Set(c.Request.Context(), cache.Status, string(YELLO))
 	}
 
 	c.JSON(http.StatusAccepted, registerResponseSchema{
@@ -89,4 +89,23 @@ func retrievePeersHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, peerListResponseSchema{
 		Peers: peerResponses,
 	})
+}
+
+// @Summary get all registered cluster members
+// @Schemes http
+// @Description get all cluster members
+// @Success 200 {object} peerSchema
+// @Param RequestBody body peerSchema true "when the peer finished everything, waiting cluster to startup call this api"
+// @Router /cluster/finished-peer/ [post]
+func finishedPeerHandler(c *gin.Context) {
+	context := c.Request.Context()
+	counter := cache.CounterCache
+
+	// TODO: definitely a bug ...
+	// since we are doing two operations in concurrency programming lol
+	counter.Add(context)
+	if counter.Count(context) >= settings.Config.CLUSTER_MEMBER_COUNT {
+		fmt.Println("%v, %v", counter.Count(context), settings.Config.CLUSTER_MEMBER_COUNT)
+		cache.ClusterCache.Set(context, cache.Status, string(GREEN))
+	}
 }

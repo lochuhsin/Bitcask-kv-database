@@ -9,7 +9,7 @@ import (
 type ClusterInfoKey string
 
 const (
-	ClusterStatus ClusterInfoKey = "status"
+	Status ClusterInfoKey = "status"
 )
 
 type clusterCache string
@@ -18,7 +18,10 @@ var ClusterCache clusterCache = "cluster"
 
 func (c *clusterCache) Set(ctx context.Context, key ClusterInfoKey, value any) {
 	client := GetClient()
-	client.Set(ctx, fmt.Sprintf("%v::%v", *c, key), value, time.Hour*24)
+	err := client.Set(ctx, fmt.Sprintf("%v::%v", *c, key), value, time.Hour*24).Err()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (c *clusterCache) Get(ctx context.Context, key ClusterInfoKey) string {

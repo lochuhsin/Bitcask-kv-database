@@ -97,3 +97,14 @@ compose-build-discovery:
 .PHONY: compose-build-up-discovery
 compose-build-up-discovery: compose-build-discovery
 	make compose-up-discovery
+
+
+################################################################
+# Run cluster
+.PHONY: cluster-up
+cluster-up:
+	make compose-up-discovery && make compose-up
+
+.PHONY: cluster-down
+cluster-down:
+	make compose-down-discovery && make compose-down

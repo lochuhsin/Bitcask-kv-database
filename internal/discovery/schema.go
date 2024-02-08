@@ -14,7 +14,7 @@ const (
 )
 
 type getClusterStatusSchema struct {
-	Status ClusterStatus `json:"status"`
+	Status string `json:"status"`
 }
 
 type peerSchema struct {

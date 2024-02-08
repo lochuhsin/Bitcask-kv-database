@@ -61,7 +61,7 @@ func registerHandler(c *gin.Context) {
 	// TODO: definitely a bug ...
 	// since we are doing two operations in concurrency programming lol
 	if cache.PeerCache.Count(c.Request.Context()) == settings.Config.CLUSTER_MEMBER_COUNT {
-		cache.ClusterCache.Set(c.Request.Context(), cache.Status, string(YELLO))
+		cache.ClusterCache.Set(c.Request.Context(), cache.Status, string(YELLOW))
 	}
 
 	c.JSON(http.StatusAccepted, registerResponseSchema{

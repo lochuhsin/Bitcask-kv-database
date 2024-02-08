@@ -24,7 +24,8 @@ func waitingClusterStatus(client *discovery.Client, status discovery.ClusterStat
 	sleep := time.Second
 	for retryCount > 0 {
 		obj, _ := client.GetClusterStatus()
-		if obj.Status == status {
+		fmt.Println(discovery.ClusterStatus(obj.Status))
+		if discovery.ClusterStatus(obj.Status) == status {
 			break
 		}
 
@@ -47,20 +48,25 @@ func clusterSetup() {
 	 * 5. wait the server to become green
 	 * 6. start running raft ...
 	 */
-
+	currentIp := util.GetOutboundIP().String()
 	client := discovery.NewClient(settings.Config.DISCOVERY_HOST, 10, 2)
+	fmt.Println("Start registration")
 	client.Register(
 		settings.Config.SERVER_NAME,
-		util.GetOutboundIP().String(),
+		currentIp,
 	)
 
+	fmt.Println("waiting cluster to become yellow")
 	waitingClusterStatus(client, discovery.Yellow)
-
 	// Store peer list somewhere else
 	_, _ = client.GetPeers()
+	client.Finished(
+		settings.Config.SERVER_NAME,
+		currentIp,
+	)
 
+	fmt.Println("waiting cluster to become green")
 	waitingClusterStatus(client, discovery.GREEN)
-
 }
 
 func httpServerSetup(port string) {

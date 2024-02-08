@@ -41,6 +41,10 @@ compose-up: init-network
 compose-down:
 	docker-compose -f docker-compose.yml down
 
+.PHONY: compose-build
+compose-build:
+	docker-compose -f docker-compose.yml build
+
 ########################################################
 # Profiling
 
@@ -108,3 +112,7 @@ cluster-up:
 .PHONY: cluster-down
 cluster-down:
 	make compose-down-discovery && make compose-down
+
+.PHONY: cluster-build
+cluster-build:
+	make compose-build-discovery && make compose-build

@@ -25,6 +25,18 @@ services:
       - members
       - cluster-members
       
+  rebitcask-app3:
+    restart: always
+    build:
+      context: .
+      dockerfile: deployment/Dockerfile
+    ports:
+      - "8082:8080"
+      - "9092:9090"
+    networks:
+      - members
+      - cluster-members
+      
 networks:
   members:
     driver: bridge

@@ -37,6 +37,23 @@ func (c *Client) Register(name string, ip string) {
 	)
 }
 
+func (c *Client) Finished(name string, ip string) {
+	c.sendRequest(
+		func() (*http.Response, error) {
+			obj := registerRequestSchema{
+				ServerName: name,
+				ServerIP:   ip,
+			}
+			j, err := json.Marshal(&obj)
+			if err != nil {
+				panic(err)
+			}
+			url := fmt.Sprintf("%v/%v", c.host, "cluster/finished-peer/")
+			return http.Post(url, "application/json", bytes.NewReader(j))
+		},
+	)
+}
+
 func (c *Client) GetClusterStatus() (getClusterStatusSchema, error) {
 	resp := c.sendRequest(func() (*http.Response, error) {
 		url := fmt.Sprintf("%v/%v", c.host, "cluster/status")

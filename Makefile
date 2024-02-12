@@ -116,3 +116,11 @@ cluster-down:
 .PHONY: cluster-build
 cluster-build:
 	make compose-build-discovery && make compose-build
+
+
+################################################################
+# Generate Grpc code
+.PHONY: grpc-gen
+grpc-gen:
+	protoc --go_out=. --go-grpc_out=. --go_opt=paths=source_relative  --go-grpc_opt=paths=source_relative server/*/*.proto
+

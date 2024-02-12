@@ -21,8 +21,8 @@ jobs:
       with:
         go-version: 1.21
 
-    - name: test build
-      run: make build
+    - name: test build with race detection
+      run: make build-race
 
     - name: test basic
       run: make test

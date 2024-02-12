@@ -82,3 +82,5 @@ func deleteHandler(c *gin.Context) {
 	}
 	c.JSON(http.StatusAccepted, "")
 }
+
+func watchHandler(c *gin.Context) {}

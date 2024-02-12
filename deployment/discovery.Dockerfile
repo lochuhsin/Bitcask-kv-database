@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN make init-discovery
+RUN make init-network && make init-discovery
 
 RUN make build-discovery
 

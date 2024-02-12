@@ -4,7 +4,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN make init
+RUN make init-network && make init
 
 RUN make build
 

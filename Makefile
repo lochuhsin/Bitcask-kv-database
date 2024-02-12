@@ -64,7 +64,7 @@ mem_profile:
 # Chore
 
 .PHONY: init
-init: init-network
+init:
 	go mod tidy && go install github.com/swaggo/swag/cmd/swag@latest
 
 .PHONY: init-network
@@ -75,7 +75,7 @@ init-network:
 # Discovery server commands
 
 .PHONY: init-discovery
-init-discovery: init-network
+init-discovery:
 	go mod tidy && go install github.com/swaggo/swag/cmd/swag@latest
 
 .PHONY: build-discovery

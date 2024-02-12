@@ -13,3 +13,4 @@ test/*.DS_Store
 *discoveryapp
 app.discovery
 *temp
+.vscode

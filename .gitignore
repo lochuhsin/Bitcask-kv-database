@@ -8,7 +8,6 @@ app
 .DS_Store
 test/*.DS_Store
 *.pprof
-*.test
 *main
 *discoveryapp
 app.discovery

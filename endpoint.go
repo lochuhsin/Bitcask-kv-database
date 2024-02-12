@@ -3,7 +3,8 @@ package rebitcask
 import (
 	"errors"
 	"rebitcask/internal/dao"
-	"rebitcask/internal/service"
+	"rebitcask/internal/memory"
+	"rebitcask/internal/segment"
 )
 
 func Get(k string) (any, bool) {
@@ -16,15 +17,14 @@ func Get(k string) (any, bool) {
 	 */
 	_k, err := convertToBaseObjects(k)
 	if err != nil {
-		panic(err) // TODO: better handling
+		panic(err)
 	}
-
-	m, status := service.MGet(_k.(dao.NilString))
+	m, status := memory.GetMemoryManager().Get(_k.(dao.NilString))
 	if status {
 		return checkTombstone(m)
 	}
 
-	s, status := service.SGet(_k.(dao.NilString))
+	s, status := segment.GetSegmentManager().GetValue(_k.(dao.NilString))
 	if status {
 		return checkTombstone(s)
 	}
@@ -40,9 +40,9 @@ func Set(k string, v any) error {
 	if err != nil {
 		return err
 	}
-
-	service.MSet(_k.(dao.NilString), _v)
-	return nil
+	entry := dao.InitEntry(_k.(dao.NilString), _v)
+	err = memory.GetMemoryManager().Set(entry)
+	return err
 }
 
 func Delete(k string) error {
@@ -50,8 +50,10 @@ func Delete(k string) error {
 	if err != nil {
 		return err
 	}
-	service.MDelete(_k.(dao.NilString))
-	return nil
+
+	entry := dao.InitTombEntry(_k.(dao.NilString))
+	err = memory.GetMemoryManager().Set(entry)
+	return err
 }
 
 func Exist() (bool, error) {

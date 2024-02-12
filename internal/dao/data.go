@@ -173,7 +173,7 @@ func (i NilFloat) GetType() DataType {
 	return Float
 }
 
-// it's just ......naming conflics to Nil is added ...
+// it's just ......naming conflicts to Nil is added ...
 type NilTomb struct {
 }
 

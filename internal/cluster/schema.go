@@ -1,4 +1,4 @@
-package discovery
+package cluster
 
 type registerRequestSchema struct {
 	ServerIP   string `json:"serverIp"`

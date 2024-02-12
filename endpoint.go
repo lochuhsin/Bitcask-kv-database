@@ -8,42 +8,35 @@ import (
 
 func Get(k string) (any, bool) {
 	/**
-	 * First, we pass through counting bloom filter
-	 * if exists, then we continue the next step
-	 * else: return directly
+	 * First, check does the value exist in memory
 	 *
-	 * Second, check if the value exists in memory
+	 * Second, check does the value exist in segment
 	 *
-	 * Third, check if the value exists in current open segment
-	 *
-	 * Finally, check if the value exists in old segment
-	 *
-	 * Note: exists meaning that the key exists, and the value is not tombstoneed
+	 * Note: exists meaning that the key exists, and the value is not tombstone
 	 */
-	// check if exists in cbf
-	_k, err := daoConverter(k)
+	_k, err := convertToBaseObjects(k)
 	if err != nil {
 		panic(err) // TODO: better handling
 	}
 
 	m, status := service.MGet(_k.(dao.NilString))
 	if status {
-		return filterTombstone(m)
+		return checkTombstone(m)
 	}
 
 	s, status := service.SGet(_k.(dao.NilString))
 	if status {
-		return filterTombstone(s)
+		return checkTombstone(s)
 	}
 	return *new(any), false
 }
 
 func Set(k string, v any) error {
-	_k, err := daoConverter(k)
+	_k, err := convertToBaseObjects(k)
 	if err != nil {
 		return err
 	}
-	_v, err := daoConverter(v)
+	_v, err := convertToBaseObjects(v)
 	if err != nil {
 		return err
 	}
@@ -53,7 +46,7 @@ func Set(k string, v any) error {
 }
 
 func Delete(k string) error {
-	_k, err := daoConverter(k)
+	_k, err := convertToBaseObjects(k)
 	if err != nil {
 		return err
 	}
@@ -85,7 +78,7 @@ func BulkGet(k ...string) ([]string, error) {
 	panic("Not implemented error")
 }
 
-func daoConverter(v any) (dao.Base, error) {
+func convertToBaseObjects(v any) (dao.Base, error) {
 	switch v := v.(type) {
 	case int:
 		return dao.NilInt{IsNil: false, Val: v}, nil
@@ -103,7 +96,7 @@ func daoConverter(v any) (dao.Base, error) {
 	}
 }
 
-func filterTombstone(val dao.Base) (any, bool) {
+func checkTombstone(val dao.Base) (any, bool) {
 	if val.GetType() == dao.Tombstone {
 		return new(*any), false
 	}

@@ -29,9 +29,15 @@
       <ul>
         <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
+        <li><a href="#run">Run</a></li>
+        <li><a href="#usage">Usage</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
+    <li><a href="#design">Design Overview</a></li>
+      <ul>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#components">Components</a></li>
+      </ul>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#license">License</a></li>
@@ -44,17 +50,21 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-As a backend/ml engineer, I have worked with many kinds of databases. SQL/NoSQL, KeyValue, Document, Read-Heavy, and Write-Heavy databases. However, I never had a chance to really understand the implementation details of the databases. Like indexing, search, caching, versioning, and even distributed data store. Therefore, I decided to implement my own databases, start from the most simplest one, the Bitcask database and keep involving to distributed K/V store. 
+As a Backend/ML engineer, I have worked with many kinds of databases. SQL/NoSQL, KeyValue, Document, Read-Heavy, and Write-Heavy databases. 
+
+However, I never had a chance to really understand the implementation details of the databases. Like indexing, search, caching, versioning, and even distributed data store. 
+
+Therefore, I decided to implement my own databases, start from the most simplest one, the BitCask database and keep involving to distributed K/V store.
+
+Of course, this project is educational purpose, still I'm trying my best to make it more robust.
 
 ### Design Spec:
-Briefly describe the requirements and secnerio.
+This section briefly describe the requirements and scenarios.
 * Key Value storage
 * Write-heavy
 * The size of data should be 10 times larger than memory.
 * Support crash recovery
 * Distributed storage
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 ### Built With:
@@ -65,8 +75,6 @@ In other words, re-inventing the wheel lol.  Such as SSTables, Segment file, Pri
 * [![gRPC-go][gRPC]][gRPC-url]
 * [![Gin-Swagger][swagger]][swagger-url]
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 
 <!-- GETTING STARTED -->
@@ -76,23 +84,38 @@ This is an example of how you may give instructions on setting up your project l
 To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
+- go environment
 
-- TBD
+- Using as web server
+  - `docker`
 
-### Installation
-- TBD
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+- Using as cluster
+  - `docker`
+
+### Run
+- Standalone container web server run `make compose-up`
+- Local web server run `make init make build && make run`
+- Cluster setup `make cluster-up`
+- Embed in project, see `endpoints.go` for public api
+
 
 
 
 <!-- USAGE EXAMPLES -->
-## Usage
+### Usage
+```go
+TBD
+```
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
 
-_For more examples, please refer to the [Documentation](https://example.com)_
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- Design -->
+## Design
+### Overview
+### Components
+  - Memory Manager
+  - Segment Manager
 
 
 
@@ -101,7 +124,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 ### Implementation Roadmap
 - [x]  Basic Get / Set / Delete Methods 
-- [x]  Implement vanilla hashtable key value storage
+- [x]  Implement vanilla hash table key value storage
 - [x]  Implement Segment storage,
 - [x]  Implement SSTable (**Sorted String Table**)
 - [x]  Implement Binary Search Tree for in memory storage
@@ -114,9 +137,6 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 - [ ]  Implement Graceful exit, Crash recovery
 - [ ]  Implement Range based key query
 - [ ]  Add more tests for each package.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 
 <!-- CONTRIBUTING -->
@@ -133,8 +153,6 @@ Don't forget to give the project a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 
 <!-- LICENSE -->
@@ -142,16 +160,12 @@ Don't forget to give the project a star! Thanks again!
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 
 <!-- CONTACT -->
 ## Contact
 - [@Email](lochuhsin@gmail.com)
 - [@linkedin](https://www.linkedin.com/in/lochuhsin/)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 

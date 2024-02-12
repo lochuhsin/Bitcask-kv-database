@@ -22,14 +22,14 @@ func NewScheduler() *Scheduler {
 func (s *Scheduler) TaskChanListener() {
 	BlockIdChan := memory.GetMemoryManager().GetBlockIdQueue()
 	for blockId := range BlockIdChan {
-		go s.taskWorker(blockId)
+		go s.convertMemoryWorker(blockId)
 	}
 }
 
-// Long running listener for finshed task signals
+// Long running listener for finished task signals
 func (s *Scheduler) TaskSignalListner() {
 	/**
-	 * When the channel recieves a task finised signal,
+	 * When the channel receives a task finished signal,
 	 * Remove the task from task pool
 	 */
 	mStorage := memory.GetMemoryManager()
@@ -42,17 +42,21 @@ func (s *Scheduler) TaskSignalListner() {
 }
 
 // worker
-func (s *Scheduler) taskWorker(id memory.BlockId) {
+func (s *Scheduler) convertMemoryWorker(id memory.BlockId) {
 	manager := segment.GetSegmentManager()
 	mStorage := memory.GetMemoryManager()
 	block := mStorage.GetMemoryBlock(id)
 	seg := memBlockToFile(*block)
 	genSegmentMetadataFile(seg.Id, seg.Level)
-	genSegmentIndexFile(seg.Id, seg.GetPrimayIndex())
+	genSegmentIndexFile(seg.Id, seg.GetPrimaryIndex())
 
 	manager.Add(seg)
 	s.statusChan <- status{
 		id:     id,
 		status: FINISHED,
 	}
+}
+
+func (s *Scheduler) compressSegmentWorker() {
+	panic("Not implemented error")
 }

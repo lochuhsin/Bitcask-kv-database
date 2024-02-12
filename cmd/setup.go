@@ -46,7 +46,7 @@ func clusterSetup() {
 	 * 3. retrieve all existing peer list from server
 	 * 4. request back to server that everything is ok
 	 * 5. wait the server to become green
-	 * 6. start running raft ...
+	 * 6. start running cluster ...
 	 */
 	currentIp := util.GetOutboundIP().String()
 	client := discovery.NewClient(settings.Config.DISCOVERY_HOST, 10, 2)

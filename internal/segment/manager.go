@@ -102,7 +102,7 @@ func (s *Segment) GetFromPrimaryIndex(key dao.NilString) (dao.Base, bool) {
 	return entry.Val, true
 }
 
-func (s *Segment) GetPrimayIndex() *PrimaryIndex {
+func (s *Segment) GetPrimaryIndex() *PrimaryIndex {
 	return s.pIndex
 }
 

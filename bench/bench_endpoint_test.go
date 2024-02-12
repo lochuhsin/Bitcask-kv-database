@@ -23,7 +23,7 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func BenchmarkFullSearchStorageGet(b *testing.B) {
+func BenchmarkCleanSearchStorageGet(b *testing.B) {
 	keys, _ := GenerateLowDuplicateRandom(b.N)
 	for _, k := range keys {
 		_, _ = rebitcask.Get(k)

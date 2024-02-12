@@ -13,3 +13,4 @@ test/*.DS_Store
 app.discovery
 *temp
 .vscode
+bench.test

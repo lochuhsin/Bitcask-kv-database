@@ -99,8 +99,6 @@ To get a local copy up and running follow these simple example steps.
 - Embed in project, see `endpoints.go` for public api
 
 
-
-
 <!-- USAGE EXAMPLES -->
 ### Usage
 ```go
@@ -108,11 +106,10 @@ TBD
 ```
 
 
-
-
 <!-- Design -->
 ## Design
 ### Overview
+  ![alt text](./images/Database%20Overview.png)
 ### Components
   - Memory Manager
   - Segment Manager

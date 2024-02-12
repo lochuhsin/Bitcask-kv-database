@@ -83,4 +83,31 @@ func deleteHandler(c *gin.Context) {
 	c.JSON(http.StatusAccepted, "")
 }
 
-func watchHandler(c *gin.Context) {}
+/**
+ * Watch is mainly used for monitoring the changes in
+ * cluster,
+ */
+func watchHandler(c *gin.Context) {
+	panic("Not implemented error")
+}
+
+/**
+ * when using Sync related api, it forces the cluster
+ * to response within one request lifetime, meaning that
+ * the response will wait until the cluster makes the decision and
+ * commit the changes then response back.
+ *
+ * NOTE:
+ * The important thing is that currently, there is no rollback
+ * , it's possible to timeout if the decision takes too long and
+ * the changes are still processed bby the cluster.
+ *
+ * Or unfortunately the follower that user connects is a fail node
+ * then, it will response error.
+ *
+ */
+func postSyncHandler(c *gin.Context) {}
+
+func deleteSyncHandler(c *gin.Context) {}
+
+func patchSyncHandler(c *gin.Context) {}

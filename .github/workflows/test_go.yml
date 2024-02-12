@@ -16,10 +16,12 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up local test environment
+    - name: Setup Go version
       uses: actions/setup-go@v3
       with:
         go-version: 1.21
+
+    - name: Setup test environment
       run: 
           make init
 

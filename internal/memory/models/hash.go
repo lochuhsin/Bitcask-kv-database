@@ -2,34 +2,36 @@ package models
 
 import (
 	"rebitcask/internal/dao"
+	"rebitcask/internal/util"
 	"sort"
 	"sync"
 )
 
 type value struct {
 	createTime int64
-	val        dao.Base
+	val        dao.Entry
 }
 
 type Hash struct {
-	keyvalue map[dao.NilString]value
+	keyvalue map[string]value
 	mu       *sync.Mutex
 	frozen   bool
 }
 
 func NewHash() *Hash {
-	return &Hash{keyvalue: map[dao.NilString]value{}, mu: &sync.Mutex{}, frozen: false}
+	return &Hash{keyvalue: map[string]value{}, mu: &sync.Mutex{}, frozen: false}
 }
 
-func (m *Hash) Get(k dao.NilString) (b dao.Base, status bool) {
-	if val, ok := m.keyvalue[k]; ok {
+func (m *Hash) Get(k []byte) (b dao.Entry, status bool) {
+	kString := util.BytesToString(k)
+	if val, ok := m.keyvalue[kString]; ok {
 		return val.val, true
 	}
-	return nil, false
+	return dao.Entry{}, false
 }
 
 func (m *Hash) Set(entry dao.Entry) {
-	m.keyvalue[entry.Key] = value{entry.CreateTime, entry.Val}
+	m.keyvalue[util.BytesToString(entry.Key)] = value{entry.CreateTime, entry}
 }
 
 func (m *Hash) GetSize() int {
@@ -37,19 +39,12 @@ func (m *Hash) GetSize() int {
 }
 
 func (m *Hash) GetAll() []dao.Entry {
-	/**
-	 * TODO: implement sort feature
-	 */
 	arr := make([]dao.Entry, 0, len(m.keyvalue))
-	for k, v := range m.keyvalue {
-		arr = append(arr, dao.Entry{
-			Key:        k,
-			Val:        v.val,
-			CreateTime: v.createTime,
-		})
+	for _, v := range m.keyvalue {
+		arr = append(arr, v.val)
 	}
 	sort.Slice(arr, func(i, j int) bool {
-		return arr[i].Key.IsSmaller(arr[j].Key)
+		return util.BytesToString(arr[i].Key) <= util.BytesToString(arr[j].Key)
 	})
 	return arr
 }

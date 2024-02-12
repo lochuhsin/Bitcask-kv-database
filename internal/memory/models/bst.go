@@ -2,12 +2,13 @@ package models
 
 import (
 	"rebitcask/internal/dao"
+	"rebitcask/internal/util"
 	"sync"
 )
 
 type bstnode struct {
-	key   dao.NilString
-	val   dao.Base
+	key   []byte
+	val   dao.Entry
 	left  *bstnode
 	right *bstnode
 }
@@ -33,41 +34,35 @@ func (bst *BinarySearchTree) GetAll() []dao.Entry {
 	return entry
 }
 
-func (bst *BinarySearchTree) inorder(root *bstnode, entry *[]dao.Entry) {
-	if root == nil {
+func (bst *BinarySearchTree) inorder(node *bstnode, entry *[]dao.Entry) {
+	if node == nil {
 		return
 	}
 
-	if root.left != nil {
-		bst.inorder(root.left, entry)
+	if node.left != nil {
+		bst.inorder(node.left, entry)
 	}
 
-	*entry = append(*entry, dao.Entry{
-		Key: root.key,
-		Val: root.val,
-	})
+	*entry = append(*entry, node.val)
 
-	if root.right != nil {
-		bst.inorder(root.right, entry)
+	if node.right != nil {
+		bst.inorder(node.right, entry)
 	}
 }
 
 func (bst *BinarySearchTree) Set(entry dao.Entry) {
 	bst.setMu.Lock()
-	k, v := entry.Key, entry.Val
-	bst.root = bst.set(bst.root, k, v)
+	k := entry.Key
+	bst.root = bst.set(bst.root, k, entry)
 	bst.setMu.Unlock()
 }
 
-func (bst *BinarySearchTree) Get(k dao.NilString) (val dao.Base, status bool) {
-	if res := bst.get(bst.root, k); res != nil {
-		return res, true
-	}
-	return nil, false
+func (bst *BinarySearchTree) Get(k []byte) (val dao.Entry, status bool) {
+	return bst.get(bst.root, k)
 }
 
-func (bst *BinarySearchTree) set(root *bstnode, key dao.NilString, val dao.Base) *bstnode {
-	if root == nil {
+func (bst *BinarySearchTree) set(node *bstnode, key []byte, val dao.Entry) *bstnode {
+	if node == nil {
 		bst.size++
 		return &bstnode{
 			key: key,
@@ -75,34 +70,37 @@ func (bst *BinarySearchTree) set(root *bstnode, key dao.NilString, val dao.Base)
 		}
 	}
 
-	if root.key == key {
-		root.val = val
-		return root
+	nKeyString := util.BytesToString(node.key)
+	keyString := util.BytesToString(key)
+
+	if nKeyString == keyString {
+		node.val = val
+		return node
 	}
 
-	if node := *root; node.key != key {
-		if key.IsSmaller(node.key) {
-			root.left = bst.set(node.left, key, val)
-		} else {
-			root.right = bst.set(node.right, key, val)
-		}
-		return root
+	if nKeyString > keyString {
+		node.left = bst.set(node.left, key, val)
+	} else {
+		node.right = bst.set(node.right, key, val)
 	}
-	return nil
+	return node
 }
 
-func (bst *BinarySearchTree) get(root *bstnode, k dao.NilString) (val dao.Base) {
-	if root == nil {
-		return nil
+func (bst *BinarySearchTree) get(node *bstnode, k []byte) (dao.Entry, bool) {
+	if node == nil {
+		return dao.Entry{}, false
 	}
 
-	if root.key == k {
-		return root.val
+	nKeyString := util.BytesToString(node.key)
+	keyString := util.BytesToString(k)
+
+	if nKeyString == keyString {
+		return node.val, true
 	}
 
-	if k.IsSmaller(root.key) {
-		return bst.get(root.left, k)
+	if keyString < nKeyString {
+		return bst.get(node.left, k)
 	} else {
-		return bst.get(root.right, k)
+		return bst.get(node.right, k)
 	}
 }

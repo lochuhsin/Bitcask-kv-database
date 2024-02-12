@@ -5,6 +5,7 @@ import (
 	"rebitcask/internal/dao"
 	"rebitcask/internal/memory"
 	"rebitcask/internal/segment"
+	"rebitcask/internal/util"
 )
 
 func Get(k string) (any, bool) {
@@ -15,45 +16,32 @@ func Get(k string) (any, bool) {
 	 *
 	 * Note: exists meaning that the key exists, and the value is not tombstone
 	 */
-	_k, err := convertToBaseObjects(k)
-	if err != nil {
-		panic(err)
-	}
-	m, status := memory.GetMemoryManager().Get(_k.(dao.NilString))
+	bytes := util.StringToBytes(k)
+	m, status := memory.GetMemoryManager().Get(bytes)
 	if status {
-		return checkTombstone(m)
+		return checkTombstone(m.Val)
 	}
 
-	s, status := segment.GetSegmentManager().GetValue(_k.(dao.NilString))
+	s, status := segment.GetSegmentManager().GetValue(bytes)
 	if status {
-		return checkTombstone(s)
+		return checkTombstone(s.Val)
 	}
 	return *new(any), false
 }
 
 func Set(k string, v any) error {
-	_k, err := convertToBaseObjects(k)
-	if err != nil {
-		return err
-	}
 	_v, err := convertToBaseObjects(v)
 	if err != nil {
 		return err
 	}
-	entry := dao.InitEntry(_k.(dao.NilString), _v)
+	entry := dao.InitEntry(util.StringToBytes(k), _v)
 	err = memory.GetMemoryManager().Set(entry)
 	return err
 }
 
 func Delete(k string) error {
-	_k, err := convertToBaseObjects(k)
-	if err != nil {
-		return err
-	}
-
-	entry := dao.InitTombEntry(_k.(dao.NilString))
-	err = memory.GetMemoryManager().Set(entry)
-	return err
+	entry := dao.InitTombEntry(util.StringToBytes(k))
+	return memory.GetMemoryManager().Set(entry)
 }
 
 func Exist() (bool, error) {
@@ -89,7 +77,10 @@ func convertToBaseObjects(v any) (dao.Base, error) {
 	case byte:
 		return dao.NilByte{IsNil: false, Val: v}, nil
 	case string:
-		return dao.NilString{IsNil: false, Val: v}, nil
+		return dao.NilString{
+			IsNil: false,
+			Val:   util.StringToBytes(v),
+		}, nil
 	case bool:
 		return dao.NilBool{IsNil: false, Val: v}, nil
 

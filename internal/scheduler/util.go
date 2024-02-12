@@ -8,18 +8,34 @@ import (
 	"rebitcask/internal/memory"
 	"rebitcask/internal/segment"
 	"rebitcask/internal/settings"
+	"strings"
 )
 
 func getSegmentFilePath(segId string) string {
-	return fmt.Sprintf("%v%v%v%v", settings.Config.DATA_FOLDER_PATH, settings.SEGMENT_FILE_FOLDER, segId, settings.SEGMENT_FILE_EXT)
+	var builder strings.Builder
+	builder.WriteString(settings.Config.DATA_FOLDER_PATH)
+	builder.WriteString(settings.SEGMENT_FILE_FOLDER)
+	builder.WriteString(segId)
+	builder.WriteString(settings.SEGMENT_FILE_EXT)
+	return builder.String()
 }
 
 func getSegmentIndexFilePath(segId string) string {
-	return fmt.Sprintf("%v%v%v%v", settings.Config.DATA_FOLDER_PATH, settings.INDEX_FILE_FOLDER, segId, settings.SEGMENT_KEY_OFFSET_FILE_EXT)
+	var builder strings.Builder
+	builder.WriteString(settings.Config.DATA_FOLDER_PATH)
+	builder.WriteString(settings.INDEX_FILE_FOLDER)
+	builder.WriteString(segId)
+	builder.WriteString(settings.SEGMENT_KEY_OFFSET_FILE_EXT)
+	return builder.String()
 }
 
 func getSegmentMetaDataFilePath(segId string) string {
-	return fmt.Sprintf("%v%v%v%v", settings.Config.DATA_FOLDER_PATH, settings.SEGMENT_FILE_FOLDER, segId, settings.SEGMENT_FILE_METADATA_EXT)
+	var builder strings.Builder
+	builder.WriteString(settings.Config.DATA_FOLDER_PATH)
+	builder.WriteString(settings.SEGMENT_FILE_FOLDER)
+	builder.WriteString(segId)
+	builder.WriteString(settings.SEGMENT_FILE_METADATA_EXT)
+	return builder.String()
 }
 
 func memBlockToFile(memBlock memory.Block) segment.Segment {
@@ -27,7 +43,7 @@ func memBlockToFile(memBlock memory.Block) segment.Segment {
 	 * Note, assuming that key in entries are sorted in ascending order
 	 */
 	blockId := string(memBlock.Id)
-	entry := memBlock.Memory.GetAll()
+	entryList := memBlock.Memory.GetAll()
 
 	filePath := getSegmentFilePath(blockId)
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777) //TODO: optimize the mode
@@ -39,7 +55,7 @@ func memBlockToFile(memBlock memory.Block) segment.Segment {
 	writer := bufio.NewWriter(file)
 	curroffset := 0
 	pIndex := segment.NewSegmentIndex(blockId)
-	for _, p := range entry {
+	for _, p := range entryList {
 		data, err := dao.Serialize(p)
 		if err != nil {
 			panic("Error while serializing data")
@@ -54,7 +70,7 @@ func memBlockToFile(memBlock memory.Block) segment.Segment {
 	}
 	writer.Flush()
 	file.Sync()
-	segment := segment.NewSegment(blockId, &pIndex, entry[0].Key.GetVal().(string), len(entry))
+	segment := segment.NewSegment(blockId, &pIndex, entryList[0].Key, len(entryList))
 	return segment
 }
 
@@ -90,7 +106,7 @@ func genSegmentIndexFile(sId string, pIndex *segment.PrimaryIndex) {
 	writer := bufio.NewWriter(file)
 
 	for key, val := range pIndex.OffsetMap {
-		data := segmentIndexSerialize(key.Format(), val.Format())
+		data := segmentIndexSerialize(key, val.Format())
 		_, err := writer.WriteString(data + settings.DATA_SEPARATOR)
 		if err != nil {
 			panic("something went wrong while writing to segment")
@@ -104,6 +120,10 @@ func genSegmentIndexFile(sId string, pIndex *segment.PrimaryIndex) {
 
 // TODO: refactor this
 func segmentIndexSerialize(key string, val string) string {
-	// format -> KeyDataType::KeyLen::Key::offset::length
-	return fmt.Sprintf("%v::%v", key, val)
+	// format -> Key::offset::length
+	var builder strings.Builder
+	builder.WriteString(key)
+	builder.WriteString("::")
+	builder.WriteString(val)
+	return builder.String()
 }

@@ -5,7 +5,7 @@ import (
 )
 
 type IMemory interface {
-	Get(dao.NilString) (dao.Base, bool)
+	Get([]byte) (dao.Entry, bool)
 	Set(dao.Entry) // if the memory is in frozen state, close set operation
 	GetSize() int
 	GetAll() []dao.Entry // Expected order by key from small to large

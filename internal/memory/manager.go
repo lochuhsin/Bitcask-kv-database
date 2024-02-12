@@ -25,7 +25,7 @@ func NewMemoryManager(bStorage *blockStorage, entryCountLimit, blockIdChanSize i
 	}
 }
 
-func (m *memoryManager) Get(key dao.NilString) (dao.Base, bool) {
+func (m *memoryManager) Get(key []byte) (dao.Entry, bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	blocks := m.bStorage.iterateExistingBlocks()
@@ -35,7 +35,7 @@ func (m *memoryManager) Get(key dao.NilString) (dao.Base, bool) {
 			return val, status
 		}
 	}
-	return nil, false
+	return dao.Entry{}, false
 }
 
 func (m *memoryManager) Set(entry dao.Entry) error {

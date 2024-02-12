@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"os"
 	"rebitcask/internal/dao"
+	"rebitcask/internal/util"
 	"sort"
 	"sync"
 	"time"
@@ -15,7 +16,7 @@ import (
  * in ascending order. Therefore the head of the file (usually it's the end of the file)
  * is the smallest key. This is helpful, since we store the smallest key of the segment
  * in memory. When we are looking up to see if key exists,
- * we only need to start looking at files that Segkeies who were smaller.
+ * we only need to start looking at files that Segment key's who were smaller.
  * This increases the performance of lookup.
  *
  * Each segment accompanies a segment index
@@ -25,20 +26,20 @@ import (
 type Segment struct {
 	Id          string
 	Level       int    // reference from levelDB, using level indicate the compaction process
-	smallestKey string // indicates the smallest key in current segment
+	smallestKey []byte // indicates the smallest key in current segment
 	timestamp   int64  // the time that segment was created
 	keyCount    int
 	pIndex      *PrimaryIndex
 }
 
-func NewSegment(id string, pIndex *PrimaryIndex, smallesKey string, keyCount int) Segment {
+func NewSegment(id string, pIndex *PrimaryIndex, smallestKey []byte, keyCount int) Segment {
 	// the reason of adding segcount is that
 	// the creation of a segment is too fast that even nano seconds
 	// could not distinguish between segments order
-	return Segment{Id: id, Level: 0, smallestKey: smallesKey, keyCount: keyCount, timestamp: time.Now().UnixNano(), pIndex: pIndex}
+	return Segment{Id: id, Level: 0, smallestKey: smallestKey, keyCount: keyCount, timestamp: time.Now().UnixNano(), pIndex: pIndex}
 }
 
-func (s *Segment) Get(k dao.NilString) (dao.Base, bool) {
+func (s *Segment) Get(k []byte) (dao.Entry, bool) {
 
 	filePath := getSegmentFilePath(s.Id)
 	fd, err := os.Open(filePath)
@@ -54,19 +55,20 @@ func (s *Segment) Get(k dao.NilString) (dao.Base, bool) {
 		if err != nil {
 			panic("Something went wrong while deserializing data")
 		}
-
-		if entry.Key.IsEqual(k) {
-			return entry.Val, true
+		entryString := util.BytesToString(entry.Key)
+		kString := util.BytesToString(k)
+		if entryString == kString {
+			return entry, true
 		}
 	}
 
-	return nil, false
+	return dao.Entry{}, false
 }
 
-func (s *Segment) GetFromPrimaryIndex(key dao.NilString) (dao.Base, bool) {
+func (s *Segment) GetFromPrimaryIndex(key []byte) (dao.Entry, bool) {
 	offsetLen, ok := s.pIndex.Get(key)
 	if !ok {
-		return nil, false
+		return dao.Entry{}, false
 	}
 	offset, datalen := offsetLen.Offset, offsetLen.Len
 
@@ -86,7 +88,7 @@ func (s *Segment) GetFromPrimaryIndex(key dao.NilString) (dao.Base, bool) {
 	}
 
 	if n != datalen {
-		panic("something went wrong wuth the segment data, length doesn't match")
+		panic("something went wrong with the segment data, length doesn't match")
 	}
 	entry, err := dao.DeSerialize(string(byteBuffer))
 
@@ -94,12 +96,14 @@ func (s *Segment) GetFromPrimaryIndex(key dao.NilString) (dao.Base, bool) {
 		panic("is the data valid?")
 	}
 
+	entryString := util.BytesToString(entry.Key)
+	keyString := util.BytesToString(key)
 	// validate key match
-	if !entry.Key.IsEqual(key) {
+	if entryString != keyString {
 		panic("Key does not match the value")
 	}
 
-	return entry.Val, true
+	return entry, true
 }
 
 func (s *Segment) GetPrimaryIndex() *PrimaryIndex {
@@ -144,18 +148,19 @@ func (s *Manager) Compaction() {
 	panic("not implemented yet")
 }
 
-func (s *Manager) GetValue(k dao.NilString) (val dao.Base, status bool) {
+func (s *Manager) GetValue(k []byte) (val dao.Entry, status bool) {
 	s.Lock()
 	defer s.Unlock()
 	/**
-	 * We search the segements in each level.
+	 * We search the segments in each level.
 	 * The problem with first level (level 0) is that their might be duplicate keys.
 	 * Therefore we need to sort the segments by timestamp (the larger timestamp
 	 * comes to the front). This part could be optimized by adding a specific field
-	 * that stores un-compressed segements.
+	 * that stores un-compressed segments.
 	 *
 	 * segments in other levels are simpler. No duplicate keys.
 	 */
+	keyString := util.BytesToString(k)
 	for level, segments := range s.levelMap {
 
 		if level == 0 {
@@ -164,7 +169,8 @@ func (s *Manager) GetValue(k dao.NilString) (val dao.Base, status bool) {
 			})
 		}
 		for _, seg := range segments {
-			if k.GetVal().(string) < seg.smallestKey {
+			segSmallestKeyString := util.BytesToString(seg.smallestKey)
+			if keyString < segSmallestKeyString {
 				continue
 			}
 
@@ -176,5 +182,5 @@ func (s *Manager) GetValue(k dao.NilString) (val dao.Base, status bool) {
 			// this index will always be consistent with segment
 		}
 	}
-	return nil, false
+	return dao.Entry{}, false
 }

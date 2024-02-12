@@ -2,14 +2,22 @@ package dao
 
 import (
 	"errors"
-	"fmt"
 	"rebitcask/internal/settings"
+	"rebitcask/internal/util"
 	"strconv"
 	"strings"
 )
 
 func Serialize(k Entry) (string, error) {
-	return fmt.Sprintf("CRC::%v::%v::%v", k.CreateTime, k.Key.Format(), k.Val.Format()), nil
+	var builder strings.Builder
+	timeSting := strconv.Itoa(int(k.CreateTime))
+	builder.WriteString("CRC::")
+	builder.WriteString(timeSting)
+	builder.WriteString("::")
+	builder.Write(k.Key)
+	builder.WriteString("::")
+	builder.WriteString(util.BytesToString(k.Val.Format()))
+	return builder.String(), nil
 }
 
 func DeSerialize(line string) (Entry, error) {
@@ -17,17 +25,12 @@ func DeSerialize(line string) (Entry, error) {
 	strList := strings.Split(line, "::")
 	// crc = strList[0] for validation usage
 	timestamp := strList[1]
-	keyDataType := strList[2]
+	// keyDataType := strList[2]
 	// KeyLen := strList[3] for validation usage
 	key := strList[4]
 	valueDataType := strList[5]
 	// ValueLen := strList[6] for validation usage
 	val := strList[7]
-
-	keyData, err := toBaseType(keyDataType, key)
-	if err != nil {
-		panic(err)
-	}
 
 	valData, err := toBaseType(valueDataType, val)
 	if err != nil {
@@ -38,14 +41,14 @@ func DeSerialize(line string) (Entry, error) {
 		panic(err)
 	}
 	return Entry{
-		Key:        keyData.(NilString),
+		Key:        util.StringToBytes(key),
 		Val:        valData,
 		CreateTime: int64(ts),
 	}, nil
 
 }
 
-func toBaseType(valtype, val string) (Base, error) {
+func toBaseType(valType, val string) (Base, error) {
 	var data Base
 
 	isNil := false
@@ -53,10 +56,10 @@ func toBaseType(valtype, val string) (Base, error) {
 		isNil = true
 	}
 
-	switch valtype {
+	switch valType {
 	case string(String):
 		data = NilString{
-			IsNil: isNil, Val: val,
+			IsNil: isNil, Val: util.StringToBytes(val),
 		}
 	case string(Int):
 		i, err := strconv.Atoi(val)

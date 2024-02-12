@@ -1,8 +1,9 @@
 package dao
 
 import (
-	"fmt"
+	"bytes"
 	"rebitcask/internal/settings"
+	"rebitcask/internal/util"
 	"strconv"
 	"time"
 )
@@ -17,6 +18,8 @@ import (
  *
  * Note: KeyLen, ValueLen should be converted to
  * actual data bytes size in memory)
+ *
+ * Remove all Sprintf to string builder
  */
 
 type DataType string
@@ -32,7 +35,7 @@ const (
 )
 
 type Base interface {
-	Format() string // should be ValueDataType::ValueLen::Value
+	Format() []byte // should be ValueDataType::ValueLen::Value
 	GetVal() any
 	GetType() DataType
 }
@@ -41,33 +44,48 @@ func (i NilNil) Format() string {
 	panic("Not Implemented yet")
 }
 
-func (i NilInt) Format() string {
-	intstring := strconv.Itoa(i.GetVal().(int))
-	return fmt.Sprintf("%v::%v::%v", Int, len(intstring), intstring)
+func (i NilInt) Format() []byte {
+	panic("Not Implemented yet")
 }
 
-func (i NilFloat) Format() string {
-	floatstring := strconv.FormatFloat(i.GetVal().(float64), 'e', 10, 64)
-	return fmt.Sprintf("%v::%v::%v", Float, len(floatstring), floatstring)
+func (i NilFloat) Format() []byte {
+	panic("Not Implemented yet")
 }
 
-func (i NilString) Format() string {
-	str := i.GetVal().(string)
-	return fmt.Sprintf("%v::%v::%v", String, len(str), str)
+func (i NilString) Format() []byte {
+	var builder bytes.Buffer
+	bytes := i.GetVal().([]byte)
+	builder.Write(util.StringToBytes(string(String)))
+	builder.Write([]byte("::"))
+	builder.Write(util.StringToBytes(strconv.Itoa(len(util.BytesToString(bytes)))))
+	builder.Write([]byte("::"))
+	builder.Write(bytes)
+	return builder.Bytes()
 }
 
-func (i NilBool) Format() string {
-	boolstr := strconv.FormatBool(i.GetVal().(bool))
-	return fmt.Sprintf("%v::%v::%v", Bool, len(boolstr), boolstr)
+func (i NilBool) Format() []byte {
+	panic("Not implemented yet")
 }
 
-func (i NilByte) Format() string {
-	boolstr := string(i.GetVal().(byte))
-	return fmt.Sprintf("%v::%v::%v", Byte, len(boolstr), boolstr)
+func (i NilByte) Format() []byte {
+	var builder bytes.Buffer
+	builder.Write(util.StringToBytes(string(Byte)))
+	builder.Write([]byte("::"))
+	builder.WriteByte(1)
+	builder.Write([]byte("::"))
+	builder.WriteByte(i.GetVal().(byte))
+	return builder.Bytes()
 }
 
-func (i NilTomb) Format() string {
-	return fmt.Sprintf("%v::%v::%v", Tombstone, len(settings.Config.TOMBSTONE), settings.Config.TOMBSTONE)
+func (i NilTomb) Format() []byte {
+	lenString := strconv.Itoa(len(settings.Config.TOMBSTONE))
+	var builder bytes.Buffer
+	builder.Write(util.StringToBytes(string(Tombstone)))
+	builder.Write([]byte("::"))
+	builder.Write(util.StringToBytes(lenString))
+	builder.Write([]byte("::"))
+	builder.Write(util.StringToBytes(string(settings.Config.TOMBSTONE)))
+	return builder.Bytes()
 
 }
 
@@ -90,7 +108,7 @@ func (i NilInt) GetType() DataType {
 
 type NilString struct {
 	IsNil bool
-	Val   string
+	Val   []byte
 }
 
 func (i NilString) GetVal() any {
@@ -99,37 +117,6 @@ func (i NilString) GetVal() any {
 
 func (i NilString) GetType() DataType {
 	return String
-}
-
-func (s NilString) IsLarger(d NilString) bool {
-	if s.IsNil || d.IsNil {
-		return s.nilCompare(d)
-	}
-	return s.Val > d.Val
-}
-
-func (s NilString) IsSmaller(d NilString) bool {
-	if s.IsNil || d.IsNil {
-		return s.nilCompare(d)
-	}
-	return s.Val < d.Val
-}
-
-func (s NilString) IsEqual(d NilString) bool {
-	if s.IsNil || d.IsNil {
-		return s.nilCompare(d)
-	}
-	return s.Val == d.Val
-}
-
-func (s NilString) nilCompare(d NilString) bool {
-	if s.IsNil && !d.IsNil {
-		return false
-	} else if !s.IsNil && d.IsNil {
-		return true
-	} else {
-		return false
-	}
 }
 
 type NilBool struct {
@@ -186,18 +173,18 @@ func (i NilTomb) GetType() DataType {
 }
 
 type Entry struct {
-	Key        NilString
+	Key        []byte
 	Val        Base
 	CreateTime int64 // timestamp time.Now().UnixMicro()
 }
 
-func InitEntry(key NilString, val Base) Entry {
+func InitEntry(key []byte, val Base) Entry {
 	return Entry{
 		key, val, time.Now().UnixMicro(),
 	}
 }
 
-func InitTombEntry(key NilString) Entry {
+func InitTombEntry(key []byte) Entry {
 	return Entry{
 		key, NilTomb{}, time.Now().UnixMicro(),
 	}

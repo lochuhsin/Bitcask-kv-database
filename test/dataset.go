@@ -19,7 +19,7 @@ func GenerateLowDuplicateRandom(dataCount int) ([]string, []string) {
 		for j := range k {
 			k[j] = LETTERS[rand.Intn(len(LETTERS))]
 		}
-		v := make([]byte, rand.Intn(valLen))
+		v := make([]byte, 1+rand.Intn(valLen))
 		for m := range v {
 			v[m] = LETTERS[rand.Intn(len(LETTERS))]
 		}
@@ -39,7 +39,7 @@ func GenerateHighDuplicateRandom(dataCount int) ([]string, []string) {
 		for i := range k {
 			k[i] = LETTERS[rand.Intn(len(LETTERS))]
 		}
-		v := make([]byte, rand.Intn(30))
+		v := make([]byte, 1+rand.Intn(30))
 		for i := range v {
 			v[i] = LETTERS[rand.Intn(len(LETTERS))]
 		}

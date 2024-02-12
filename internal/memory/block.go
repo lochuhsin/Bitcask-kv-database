@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"rebitcask/internal/memory/models"
 	"time"
 
 	"github.com/google/uuid"
@@ -11,7 +12,7 @@ type BlockId string
 type Block struct {
 	Timestamp int64
 	Id        BlockId
-	Memory    IMemory
+	Memory    models.IMemory
 }
 
 type node struct {
@@ -72,11 +73,11 @@ func (m *blockStorage) getCurrentBlockId() BlockId {
 	return m.currNode.block.Id
 }
 
-func (m *blockStorage) createNewBlock(modelType ModelType) {
+func (m *blockStorage) createNewBlock(modelType models.ModelType) {
 	newBlockId := BlockId(uuid.New().String())
 	newBlock := Block{
 		Id:        newBlockId,
-		Memory:    MemoryTypeSelector(modelType),
+		Memory:    models.MemoryTypeSelector(modelType),
 		Timestamp: time.Now().UnixNano(),
 	}
 	newNode := node{

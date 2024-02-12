@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"rebitcask/internal/memory/models"
 	"rebitcask/internal/settings"
 	"sync"
 )
@@ -8,14 +9,14 @@ import (
 var mManager *memoryManager
 var mOnce sync.Once
 
-func InitMemoryManager(mType ModelType) {
+func InitMemoryManager() {
 	mOnce.Do(func() {
 		mStorage := NewMemoryStorage()
 		mManager = NewMemoryManager(
 			mStorage,
 			settings.Config.MEMORY_COUNT_LIMIT,
 			settings.WORKER_COUNT,
-			ModelType(settings.Config.MEMORY_MODEL),
+			models.ModelType(settings.Config.MEMORY_MODEL),
 		)
 	})
 }

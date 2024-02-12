@@ -13,7 +13,7 @@ func Setup(envPaths ...string) {
 	 */
 	settings.SetupConfig(envPaths...)
 	settings.SetUpDirectory()
-	memory.InitMemoryManager(memory.ModelType(settings.Config.MEMORY_MODEL))
+	memory.InitMemoryManager()
 	segment.InitSegmentManager()
 	scheduler.InitScheduler()
 }

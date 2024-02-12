@@ -2,6 +2,7 @@ package memory
 
 import (
 	"rebitcask/internal/dao"
+	"rebitcask/internal/memory/models"
 	"sync"
 )
 
@@ -10,10 +11,10 @@ type memoryManager struct {
 	blockIdCh       chan BlockId
 	entryCountLimit int
 	mu              sync.Mutex
-	modelType       ModelType
+	modelType       models.ModelType
 }
 
-func NewMemoryManager(bStorage *blockStorage, entryCountLimit, blockIdChanSize int, modelType ModelType) *memoryManager {
+func NewMemoryManager(bStorage *blockStorage, entryCountLimit, blockIdChanSize int, modelType models.ModelType) *memoryManager {
 	bStorage.createNewBlock(modelType)
 	return &memoryManager{
 		bStorage:        bStorage,

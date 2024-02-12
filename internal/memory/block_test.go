@@ -2,13 +2,14 @@ package memory
 
 import (
 	"os"
+	"rebitcask/internal/memory/models"
 	"testing"
 )
 
-var modelType ModelType
+var modelType models.ModelType
 
 func setup() {
-	modelType = ModelType("bst")
+	modelType = models.ModelType("bst")
 }
 
 func teardown() {

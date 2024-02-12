@@ -1,4 +1,4 @@
-package memory
+package models
 
 import (
 	"rebitcask/internal/dao"

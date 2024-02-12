@@ -1,4 +1,4 @@
-package memory
+package models
 
 func MemoryTypeSelector(mType ModelType) IMemory {
 	var m IMemory = nil

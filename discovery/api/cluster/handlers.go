@@ -50,6 +50,15 @@ func registerHandler(c *gin.Context) {
 	/**
 	 * Register the rebitcask components to the cluster
 	 */
+	// host, port, err := net.SplitHostPort(strings.TrimSpace(c.Request.RemoteAddr))
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// hostPort := net.JoinHostPort(host, port)
+	// obj := registerRequestSchema{
+	// 	Ip: hostPort,
+	// }
+
 	status := cache.PeerCache.Add(c.Request.Context(), cache.PeerCacheSchema(obj))
 	if !status {
 		c.JSON(http.StatusBadRequest, registerResponseSchema{

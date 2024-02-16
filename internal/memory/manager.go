@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"fmt"
 	"rebitcask/internal/dao"
 	"rebitcask/internal/memory/models"
 	"sync"
@@ -61,6 +62,17 @@ func (m *memoryManager) RemoveMemoryBlock(id BlockId) {
 	defer m.mu.Unlock()
 	if m.bStorage.removeMemoryBlock(id) != nil {
 		panic("Invalid operation on remove memory block")
+	}
+}
+
+func (m *memoryManager) BulkRemoveMemoryBlock(ids []BlockId) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	for _, id := range ids {
+		if m.bStorage.removeMemoryBlock(id) != nil {
+			fmt.Println("Invalid operation on remove memory block", id)
+			panic("error removing memory block")
+		}
 	}
 }
 

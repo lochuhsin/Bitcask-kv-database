@@ -54,12 +54,12 @@ func (i NilFloat) Format() []byte {
 
 func (i NilString) Format() []byte {
 	var builder bytes.Buffer
-	bytes := i.GetVal().([]byte)
+	str := i.GetVal().(string)
 	builder.Write(util.StringToBytes(string(String)))
 	builder.Write([]byte("::"))
-	builder.Write(util.StringToBytes(strconv.Itoa(len(util.BytesToString(bytes)))))
+	builder.Write(util.StringToBytes(strconv.Itoa(len(str))))
 	builder.Write([]byte("::"))
-	builder.Write(bytes)
+	builder.WriteString(str)
 	return builder.Bytes()
 }
 
@@ -112,7 +112,7 @@ type NilString struct {
 }
 
 func (i NilString) GetVal() any {
-	return i.Val
+	return string(i.Val)
 }
 
 func (i NilString) GetType() DataType {

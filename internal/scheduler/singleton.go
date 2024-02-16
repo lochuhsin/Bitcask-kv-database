@@ -12,7 +12,6 @@ func InitScheduler() {
 		func() {
 			if scheduler == nil {
 				scheduler = NewScheduler()
-				go scheduler.TaskSignalListner()
 				go scheduler.TaskChanListener()
 			}
 		},

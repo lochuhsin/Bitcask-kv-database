@@ -1,6 +1,7 @@
 package memory
 
 import (
+	"errors"
 	"rebitcask/internal/memory/models"
 	"time"
 
@@ -57,7 +58,7 @@ func (m *blockStorage) getMemoryBlock(id BlockId) (Block, bool) {
 func (m *blockStorage) removeMemoryBlock(id BlockId) error {
 	node, ok := m.blockMap[id]
 	if !ok {
-		panic("task id not found in ordered map, data is missing")
+		return errors.New("task id not found in ordered map, data is missing")
 	}
 
 	node.prev.next = node.next
@@ -101,7 +102,7 @@ func (m *blockStorage) getCurrentBlock() *Block {
 func (m *blockStorage) iterateExistingBlocks() []*Block {
 	// iterate backwards
 	node := m.currNode
-	blocks := []*Block{}
+	blocks := make([]*Block, 0, len(m.blockMap))
 	for node != nil && node.block != nil {
 		blocks = append(blocks, node.block)
 		node = node.prev

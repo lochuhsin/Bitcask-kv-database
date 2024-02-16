@@ -15,7 +15,7 @@ func InitMemoryManager() {
 		mManager = NewMemoryManager(
 			mStorage,
 			settings.Config.MEMORY_COUNT_LIMIT,
-			settings.WORKER_COUNT,
+			settings.MEMORY_BLOCK_BUFFER_COUNT,
 			models.ModelType(settings.Config.MEMORY_MODEL),
 		)
 	})

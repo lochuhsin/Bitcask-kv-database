@@ -3,46 +3,60 @@ package scheduler
 import (
 	"rebitcask/internal/memory"
 	"rebitcask/internal/segment"
+	"rebitcask/internal/settings"
+	"sync"
+	"time"
 )
 
-type status struct {
-	id     memory.BlockId
-	status tStatus
-}
-
 type Scheduler struct {
-	statusChan chan status
 }
 
 func NewScheduler() *Scheduler {
-	return &Scheduler{statusChan: make(chan status, 1000)}
+	return &Scheduler{}
 }
 
 // Long running listener for tasks
 func (s *Scheduler) TaskChanListener() {
-	BlockIdChan := memory.GetMemoryManager().GetBlockIdQueue()
-	for blockId := range BlockIdChan {
-		go s.convertMemoryWorker(blockId)
-	}
-}
+	manager := memory.GetMemoryManager()
+	blockCh := manager.GetBlockIdQueue()
+	runningWorker := 0
+	workerCount := settings.MEMORY_CONVERT_WORKER_COUNT
+	var wg sync.WaitGroup
+	idList := []memory.BlockId{}
+	for {
+		select {
+		case blockId, ok := <-blockCh:
+			if !ok {
+				goto END_FOR
+			}
+			wg.Add(1)
+			go s.convertMemoryWorker(blockId, &wg)
+			idList = append(idList, blockId)
+			runningWorker++
 
-// Long running listener for finished task signals
-func (s *Scheduler) TaskSignalListner() {
-	/**
-	 * When the channel receives a task finished signal,
-	 * Remove the task from task pool
-	 */
-	mStorage := memory.GetMemoryManager()
-	for ts := range s.statusChan {
-		if ts.status != FINISHED {
-			panic("Some thing went wrong")
+		case <-time.After(time.Millisecond):
+			wg.Wait()
+			runningWorker = 0
+			manager.BulkRemoveMemoryBlock(idList)
+			idList = []memory.BlockId{}
 		}
-		mStorage.RemoveMemoryBlock(ts.id)
+
+		if runningWorker >= workerCount {
+			wg.Wait()
+			runningWorker = 0
+			manager.BulkRemoveMemoryBlock(idList)
+			idList = []memory.BlockId{}
+		}
 	}
+
+END_FOR:
+	wg.Wait()
+	manager.BulkRemoveMemoryBlock(idList)
 }
 
 // worker
-func (s *Scheduler) convertMemoryWorker(id memory.BlockId) {
+func (s *Scheduler) convertMemoryWorker(id memory.BlockId, wg *sync.WaitGroup) {
+	defer wg.Done()
 	manager := segment.GetSegmentManager()
 	mStorage := memory.GetMemoryManager()
 	block := mStorage.GetMemoryBlock(id)
@@ -51,10 +65,6 @@ func (s *Scheduler) convertMemoryWorker(id memory.BlockId) {
 	genSegmentIndexFile(seg.Id, seg.GetPrimaryIndex())
 
 	manager.Add(seg)
-	s.statusChan <- status{
-		id:     id,
-		status: FINISHED,
-	}
 }
 
 func (s *Scheduler) compressSegmentWorker() {

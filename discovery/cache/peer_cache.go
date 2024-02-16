@@ -78,3 +78,5 @@ func (p *peerCache) GetAll(ctx context.Context) []PeerCacheSchema {
 	}
 	return peers
 }
+
+// Rewrite this cache

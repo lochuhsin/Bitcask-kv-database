@@ -39,6 +39,28 @@ func (m *memoryManager) Get(key []byte) (dao.Entry, bool) {
 	return dao.Entry{}, false
 }
 
+/**
+ * User ->
+ */
+
+//  func Set(entry) {
+// 	resp := chan struct{}{}
+//      tasks <- (entry, resp)
+//     <-resp
+//  }
+//  //RLock
+
+//  // scheduler main write loop
+//  go func () {
+// 	for task <-tasks {//Writes
+// 		//Lock()
+//        ...
+// 		resp <- struct{}{}
+// 	}
+//  }
+
+// called by user (endpoints)
+
 func (m *memoryManager) Set(entry dao.Entry) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()

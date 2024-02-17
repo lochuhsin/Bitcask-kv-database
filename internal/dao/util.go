@@ -8,11 +8,15 @@ import (
 	"strings"
 )
 
+// CRC::TimeStamp::KeyDataType::KeyLen::Key::ValueDataType::ValueLen::Value
 func Serialize(k Entry) (string, error) {
 	var builder strings.Builder
-	timeSting := strconv.Itoa(int(k.CreateTime))
 	builder.WriteString("CRC::")
-	builder.WriteString(timeSting)
+	builder.WriteString(strconv.Itoa(int(k.CreateTime)))
+	builder.WriteString("::")
+	builder.WriteString(string(String))
+	builder.WriteString("::")
+	builder.WriteString(strconv.Itoa(len(k.Key)))
 	builder.WriteString("::")
 	builder.Write(k.Key)
 	builder.WriteString("::")

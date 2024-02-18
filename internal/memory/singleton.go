@@ -2,7 +2,7 @@ package memory
 
 import (
 	"rebitcask/internal/memory/models"
-	"rebitcask/internal/settings"
+	"rebitcask/internal/setting"
 	"sync"
 )
 
@@ -14,9 +14,9 @@ func InitMemoryManager() {
 		mStorage := NewMemoryStorage()
 		mManager = NewMemoryManager(
 			mStorage,
-			settings.Config.MEMORY_COUNT_LIMIT,
-			settings.MEMORY_BLOCK_BUFFER_COUNT,
-			models.ModelType(settings.Config.MEMORY_MODEL),
+			setting.Config.MEMORY_COUNT_LIMIT,
+			setting.MEMORY_BLOCK_BUFFER_COUNT,
+			models.ModelType(setting.Config.MEMORY_MODEL),
 		)
 	})
 }

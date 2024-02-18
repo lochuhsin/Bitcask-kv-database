@@ -2,7 +2,7 @@ package dao
 
 import (
 	"errors"
-	"rebitcask/internal/settings"
+	"rebitcask/internal/setting"
 	"rebitcask/internal/util"
 	"strconv"
 	"strings"
@@ -56,7 +56,7 @@ func toBaseType(valType, val string) (Base, error) {
 	var data Base
 
 	isNil := false
-	if val == settings.Config.NIL_DATA_REP {
+	if val == setting.Config.NIL_DATA_REP {
 		isNil = true
 	}
 

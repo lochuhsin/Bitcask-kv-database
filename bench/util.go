@@ -3,7 +3,7 @@ package test
 import (
 	"fmt"
 	"os"
-	"rebitcask/internal/settings"
+	"rebitcask/internal/setting"
 	"testing"
 	"time"
 )
@@ -20,5 +20,5 @@ func testTimer(fn func(t *testing.T), t *testing.T) {
 }
 
 func removeSegment() {
-	os.RemoveAll(settings.Config.DATA_FOLDER_PATH)
+	os.RemoveAll(setting.Config.DATA_FOLDER_PATH)
 }

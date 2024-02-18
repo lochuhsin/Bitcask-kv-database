@@ -3,7 +3,7 @@ package scheduler
 import (
 	"rebitcask/internal/memory"
 	"rebitcask/internal/segment"
-	"rebitcask/internal/settings"
+	"rebitcask/internal/setting"
 	"sync"
 	"time"
 )
@@ -20,7 +20,7 @@ func (s *Scheduler) TaskChanListener() {
 	manager := memory.GetMemoryManager()
 	blockCh := manager.GetBlockIdQueue()
 	runningWorker := 0
-	workerCount := settings.MEMORY_CONVERT_WORKER_COUNT
+	workerCount := setting.MEMORY_CONVERT_WORKER_COUNT
 	var wg sync.WaitGroup
 	idList := []memory.BlockId{}
 	for {

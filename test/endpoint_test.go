@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 	"rebitcask"
-	"rebitcask/internal/settings"
+	"rebitcask/internal/setting"
 	"testing"
 	"time"
 )
@@ -26,7 +26,7 @@ func TestMain(m *testing.M) {
 }
 
 func TestStorageSet(t *testing.T) {
-	dataCount := settings.Config.MEMORY_COUNT_LIMIT*10 + 1
+	dataCount := setting.Config.MEMORY_COUNT_LIMIT*10 + 1
 
 	keys, vals := GenerateLowDuplicateRandom(dataCount)
 	for i, k := range keys {
@@ -39,7 +39,7 @@ func TestStorageSet(t *testing.T) {
 
 func TestStorageGet(t *testing.T) {
 
-	dataCount := settings.Config.MEMORY_COUNT_LIMIT*10 + 1
+	dataCount := setting.Config.MEMORY_COUNT_LIMIT*10 + 1
 
 	keys, _ := GenerateLowDuplicateRandom(dataCount)
 	for _, k := range keys {
@@ -49,7 +49,7 @@ func TestStorageGet(t *testing.T) {
 
 func TestStorageDelete(t *testing.T) {
 
-	config := settings.Config
+	config := setting.Config
 	dataCount := config.MEMORY_COUNT_LIMIT*1 + 1
 	keys, _ := GenerateLowDuplicateRandom(dataCount)
 	for _, k := range keys {
@@ -61,7 +61,7 @@ func TestStorageDelete(t *testing.T) {
 }
 
 func TestStorageSetGet(t *testing.T) {
-	env := settings.Config
+	env := setting.Config
 	dataCount := env.MEMORY_COUNT_LIMIT*5 + 1
 
 	keys, values := GenerateLowDuplicateRandom(dataCount)
@@ -86,7 +86,7 @@ func TestStorageSetGet(t *testing.T) {
 }
 
 func TestStorageSetDelete(t *testing.T) {
-	dataCount := settings.Config.MEMORY_COUNT_LIMIT*10 + 1
+	dataCount := setting.Config.MEMORY_COUNT_LIMIT*10 + 1
 
 	keys, vals := GenerateLowDuplicateRandom(dataCount)
 	for i, k := range keys {

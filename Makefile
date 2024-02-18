@@ -74,13 +74,25 @@ init-network:
 ########################################################
 # Discovery server commands
 
+# .PHONY: init-discovery
+# init-discovery:
+# 	go mod tidy && go install github.com/swaggo/swag/cmd/swag@latest
+
+# .PHONY: build-discovery
+# build-discovery:
+# 	cd discovery && swag init -g ./cmd/main.go -o ./docs && cd ../ && go build -o app.discovery ./discovery/cmd
+
+# .PHONY: run-discovery
+# run-discovery: build-discovery
+# 	./app.discovery
+
 .PHONY: init-discovery
 init-discovery:
-	go mod tidy && go install github.com/swaggo/swag/cmd/swag@latest
+	go mod tidy
 
 .PHONY: build-discovery
 build-discovery:
-	cd discovery && swag init -g ./cmd/main.go -o ./docs && cd ../ && go build -o app.discovery ./discovery/cmd
+	go build -o app.discovery ./discovery/cmd
 
 .PHONY: run-discovery
 run-discovery: build-discovery

@@ -1,4 +1,4 @@
-package settings
+package setting
 
 import (
 	"encoding/json"
@@ -9,8 +9,7 @@ func SetupConfig(envPaths ...string) {
 	Config = NewConfiguration(
 		envPaths,
 		setClusterMemberCount(),
-		setHttpPort(),
-		setClusterWaitMemberTimeout(),
+		setUDPServerPort(),
 	)
 	configString, _ := json.MarshalIndent(Config, "", "\t")
 	fmt.Println(string(configString))

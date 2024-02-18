@@ -2,16 +2,16 @@ package main
 
 import (
 	"rebitcask"
-	"rebitcask/internal/settings"
+	"rebitcask/internal/setting"
 )
 
 func main() {
 	flags := ParseFlags()
 	rebitcask.Setup(flags.envPaths...)
 
-	if settings.Config.MODE == settings.CLUSTER {
+	if setting.Config.MODE == setting.CLUSTER {
 		clusterSetup()
 	}
-	go grpcServerSetup(settings.Config.GRPC_PORT)
-	httpServerSetup(settings.Config.HTTP_PORT)
+	go grpcServerSetup(setting.Config.GRPC_PORT)
+	httpServerSetup(setting.Config.HTTP_PORT)
 }

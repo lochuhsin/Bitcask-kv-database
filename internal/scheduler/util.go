@@ -7,34 +7,34 @@ import (
 	"rebitcask/internal/dao"
 	"rebitcask/internal/memory"
 	"rebitcask/internal/segment"
-	"rebitcask/internal/settings"
+	"rebitcask/internal/setting"
 	"strings"
 )
 
 func getSegmentFilePath(segId string) string {
 	var builder strings.Builder
-	builder.WriteString(settings.Config.DATA_FOLDER_PATH)
-	builder.WriteString(settings.SEGMENT_FILE_FOLDER)
+	builder.WriteString(setting.Config.DATA_FOLDER_PATH)
+	builder.WriteString(setting.SEGMENT_FILE_FOLDER)
 	builder.WriteString(segId)
-	builder.WriteString(settings.SEGMENT_FILE_EXT)
+	builder.WriteString(setting.SEGMENT_FILE_EXT)
 	return builder.String()
 }
 
 func getSegmentIndexFilePath(segId string) string {
 	var builder strings.Builder
-	builder.WriteString(settings.Config.DATA_FOLDER_PATH)
-	builder.WriteString(settings.INDEX_FILE_FOLDER)
+	builder.WriteString(setting.Config.DATA_FOLDER_PATH)
+	builder.WriteString(setting.INDEX_FILE_FOLDER)
 	builder.WriteString(segId)
-	builder.WriteString(settings.SEGMENT_KEY_OFFSET_FILE_EXT)
+	builder.WriteString(setting.SEGMENT_KEY_OFFSET_FILE_EXT)
 	return builder.String()
 }
 
 func getSegmentMetaDataFilePath(segId string) string {
 	var builder strings.Builder
-	builder.WriteString(settings.Config.DATA_FOLDER_PATH)
-	builder.WriteString(settings.SEGMENT_FILE_FOLDER)
+	builder.WriteString(setting.Config.DATA_FOLDER_PATH)
+	builder.WriteString(setting.SEGMENT_FILE_FOLDER)
 	builder.WriteString(segId)
-	builder.WriteString(settings.SEGMENT_FILE_METADATA_EXT)
+	builder.WriteString(setting.SEGMENT_FILE_METADATA_EXT)
 	return builder.String()
 }
 
@@ -60,12 +60,12 @@ func memBlockToFile(memBlock memory.Block) segment.Segment {
 		if err != nil {
 			panic("Error while serializing data")
 		}
-		offset, err := writer.WriteString(data + settings.DATA_SEPARATOR)
+		offset, err := writer.WriteString(data + setting.DATA_SEPARATOR)
 		if err != nil {
 			panic("something went wrong while writing to segment")
 		}
 		// offset minus data saparater = the length of the data
-		pIndex.Set(p.Key, curroffset, offset-len([]byte(settings.DATA_SEPARATOR)))
+		pIndex.Set(p.Key, curroffset, offset-len([]byte(setting.DATA_SEPARATOR)))
 		curroffset += offset
 	}
 	writer.Flush()
@@ -107,7 +107,7 @@ func genSegmentIndexFile(sId string, pIndex *segment.PrimaryIndex) {
 
 	for key, val := range pIndex.OffsetMap {
 		data := segmentIndexSerialize(key, val.Format())
-		_, err := writer.WriteString(data + settings.DATA_SEPARATOR)
+		_, err := writer.WriteString(data + setting.DATA_SEPARATOR)
 		if err != nil {
 			panic("something went wrong while writing to segment")
 		}

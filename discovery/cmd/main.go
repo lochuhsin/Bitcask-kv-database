@@ -1,24 +1,12 @@
 package main
 
-import (
-	"rebitcask/discovery/api/cluster"
-	_ "rebitcask/discovery/docs"
-	"rebitcask/discovery/settings"
-
-	"github.com/gin-gonic/gin"
-	swaggerfiles "github.com/swaggo/files" // swagger embed files
-	ginSwagger "github.com/swaggo/gin-swagger"
-)
+import "rebitcask/discovery/server"
 
 func main() {
 	/**
 	 * Setting up server as
 	 * http://localhost:8765/_rebitcask/........
 	 */
-	Init()
-	r := gin.Default()
-	r.Group("/_rebitcask") // main prefix
-	cluster.Routes(r)
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-	r.Run(settings.Config.HTTP_PORT)
+	configSetup()
+	server.RunUdp()
 }

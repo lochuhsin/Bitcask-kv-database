@@ -7,7 +7,7 @@ import (
 	"rebitcask/api/core"
 	_ "rebitcask/docs"
 	"rebitcask/internal/cluster"
-	"rebitcask/internal/settings"
+	"rebitcask/internal/setting"
 	"rebitcask/internal/util"
 	"rebitcask/server/rebitcaskpb"
 	"time"
@@ -49,10 +49,10 @@ func clusterSetup() {
 	 * 6. start running cluster ...
 	 */
 	currentIp := util.GetOutboundIP().String()
-	client := cluster.NewClient(settings.Config.DISCOVERY_HOST, 10, 2)
+	client := cluster.NewClient(setting.Config.DISCOVERY_HOST, 10, 2)
 	fmt.Println("Start registration")
 	client.Register(
-		settings.Config.SERVER_NAME,
+		setting.Config.SERVER_NAME,
 		currentIp,
 	)
 
@@ -61,7 +61,7 @@ func clusterSetup() {
 	// Store peer list somewhere else
 	_, _ = client.GetPeers()
 	client.Finished(
-		settings.Config.SERVER_NAME,
+		setting.Config.SERVER_NAME,
 		currentIp,
 	)
 

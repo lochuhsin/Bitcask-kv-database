@@ -2,9 +2,9 @@ package segment
 
 import (
 	"fmt"
-	"rebitcask/internal/settings"
+	"rebitcask/internal/setting"
 )
 
 func getSegmentFilePath(segId string) string {
-	return fmt.Sprintf("%v%v%v%v", settings.Config.DATA_FOLDER_PATH, settings.SEGMENT_FILE_FOLDER, segId, settings.SEGMENT_FILE_EXT)
+	return fmt.Sprintf("%v%v%v%v", setting.Config.DATA_FOLDER_PATH, setting.SEGMENT_FILE_FOLDER, segId, setting.SEGMENT_FILE_EXT)
 }

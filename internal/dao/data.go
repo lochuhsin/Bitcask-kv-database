@@ -2,7 +2,7 @@ package dao
 
 import (
 	"bytes"
-	"rebitcask/internal/settings"
+	"rebitcask/internal/setting"
 	"rebitcask/internal/util"
 	"strconv"
 	"time"
@@ -78,13 +78,13 @@ func (i NilByte) Format() []byte {
 }
 
 func (i NilTomb) Format() []byte {
-	lenString := strconv.Itoa(len(settings.Config.TOMBSTONE))
+	lenString := strconv.Itoa(len(setting.Config.TOMBSTONE))
 	var builder bytes.Buffer
 	builder.Write(util.StringToBytes(string(Tombstone)))
 	builder.Write([]byte("::"))
 	builder.Write(util.StringToBytes(lenString))
 	builder.Write([]byte("::"))
-	builder.Write(util.StringToBytes(string(settings.Config.TOMBSTONE)))
+	builder.Write(util.StringToBytes(string(setting.Config.TOMBSTONE)))
 	return builder.Bytes()
 
 }
@@ -165,7 +165,7 @@ type NilTomb struct {
 }
 
 func (i NilTomb) GetVal() any {
-	return settings.Config.TOMBSTONE
+	return setting.Config.TOMBSTONE
 	// return tombstone value in envVar initialization
 }
 func (i NilTomb) GetType() DataType {

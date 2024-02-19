@@ -22,7 +22,7 @@ type PeerList struct {
 var RemoteAddrHolder = make(map[string]ConnectionTuple)
 
 func broadcastConnections(conn *net.UDPConn) {
-	for addrI, _ := range RemoteAddrHolder {
+	for addrI := range RemoteAddrHolder {
 
 		connList := make([]ConnectionTuple, len(RemoteAddrHolder)-1)
 		j := 0
@@ -80,8 +80,8 @@ func RunUdp() error {
 			fmt.Println(err.Error())
 			continue
 		}
-		raddrStr := remoteAddr.String()
-		host, port, err := net.SplitHostPort(raddrStr)
+		raddr := remoteAddr.String()
+		host, port, err := net.SplitHostPort(raddr)
 		if err != nil {
 			fmt.Println(PacketDataError{
 				field: "failed to split host ip",
@@ -89,7 +89,7 @@ func RunUdp() error {
 			}.Error())
 			continue
 		}
-		RemoteAddrHolder[raddrStr] = ConnectionTuple{
+		RemoteAddrHolder[raddr] = ConnectionTuple{
 			Ip:   host,
 			Port: port,
 		}

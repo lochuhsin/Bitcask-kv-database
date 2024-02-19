@@ -6,11 +6,7 @@ import (
 	"rebitcask/api/chore"
 	"rebitcask/api/core"
 	_ "rebitcask/docs"
-	"rebitcask/internal/cluster"
-	"rebitcask/internal/setting"
-	"rebitcask/internal/util"
 	"rebitcask/server/rebitcaskpb"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
@@ -18,55 +14,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func waitingClusterStatus(client *cluster.Client, status cluster.ClusterStatus) {
-	retryCount := 10
-	backOffFactor := 2
-	sleep := time.Second
-	for retryCount > 0 {
-		obj, _ := client.GetClusterStatus()
-		fmt.Println(cluster.ClusterStatus(obj.Status))
-		if cluster.ClusterStatus(obj.Status) == status {
-			break
-		}
-
-		retryCount -= 1
-		time.Sleep(sleep)
-		sleep *= time.Duration(backOffFactor)
-	}
-
-	if retryCount < 0 {
-		panic(fmt.Sprintf("unable to wait cluster status to valid status: %v, shutting down server", status))
-	}
-}
-
 func clusterSetup() {
-	/**
-	 * 1. register to discovery server
-	 * 2. wait the server status to become yellow
-	 * 3. retrieve all existing peer list from server
-	 * 4. request back to server that everything is ok
-	 * 5. wait the server to become green
-	 * 6. start running cluster ...
-	 */
-	currentIp := util.GetOutboundIP().String()
-	client := cluster.NewClient(setting.Config.DISCOVERY_HOST, 10, 2)
-	fmt.Println("Start registration")
-	client.Register(
-		setting.Config.SERVER_NAME,
-		currentIp,
-	)
-
-	fmt.Println("waiting cluster to become yellow")
-	waitingClusterStatus(client, cluster.Yellow)
-	// Store peer list somewhere else
-	_, _ = client.GetPeers()
-	client.Finished(
-		setting.Config.SERVER_NAME,
-		currentIp,
-	)
-
-	fmt.Println("waiting cluster to become green")
-	waitingClusterStatus(client, cluster.GREEN)
 }
 
 func httpServerSetup(port string) {

@@ -3,6 +3,8 @@ package main
 import (
 	"rebitcask"
 	"rebitcask/internal/setting"
+
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -11,7 +13,10 @@ func main() {
 
 	if setting.Config.MODE == setting.CLUSTER {
 		clusterSetup()
+		logrus.Info("Cluster setup complete")
 	}
-	go grpcServerSetup(setting.Config.GRPC_PORT)
-	httpServerSetup(setting.Config.HTTP_PORT)
+	for {
+	}
+	// go grpcServerSetup(setting.Config.GRPC_PORT)
+	// httpServerSetup(setting.Config.HTTP_PORT)
 }

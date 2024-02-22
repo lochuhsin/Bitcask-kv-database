@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net"
 	"rebitcask/discovery/setting"
-	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -32,10 +31,10 @@ func broadcastConnections(conn *net.UDPConn) {
 				continue
 			}
 			connList[j] = connTuple
+			j++
 		}
 		peers := PeerList{Peers: connList}
 		packet, err := json.Marshal(peers)
-
 		if err != nil {
 			fmt.Println(err.Error())
 			continue
@@ -83,25 +82,23 @@ func RunUdp() error {
 		raddr := remoteAddr.String()
 		host, port, err := net.SplitHostPort(raddr)
 		if err != nil {
-			fmt.Println(PacketDataError{
+			logrus.Error(PacketDataError{
 				field: "failed to split host ip",
 				msg:   err.Error(),
 			}.Error())
 			continue
 		}
+		logrus.Info(fmt.Sprintf("Recieved host: %v, port: %v", host, port))
 		RemoteAddrHolder[raddr] = ConnectionTuple{
 			Ip:   host,
 			Port: port,
 		}
 		if len(RemoteAddrHolder) >= setting.Config.CLUSTER_MEMBER_COUNT {
+			logrus.Info("Cluster member count reached, broadcasting peers")
 			go broadcastConnections(conn)
 
 			// break the for loop to avoid sending information
-			break
+			// handle this properly
 		}
-	}
-
-	for {
-		time.Sleep(time.Hour * 24)
 	}
 }

@@ -25,6 +25,15 @@ const (
 	CLUSTER    Mode = "cluster"
 )
 
+type ConnectionTuple struct {
+	Ip   string `json:"Ip"`
+	Port string `json:"Port`
+}
+
+type PeerList struct {
+	Peers []ConnectionTuple `json:"Peers"`
+}
+
 type config struct {
 	DATA_FOLDER_PATH         string
 	TOMBSTONE                string
@@ -34,9 +43,11 @@ type config struct {
 	SEGMENT_FILE_COUNT_LIMIT int // used for merge segments or change to other
 	HTTP_PORT                string
 	GRPC_PORT                string
+	UDP_PORT                 string
 	CLUSTER_SETUP_HOST       string
-	SERVER_NAME              string // used for cluster register
+	SERVER_ID                string // used for cluster register
 	MODE                     Mode
+	Peers                    PeerList
 }
 
 func NewDefaultConfiguration() config {
@@ -47,10 +58,11 @@ func NewDefaultConfiguration() config {
 		MEMORY_MODEL:             "hash",
 		MEMORY_COUNT_LIMIT:       1000000,
 		SEGMENT_FILE_COUNT_LIMIT: 100,
-		HTTP_PORT:                ":8080",
-		GRPC_PORT:                ":9090",
-		CLUSTER_SETUP_HOST:       "http://discovery-app:9000",
-		SERVER_NAME:              uuid.New().String(),
+		HTTP_PORT:                ":8080", // should be the same as http
+		GRPC_PORT:                ":8080", // should be the same as http
+		UDP_PORT:                 ":8080", // should be the same as http
+		CLUSTER_SETUP_HOST:       "discovery-app:9000",
+		SERVER_ID:                uuid.New().String(),
 		MODE:                     STANDALONE,
 	}
 }
@@ -153,7 +165,7 @@ func setGrpcPort() Option {
 
 func setDiscoveryHost() Option {
 	return func(conf *config) {
-		if host := os.Getenv("DISCOVERY_HOST"); host != "" {
+		if host := os.Getenv("CLUSTER_SETUP_HOST"); host != "" {
 			conf.CLUSTER_SETUP_HOST = host
 		}
 	}
@@ -161,8 +173,8 @@ func setDiscoveryHost() Option {
 
 func setServerName() Option {
 	return func(conf *config) {
-		if name := os.Getenv("SERVER_NAME"); name != "" {
-			conf.SERVER_NAME = name
+		if name := os.Getenv("SERVER_ID"); name != "" {
+			conf.SERVER_ID = name
 		}
 	}
 }
@@ -180,5 +192,12 @@ func setMode() Option {
 				c.MODE = STANDALONE
 			}
 		}
+	}
+}
+
+// During after udp setup
+func SetPeerList(peers PeerList) Option {
+	return func(conf *config) {
+		conf.Peers = peers
 	}
 }

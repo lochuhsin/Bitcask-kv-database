@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net"
 	"rebitcask/api/chore"
 	"rebitcask/api/core"
@@ -12,10 +11,28 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"github.com/soheilhy/cmux"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"google.golang.org/grpc"
 )
+
+func serverSetup() {
+	if setting.Config.MODE == setting.CLUSTER {
+		clusterSetup()
+		logrus.Info("Cluster setup complete")
+	}
+
+	tcpListener, _ := net.Listen("tcp", setting.Config.HTTP_PORT)
+	mux := cmux.New(tcpListener)
+	grpcL := mux.Match(cmux.HTTP2HeaderField("content-type", "application/grpc"))
+	httpL := mux.Match(cmux.HTTP1Fast())
+	tcpL := mux.Match(cmux.Any())
+
+	go grpcServerSetup(grpcL)
+	go httpServerSetup(httpL)
+	AnonymousTCPSetup(tcpL)
+}
 
 func clusterSetup() {
 	msgCh := make(chan []byte, 1)
@@ -33,27 +50,28 @@ func clusterSetup() {
 	option(&setting.Config)
 }
 
-func httpServerSetup(port string) {
+func httpServerSetup(l net.Listener) {
 	r := gin.Default()
 	core.Routes(r)
 	chore.Routes(r)
 	// starts swagger at localhost:port/swagger/index.html
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-	r.Run(port) // listen and serve on 0.0.0.0:8080
-	/**
-	 * Change this to run listner to reuse port on both grpc and http
-	 */
-	// r.RunListener()
+	r.RunListener(l) // listen and serve on 0.0.0.0:8080
 }
 
-func grpcServerSetup(port string) {
+func grpcServerSetup(l net.Listener) {
 	rbServer := grpcServer{}
-	lst, err := net.Listen("tcp", port)
-	if err != nil {
-		panic("unable to listen port " + port)
-	}
 	s := grpc.NewServer()
 	rebitcaskpb.RegisterRebitcaskServiceServer(s, &rbServer)
-	fmt.Println("Starting grpc server on " + port)
-	s.Serve(lst)
+	s.Serve(l)
+}
+
+func AnonymousTCPSetup(l net.Listener) {
+	for {
+		conn, err := l.Accept()
+		if err != nil {
+			logrus.Error(err)
+		}
+		logrus.Info(conn.RemoteAddr().String())
+	}
 }

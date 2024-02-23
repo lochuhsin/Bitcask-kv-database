@@ -10,7 +10,7 @@ import (
 func udpServer(ch chan<- []byte) {
 	logrus.Info("Start setting UDP connection")
 	clusterSetupHost := setting.Config.CLUSTER_SETUP_HOST
-	localPort := setting.Config.HTTP_PORT // This is called spoofing
+	localPort := setting.Config.PORT // This is called spoofing
 
 	raddr, err := net.ResolveUDPAddr("udp", clusterSetupHost)
 	if err != nil {

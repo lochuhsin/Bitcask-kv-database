@@ -14,8 +14,7 @@ func SetupConfig(envPaths ...string) {
 			Config = NewConfiguration(
 				envPaths,
 				setDataFolderPath(),
-				setGrpcPort(),
-				setHttpPort(),
+				setPort(),
 				setMemoryCountLimit(),
 				setMemoryModel(),
 				setNilData(),

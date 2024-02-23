@@ -23,7 +23,7 @@ func serverSetup() {
 		logrus.Info("Cluster setup complete")
 	}
 
-	tcpListener, _ := net.Listen("tcp", setting.Config.HTTP_PORT)
+	tcpListener, _ := net.Listen("tcp", setting.Config.PORT)
 	mux := cmux.New(tcpListener)
 	grpcL := mux.Match(cmux.HTTP2HeaderField("content-type", "application/grpc"))
 	httpL := mux.Match(cmux.HTTP1Fast())

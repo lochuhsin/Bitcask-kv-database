@@ -41,9 +41,7 @@ type config struct {
 	MEMORY_COUNT_LIMIT       int
 	MEMORY_MODEL             string
 	SEGMENT_FILE_COUNT_LIMIT int // used for merge segments or change to other
-	HTTP_PORT                string
-	GRPC_PORT                string
-	UDP_PORT                 string
+	PORT                     string
 	CLUSTER_SETUP_HOST       string
 	SERVER_ID                string // used for cluster register
 	MODE                     Mode
@@ -58,9 +56,7 @@ func NewDefaultConfiguration() config {
 		MEMORY_MODEL:             "hash",
 		MEMORY_COUNT_LIMIT:       1000000,
 		SEGMENT_FILE_COUNT_LIMIT: 100,
-		HTTP_PORT:                ":8080", // should be the same as http
-		GRPC_PORT:                ":8080", // should be the same as http
-		UDP_PORT:                 ":8080", // should be the same as http
+		PORT:                     ":8080",
 		CLUSTER_SETUP_HOST:       "discovery-app:9000",
 		SERVER_ID:                uuid.New().String(),
 		MODE:                     STANDALONE,
@@ -139,25 +135,13 @@ func setSegmentFileCountLimit() Option {
 	}
 }
 
-func setHttpPort() Option {
+func setPort() Option {
 	return func(conf *config) {
-		if port := os.Getenv("HTTP_PORT"); port != "" {
+		if port := os.Getenv("PORT"); port != "" {
 			if port[0] != ':' {
-				conf.HTTP_PORT = ":" + port
+				conf.PORT = ":" + port
 			} else {
-				conf.HTTP_PORT = port
-			}
-		}
-	}
-}
-
-func setGrpcPort() Option {
-	return func(conf *config) {
-		if port := os.Getenv("GRPC_PORT"); port != "" {
-			if port[0] != ':' {
-				conf.GRPC_PORT = ":" + "port"
-			} else {
-				conf.GRPC_PORT = "port"
+				conf.PORT = port
 			}
 		}
 	}

@@ -79,7 +79,7 @@ func NewConfiguration(envPaths []string, options ...Option) config {
 	return newConfig
 }
 
-func setDataFolderPath() Option {
+func SetDataFolderPath() Option {
 	return func(conf *config) {
 		if DataPath := os.Getenv("DATA_FOLDER_PATH"); DataPath != "" {
 			conf.DATA_FOLDER_PATH = DataPath
@@ -87,7 +87,7 @@ func setDataFolderPath() Option {
 	}
 }
 
-func setTombstone() Option {
+func SetTombstone() Option {
 	return func(conf *config) {
 		if tombstone := os.Getenv("TOMBSTONE"); tombstone != "" {
 			conf.TOMBSTONE = tombstone
@@ -95,7 +95,7 @@ func setTombstone() Option {
 	}
 }
 
-func setNilData() Option {
+func SetNilData() Option {
 	return func(conf *config) {
 		if nilData := os.Getenv("NILDATA"); nilData != "" {
 			conf.NIL_DATA_REP = nilData
@@ -103,7 +103,7 @@ func setNilData() Option {
 	}
 }
 
-func setMemoryCountLimit() Option {
+func SetMemoryCountLimit() Option {
 	return func(conf *config) {
 		if memoryCountLimit := os.Getenv("MEMORY_COUNT_LIMIT"); memoryCountLimit != "" {
 			limit, err := strconv.Atoi(memoryCountLimit)
@@ -115,7 +115,7 @@ func setMemoryCountLimit() Option {
 	}
 }
 
-func setMemoryModel() Option {
+func SetMemoryModel() Option {
 	return func(conf *config) {
 		if memoryModel := os.Getenv("MEMORY_MODEL"); memoryModel != "" {
 			conf.MEMORY_MODEL = memoryModel
@@ -123,7 +123,7 @@ func setMemoryModel() Option {
 	}
 }
 
-func setSegmentFileCountLimit() Option {
+func SetSegmentFileCountLimit() Option {
 	return func(conf *config) {
 		if segmentFileCountLimit := os.Getenv("SEGMENT_FILE_COUNT_LIMIT"); segmentFileCountLimit != "" {
 			limit, err := strconv.Atoi(segmentFileCountLimit)
@@ -135,7 +135,7 @@ func setSegmentFileCountLimit() Option {
 	}
 }
 
-func setPort() Option {
+func SetPort() Option {
 	return func(conf *config) {
 		if port := os.Getenv("PORT"); port != "" {
 			if port[0] != ':' {
@@ -147,7 +147,7 @@ func setPort() Option {
 	}
 }
 
-func setDiscoveryHost() Option {
+func SetDiscoveryHost() Option {
 	return func(conf *config) {
 		if host := os.Getenv("CLUSTER_SETUP_HOST"); host != "" {
 			conf.CLUSTER_SETUP_HOST = host
@@ -155,7 +155,7 @@ func setDiscoveryHost() Option {
 	}
 }
 
-func setServerName() Option {
+func SetServerName() Option {
 	return func(conf *config) {
 		if name := os.Getenv("SERVER_ID"); name != "" {
 			conf.SERVER_ID = name
@@ -163,7 +163,7 @@ func setServerName() Option {
 	}
 }
 
-func setMode() Option {
+func SetMode() Option {
 	return func(c *config) {
 		if mode := os.Getenv("MODE"); mode != "" {
 			switch Mode(mode) {

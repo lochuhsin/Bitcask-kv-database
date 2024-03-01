@@ -13,16 +13,16 @@ func SetupConfig(envPaths ...string) {
 		func() {
 			Config = NewConfiguration(
 				envPaths,
-				setDataFolderPath(),
-				setPort(),
-				setMemoryCountLimit(),
-				setMemoryModel(),
-				setNilData(),
-				setSegmentFileCountLimit(),
-				setTombstone(),
-				setDiscoveryHost(),
-				setServerName(),
-				setMode(),
+				SetDataFolderPath(),
+				SetPort(),
+				SetMemoryCountLimit(),
+				SetMemoryModel(),
+				SetNilData(),
+				SetSegmentFileCountLimit(),
+				SetTombstone(),
+				SetDiscoveryHost(),
+				SetServerName(),
+				SetMode(),
 			)
 		},
 	)

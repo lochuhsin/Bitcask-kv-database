@@ -26,12 +26,13 @@ func serverSetup() {
 	tcpListener, _ := net.Listen("tcp", setting.Config.PORT)
 	mux := cmux.New(tcpListener)
 	grpcL := mux.Match(cmux.HTTP2HeaderField("content-type", "application/grpc"))
-	httpL := mux.Match(cmux.HTTP1Fast())
+	httpL := mux.Match(cmux.HTTP1())
 	tcpL := mux.Match(cmux.Any())
 
 	go grpcServerSetup(grpcL)
 	go httpServerSetup(httpL)
-	AnonymousTCPSetup(tcpL)
+	go AnonymousTCPSetup(tcpL)
+	mux.Serve()
 }
 
 func clusterSetup() {

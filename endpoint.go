@@ -1,14 +1,14 @@
 package rebitcask
 
 import (
-	"errors"
 	"rebitcask/internal/dao"
 	"rebitcask/internal/memory"
 	"rebitcask/internal/segment"
+	"rebitcask/internal/setting"
 	"rebitcask/internal/util"
 )
 
-func Get(k string) (any, bool) {
+func Get(k string) (string, bool) {
 	/**
 	 * First, check does the value exist in memory
 	 *
@@ -19,24 +19,19 @@ func Get(k string) (any, bool) {
 	bytes := util.StringToBytes(k)
 	m, status := memory.GetMemoryManager().Get(bytes)
 	if status {
-		return checkTombstone(m.Val)
+		return checkTombstone(m)
 	}
 
 	s, status := segment.GetSegmentManager().GetValue(bytes)
 	if status {
-		return checkTombstone(s.Val)
+		return checkTombstone(s)
 	}
-	return *new(any), false
+	return "", false
 }
 
-func Set(k string, v any) error {
-	_v, err := convertToBaseObjects(v)
-	if err != nil {
-		return err
-	}
-	entry := dao.InitEntry(util.StringToBytes(k), _v)
-	err = memory.GetMemoryManager().Set(entry)
-	return err
+func Set(k string, v string) error {
+	entry := dao.InitEntry(util.StringToBytes(k), util.StringToBytes(v))
+	return memory.GetMemoryManager().Set(entry)
 }
 
 func Delete(k string) error {
@@ -68,31 +63,10 @@ func BulkGet(k ...string) ([]string, error) {
 	panic("Not implemented error")
 }
 
-func convertToBaseObjects(v any) (dao.Base, error) {
-	switch v := v.(type) {
-	case int:
-		return dao.NilInt{IsNil: false, Val: v}, nil
-	case float64:
-		return dao.NilFloat{IsNil: false, Val: v}, nil
-	case byte:
-		return dao.NilByte{IsNil: false, Val: v}, nil
-	case string:
-		return dao.NilString{
-			IsNil: false,
-			Val:   util.StringToBytes(v),
-		}, nil
-	case bool:
-		return dao.NilBool{IsNil: false, Val: v}, nil
-
-	default:
-		return nil, errors.New("invalid data type")
+func checkTombstone(entry dao.Entry) (string, bool) {
+	val := util.BytesToString(entry.Val)
+	if val == setting.Config.TOMBSTONE {
+		return "", false
 	}
-}
-
-func checkTombstone(val dao.Base) (any, bool) {
-	if val.GetType() == dao.Tombstone {
-		return new(*any), false
-	}
-
-	return val.GetVal(), true
+	return val, true
 }

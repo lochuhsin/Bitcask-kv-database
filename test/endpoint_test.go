@@ -112,13 +112,13 @@ func TestStorageSetDelete(t *testing.T) {
 	}
 }
 
-// func TestEmptyGet(t *testing.T) {
-// 	keys, _ := GenerateLowDuplicateRandom(100)
+func TestEmptyGet(t *testing.T) {
+	keys, _ := GenerateLowDuplicateRandom(100)
 
-// 	for _, k := range keys {
-// 		_, status := rebitcask.Get(k)
-// 		if status {
-// 			t.Error("the key should not exist")
-// 		}
-// 	}
-// }
+	for _, k := range keys {
+		_, status := rebitcask.Get(k)
+		if status {
+			t.Error("the key should not exist")
+		}
+	}
+}

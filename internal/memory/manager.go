@@ -7,7 +7,7 @@ import (
 	"sync"
 )
 
-type memoryManager struct {
+type MemoryManager struct {
 	bStorage        *blockStorage
 	blockIdCh       chan BlockId
 	entryCountLimit int
@@ -15,9 +15,9 @@ type memoryManager struct {
 	modelType       models.ModelType
 }
 
-func NewMemoryManager(bStorage *blockStorage, entryCountLimit, blockIdChanSize int, modelType models.ModelType) *memoryManager {
+func NewMemoryManager(bStorage *blockStorage, entryCountLimit, blockIdChanSize int, modelType models.ModelType) *MemoryManager {
 	bStorage.createNewBlock(modelType)
-	return &memoryManager{
+	return &MemoryManager{
 		bStorage:        bStorage,
 		blockIdCh:       make(chan BlockId, blockIdChanSize),
 		mu:              sync.Mutex{},
@@ -26,7 +26,7 @@ func NewMemoryManager(bStorage *blockStorage, entryCountLimit, blockIdChanSize i
 	}
 }
 
-func (m *memoryManager) Get(key []byte) (dao.Entry, bool) {
+func (m *MemoryManager) Get(key []byte) (dao.Entry, bool) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	blocks := m.bStorage.iterateExistingBlocks()
@@ -42,7 +42,7 @@ func (m *memoryManager) Get(key []byte) (dao.Entry, bool) {
 /**
  * User ->
  */
-
+// Another kind of design
 //  func Set(entry) {
 // 	resp := chan struct{}{}
 //      tasks <- (entry, resp)
@@ -61,7 +61,7 @@ func (m *memoryManager) Get(key []byte) (dao.Entry, bool) {
 
 // called by user (endpoints)
 
-func (m *memoryManager) Set(entry dao.Entry) error {
+func (m *MemoryManager) Set(entry dao.Entry) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
@@ -79,7 +79,7 @@ func (m *memoryManager) Set(entry dao.Entry) error {
 	return nil
 }
 
-func (m *memoryManager) RemoveMemoryBlock(id BlockId) {
+func (m *MemoryManager) RemoveMemoryBlock(id BlockId) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	if m.bStorage.removeMemoryBlock(id) != nil {
@@ -87,18 +87,19 @@ func (m *memoryManager) RemoveMemoryBlock(id BlockId) {
 	}
 }
 
-func (m *memoryManager) BulkRemoveMemoryBlock(ids []BlockId) {
+func (m *MemoryManager) BulkRemoveMemoryBlock(ids []BlockId) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	for _, id := range ids {
-		if m.bStorage.removeMemoryBlock(id) != nil {
+		err := m.bStorage.removeMemoryBlock(id)
+		if err != nil {
 			fmt.Println("Invalid operation on remove memory block", id)
-			panic("error removing memory block")
+			panic("err")
 		}
 	}
 }
 
-func (m *memoryManager) GetMemoryBlock(id BlockId) *Block {
+func (m *MemoryManager) GetMemoryBlock(id BlockId) *Block {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	// NOTE: only allow read access, no write access
@@ -111,6 +112,6 @@ func (m *memoryManager) GetMemoryBlock(id BlockId) *Block {
 	return &block
 }
 
-func (m *memoryManager) GetBlockIdQueue() <-chan BlockId {
+func (m *MemoryManager) GetBlockIdQueue() <-chan BlockId {
 	return m.blockIdCh
 }

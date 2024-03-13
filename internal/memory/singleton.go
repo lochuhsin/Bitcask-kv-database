@@ -6,7 +6,7 @@ import (
 	"sync"
 )
 
-var mManager *memoryManager
+var mManager *MemoryManager
 var mOnce sync.Once
 
 func InitMemoryManager() {
@@ -21,6 +21,6 @@ func InitMemoryManager() {
 	})
 }
 
-func GetMemoryManager() *memoryManager {
+func GetMemoryManager() *MemoryManager {
 	return mManager
 }

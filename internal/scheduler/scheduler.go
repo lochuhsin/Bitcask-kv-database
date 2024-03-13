@@ -9,62 +9,49 @@ import (
 )
 
 type Scheduler struct {
+	mManager *memory.MemoryManager
+	sManager *segment.Manager
 }
 
-func NewScheduler() *Scheduler {
-	return &Scheduler{}
-}
-
-// Long running listener for tasks
-func (s *Scheduler) TaskChanListener() {
-	manager := memory.GetMemoryManager()
-	blockCh := manager.GetBlockIdQueue()
-	runningWorker := 0
-	workerCount := setting.MEMORY_CONVERT_WORKER_COUNT
-	var wg sync.WaitGroup
-	idList := []memory.BlockId{}
-	for {
-		select {
-		case blockId, ok := <-blockCh: // memory block
-			if !ok {
-				goto END_FOR
-			}
-			wg.Add(1)
-			go s.convertMemoryWorker(blockId, &wg) // worker
-			idList = append(idList, blockId)       // [4, 5, 6]
-			runningWorker++
-
-		case <-time.After(time.Millisecond):
-			wg.Wait()
-			runningWorker = 0
-			manager.BulkRemoveMemoryBlock(idList) //write
-			idList = []memory.BlockId{}
-		}
-
-		if runningWorker >= workerCount {
-			wg.Wait()
-			runningWorker = 0
-			manager.BulkRemoveMemoryBlock(idList) //  deadlock
-			idList = []memory.BlockId{}
-		}
+func NewScheduler(mManager *memory.MemoryManager, sManager *segment.Manager) *Scheduler {
+	return &Scheduler{
+		mManager: mManager,
+		sManager: sManager,
 	}
+}
 
-END_FOR:
-	wg.Wait()
-	manager.BulkRemoveMemoryBlock(idList)
+func (s *Scheduler) MemoryJobPool() {
+	maxWorkerCount := setting.MEMORY_CONVERT_WORKER_COUNT
+	jobQ := s.mManager.GetBlockIdQueue()
+	wg := sync.WaitGroup{}
+	for {
+		// optimize this without recreating list all the time
+		// event though the length is small
+		batchedBlockId := make([]memory.BlockId, 0, maxWorkerCount)
+		for i := 0; i < maxWorkerCount; i++ {
+			select {
+			case blockId := <-jobQ:
+				wg.Add(1)
+				go s.memoryWorker(blockId, &wg)
+				batchedBlockId = append(batchedBlockId, blockId)
+			case <-time.After(time.Millisecond):
+				goto END_INNER_FOR
+			}
+		}
+	END_INNER_FOR:
+		wg.Wait()
+		s.mManager.BulkRemoveMemoryBlock(batchedBlockId)
+	}
 }
 
 // worker
-func (s *Scheduler) convertMemoryWorker(id memory.BlockId, wg *sync.WaitGroup) {
+func (s *Scheduler) memoryWorker(id memory.BlockId, wg *sync.WaitGroup) {
 	defer wg.Done()
-	manager := segment.GetSegmentManager() //Read
-	mStorage := memory.GetMemoryManager()  //Read
-	block := mStorage.GetMemoryBlock(id)   //Read
+	block := s.mManager.GetMemoryBlock(id) //Read
 	seg := memBlockToFile(*block)
 	genSegmentMetadataFile(seg.Id, seg.Level)
 	genSegmentIndexFile(seg.Id, seg.GetPrimaryIndex())
-
-	manager.Add(seg)
+	s.sManager.Add(seg)
 }
 
 func (s *Scheduler) compressSegmentWorker() {

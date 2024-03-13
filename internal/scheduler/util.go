@@ -114,8 +114,7 @@ func genSegmentIndexFile(sId string, pIndex *segment.PrimaryIndex) {
 	}
 
 	writer.Flush()
-	// We don't need to fd.Sync() metadata, since the read is not necessarily to do
-	// immediately read, like Get operation, since this index is mainly for crash recovery
+	file.Sync()
 }
 
 // TODO: refactor this

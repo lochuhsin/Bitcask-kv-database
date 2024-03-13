@@ -7,6 +7,7 @@ toolchain go1.21.1
 require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/goccy/go-json v0.10.2
+	github.com/google/gopacket v1.1.19
 	github.com/google/uuid v1.3.1
 	github.com/joho/godotenv v1.4.0
 	github.com/sirupsen/logrus v1.9.3

@@ -60,4 +60,4 @@ const MEMORY_BLOCK_BUFFER_COUNT = 1000000
  * Scheduler related settings
  */
 
-const MEMORY_CONVERT_WORKER_COUNT = 10
+const MEMORY_CONVERT_WORKER_COUNT = 50

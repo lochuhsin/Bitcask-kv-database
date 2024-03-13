@@ -9,7 +9,7 @@ func InitRedBlackTree() *RedBlackTree {
 	panic("Not implemented")
 }
 
-func (r *RedBlackTree) Get(dao.NilString) (dao.Base, bool) {
+func (r *RedBlackTree) Get([]byte) (dao.Base, bool) {
 	panic("Not implemented")
 }
 func (r *RedBlackTree) Set(dao.Entry) {
@@ -19,8 +19,5 @@ func (r *RedBlackTree) GetSize() int {
 	panic("Not implemented")
 }
 func (r *RedBlackTree) GetAll() []dao.Entry {
-	panic("Not implemented")
-}
-func (r *RedBlackTree) GetAllValueUnder(dao.NilString) []dao.Entry {
 	panic("Not implemented")
 }

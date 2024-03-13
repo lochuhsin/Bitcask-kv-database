@@ -34,9 +34,6 @@ const SEGMENT_LOG_FILE = "s.log"
 /**
  * Convert to segment scheduler parameters
  */
-
-const TASK_POOL_SIZE = 100
-
 /**
  * IMPORTANT NOTE: This is a design flaws, for current implementation,
  * This value should be set as large as possible to prevent deadlock
@@ -61,3 +58,11 @@ const MEMORY_BLOCK_BUFFER_COUNT = 1000000
  */
 
 const MEMORY_CONVERT_WORKER_COUNT = 50
+
+/**
+ * Transaction related parameters
+ */
+
+const COMMIT_LOG_FOLDER = "commit/"
+
+const COMMIT_LOG_FILE_EXT = ".comt"

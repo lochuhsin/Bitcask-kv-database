@@ -41,7 +41,7 @@ func NewSegment(id string, pIndex *PrimaryIndex, smallestKey []byte, keyCount in
 
 func (s *Segment) Get(k []byte) (dao.Entry, bool) {
 
-	filePath := getSegmentFilePath(s.Id)
+	filePath := util.GetSegmentFilePath(s.Id)
 	fd, err := os.Open(filePath)
 	if err != nil {
 		panic("Cannot open segment file")
@@ -72,7 +72,7 @@ func (s *Segment) GetFromPrimaryIndex(key []byte) (dao.Entry, bool) {
 	}
 	offset, datalen := offsetLen.Offset, offsetLen.Len
 
-	filePath := getSegmentFilePath(s.Id)
+	filePath := util.GetSegmentFilePath(s.Id)
 	fd, err := os.Open(filePath)
 	if err != nil {
 		panic("Something went wrong while opening segment file")

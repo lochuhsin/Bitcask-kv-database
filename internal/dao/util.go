@@ -7,18 +7,18 @@ import (
 )
 
 // CRC::TimeStamp::KeyLen::Key::ValueLen::Value
-func Serialize(k Entry) (string, error) {
+func Serialize(e Entry) (string, error) {
 	var builder strings.Builder
 	builder.WriteString("CRC::")
-	builder.WriteString(strconv.Itoa(int(k.CreateTime)))
+	builder.WriteString(strconv.Itoa(int(e.CreateTime)))
 	builder.WriteString("::")
-	builder.WriteString(strconv.Itoa(len(k.Key)))
+	builder.WriteString(strconv.Itoa(len(e.Key)))
 	builder.WriteString("::")
-	builder.Write(k.Key)
+	builder.Write(e.Key)
 	builder.WriteString("::")
-	builder.WriteString(strconv.Itoa(len(k.Key)))
+	builder.WriteString(strconv.Itoa(len(e.Val)))
 	builder.WriteString("::")
-	builder.WriteString(util.BytesToString(k.Val))
+	builder.WriteString(util.BytesToString(e.Val))
 	return builder.String(), nil
 }
 
@@ -41,5 +41,4 @@ func DeSerialize(line string) (Entry, error) {
 		Val:        util.StringToBytes(val),
 		CreateTime: int64(ts),
 	}, nil
-
 }

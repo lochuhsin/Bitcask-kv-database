@@ -8,35 +8,9 @@ import (
 	"rebitcask/internal/memory"
 	"rebitcask/internal/segment"
 	"rebitcask/internal/setting"
+	"rebitcask/internal/util"
 	"strings"
 )
-
-func getSegmentFilePath(segId string) string {
-	var builder strings.Builder
-	builder.WriteString(setting.Config.DATA_FOLDER_PATH)
-	builder.WriteString(setting.SEGMENT_FILE_FOLDER)
-	builder.WriteString(segId)
-	builder.WriteString(setting.SEGMENT_FILE_EXT)
-	return builder.String()
-}
-
-func getSegmentIndexFilePath(segId string) string {
-	var builder strings.Builder
-	builder.WriteString(setting.Config.DATA_FOLDER_PATH)
-	builder.WriteString(setting.INDEX_FILE_FOLDER)
-	builder.WriteString(segId)
-	builder.WriteString(setting.SEGMENT_KEY_OFFSET_FILE_EXT)
-	return builder.String()
-}
-
-func getSegmentMetaDataFilePath(segId string) string {
-	var builder strings.Builder
-	builder.WriteString(setting.Config.DATA_FOLDER_PATH)
-	builder.WriteString(setting.SEGMENT_FILE_FOLDER)
-	builder.WriteString(segId)
-	builder.WriteString(setting.SEGMENT_FILE_METADATA_EXT)
-	return builder.String()
-}
 
 func memBlockToFile(memBlock memory.Block) segment.Segment {
 	/**
@@ -45,7 +19,7 @@ func memBlockToFile(memBlock memory.Block) segment.Segment {
 	blockId := string(memBlock.Id)
 	entryList := memBlock.Memory.GetAll()
 
-	filePath := getSegmentFilePath(blockId)
+	filePath := util.GetSegmentFilePath(blockId)
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777) //TODO: optimize the mode
 	if err != nil {
 		panic(err)
@@ -75,7 +49,7 @@ func memBlockToFile(memBlock memory.Block) segment.Segment {
 }
 
 func genSegmentMetadataFile(sId string, level int) {
-	filePath := getSegmentMetaDataFilePath(sId)
+	filePath := util.GetSegmentMetaDataFilePath(sId)
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777) //TODO: optimize the mode
 	if err != nil {
 		panic(err)
@@ -96,7 +70,7 @@ func genSegmentMetadataFile(sId string, level int) {
 }
 
 func genSegmentIndexFile(sId string, pIndex *segment.PrimaryIndex) {
-	filePath := getSegmentIndexFilePath(sId)
+	filePath := util.GetSegmentIndexFilePath(sId)
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777) //TODO: optimize the mode
 	if err != nil {
 		panic(err)

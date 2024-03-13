@@ -31,6 +31,8 @@ func SetupConfig(envPaths ...string) {
 func SetUpDirectory() {
 	segDir := fmt.Sprintf("%s%s", Config.DATA_FOLDER_PATH, SEGMENT_FILE_FOLDER)
 	indexDir := fmt.Sprintf("%s%s", Config.DATA_FOLDER_PATH, INDEX_FILE_FOLDER)
+	commitDir := fmt.Sprintf("%s%s", Config.DATA_FOLDER_PATH, COMMIT_LOG_FOLDER)
 	os.MkdirAll(segDir, os.ModePerm)
 	os.MkdirAll(indexDir, os.ModePerm)
+	os.MkdirAll(commitDir, os.ModePerm)
 }

@@ -5,15 +5,18 @@ import (
 	"rebitcask/internal/scheduler"
 	"rebitcask/internal/segment"
 	"rebitcask/internal/setting"
+	"rebitcask/internal/transaction"
 )
 
 func Setup(envPaths ...string) {
 	/**
 	 * Should call this, whenever the server is up
+	 * Note: the order of initialization is sensitive
 	 */
 	setting.SetupConfig(envPaths...)
 	setting.SetUpDirectory()
 	memory.InitMemoryManager()
 	segment.InitSegmentManager()
 	scheduler.InitScheduler()
+	transaction.InitCommitLogger()
 }

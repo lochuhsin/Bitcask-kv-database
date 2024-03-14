@@ -12,12 +12,12 @@ import (
 	"strings"
 )
 
-func memBlockToFile(memBlock memory.Block) segment.Segment {
+func memBlockToFile(memBlock *memory.Block) segment.Segment {
 	/**
 	 * Note, assuming that key in entries are sorted in ascending order
 	 */
 	blockId := string(memBlock.Id)
-	entryList := memBlock.Memory.GetAll()
+	entryList := memBlock.GetAll()
 
 	filePath := util.GetSegmentFilePath(blockId)
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777) //TODO: optimize the mode

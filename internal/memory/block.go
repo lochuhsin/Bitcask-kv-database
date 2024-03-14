@@ -2,10 +2,9 @@ package memory
 
 import (
 	"errors"
+	"rebitcask/internal/dao"
 	"rebitcask/internal/memory/models"
-	"time"
-
-	"github.com/google/uuid"
+	"sync"
 )
 
 type BlockId string
@@ -14,6 +13,37 @@ type Block struct {
 	Timestamp int64
 	Id        BlockId
 	Memory    models.IMemory
+	mu        sync.RWMutex
+}
+
+func NewBlock(timestamp int64, id BlockId, t models.ModelType) Block {
+	return Block{
+		Id:        id,
+		Memory:    models.MemoryTypeSelector(t),
+		Timestamp: timestamp,
+		mu:        sync.RWMutex{},
+	}
+}
+
+func (b *Block) Get(k []byte) (dao.Entry, bool) {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+	return b.Memory.Get(k)
+}
+func (b *Block) Set(entry dao.Entry) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.Memory.Set(entry)
+}
+func (b *Block) GetSize() int {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+	return b.Memory.GetSize()
+}
+func (b *Block) GetAll() []dao.Entry {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+	return b.Memory.GetAll()
 }
 
 type node struct {
@@ -31,10 +61,9 @@ type blockStorage struct {
 	blockMap map[BlockId]*node
 	top      *node
 	bottom   *node
-	currNode *node
 }
 
-func NewMemoryStorage() *blockStorage {
+func NewBlockStorage() *blockStorage {
 	/**
 	 * I'm using sentinel node to implement ordered map
 	 * as it is simpler to handle edge case (i.e empty)
@@ -45,17 +74,16 @@ func NewMemoryStorage() *blockStorage {
 		blockMap: make(map[BlockId]*node, 100),
 		top:      top,
 		bottom:   bottom,
-		currNode: nil,
 	}
 	return pool
 }
 
-func (m *blockStorage) getMemoryBlock(id BlockId) (Block, bool) {
+func (m *blockStorage) get(id BlockId) (*Block, bool) {
 	node, ok := m.blockMap[id]
-	return *node.block, ok
+	return node.block, ok
 }
 
-func (m *blockStorage) removeMemoryBlock(id BlockId) error {
+func (m *blockStorage) delete(id BlockId) error {
 	node, ok := m.blockMap[id]
 	if !ok {
 		return errors.New("task id not found in ordered map, data is missing")
@@ -64,52 +92,27 @@ func (m *blockStorage) removeMemoryBlock(id BlockId) error {
 	node.prev.next = node.next
 	node.next.prev = node.prev
 	delete(m.blockMap, id)
-	if m.currNode.block.Id == id {
-		m.currNode = nil
-	}
 	return nil
 }
 
-func (m *blockStorage) getCurrentBlockId() BlockId {
-	return m.currNode.block.Id
-}
-
-func (m *blockStorage) createNewBlock(modelType models.ModelType) {
-	newBlockId := BlockId(uuid.New().String())
-	newBlock := Block{
-		Id:        newBlockId,
-		Memory:    models.MemoryTypeSelector(modelType),
-		Timestamp: time.Now().UnixNano(),
-	}
+func (m *blockStorage) set(id BlockId, block *Block) {
 	newNode := node{
-		block: &newBlock,
+		block: block,
 		next:  nil,
 		prev:  nil,
 	}
 	newNode.prev, newNode.next = m.bottom.prev, m.bottom
 	m.bottom.prev = &newNode
-	m.blockMap[newBlockId] = &newNode
-	m.currNode = &newNode
+	m.blockMap[id] = &newNode
 }
 
-func (m *blockStorage) getCurrentBlock() *Block {
-	if m.currNode == nil {
-		return nil
-	}
-	return m.currNode.block
-}
-
-func (m *blockStorage) iterateExistingBlocks() []*Block {
-	// iterate backwards
-	node := m.currNode
+func (m *blockStorage) getAll() []*Block {
+	// iterate backwards from latest to oldest
+	node := m.bottom.prev
 	blocks := make([]*Block, 0, len(m.blockMap))
 	for node != nil && node.block != nil {
 		blocks = append(blocks, node.block)
 		node = node.prev
 	}
 	return blocks
-}
-
-func (m *blockStorage) getBlockCount() int {
-	return len(m.blockMap)
 }

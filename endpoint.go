@@ -32,12 +32,14 @@ func Get(k string) (string, bool) {
 
 func Set(k string, v string) error {
 	entry := dao.InitEntry(util.StringToBytes(k), util.StringToBytes(v))
-	entryB, err := dao.Serialize(entry)
+	serialize, err := dao.Serialize(entry)
 	if err != nil {
 		panic(err)
 	}
-	transaction.GetCommitLogger().Add(entryB)
-	return memory.GetMemoryManager().Set(entry)
+	transaction.GetCommitLogger().Add(serialize)
+	memory.GetMemoryManager().SetRequestQ() <- entry
+	<-memory.GetMemoryManager().SetResponseQ()
+	return nil
 }
 
 func Delete(k string) error {
@@ -47,7 +49,9 @@ func Delete(k string) error {
 		panic(err)
 	}
 	transaction.GetCommitLogger().Add(entryB)
-	return memory.GetMemoryManager().Set(entry)
+	memory.GetMemoryManager().SetRequestQ() <- entry
+	<-memory.GetMemoryManager().SetResponseQ()
+	return nil
 }
 
 func Exist() (bool, error) {

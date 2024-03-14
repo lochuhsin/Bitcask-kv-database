@@ -22,7 +22,7 @@ func NewScheduler(mManager *memory.MemoryManager, sManager *segment.Manager) *Sc
 
 func (s *Scheduler) MemoryJobPool() {
 	maxWorkerCount := setting.MEMORY_CONVERT_WORKER_COUNT
-	jobQ := s.mManager.GetBlockIdQueue()
+	jobQ := s.mManager.GetBlockQueue()
 	wg := sync.WaitGroup{}
 	for {
 		// optimize this without recreating list all the time
@@ -40,15 +40,16 @@ func (s *Scheduler) MemoryJobPool() {
 		}
 	END_INNER_FOR:
 		wg.Wait()
-		s.mManager.BulkRemoveMemoryBlock(batchedBlockId)
+		s.mManager.BulkRemoveBlockRequestQ() <- batchedBlockId
+		<-s.mManager.BulkRemoveBlockResponseQ()
 	}
 }
 
 // worker
 func (s *Scheduler) memoryWorker(id memory.BlockId, wg *sync.WaitGroup) {
 	defer wg.Done()
-	block := s.mManager.GetMemoryBlock(id) //Read
-	seg := memBlockToFile(*block)
+	block := s.mManager.GetBlock(id) //Read
+	seg := memBlockToFile(block)
 	genSegmentMetadataFile(seg.Id, seg.Level)
 	genSegmentIndexFile(seg.Id, seg.GetPrimaryIndex())
 	s.sManager.Add(seg)

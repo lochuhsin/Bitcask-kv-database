@@ -11,13 +11,14 @@ var mOnce sync.Once
 
 func InitMemoryManager() {
 	mOnce.Do(func() {
-		mStorage := NewMemoryStorage()
+		mStorage := NewBlockStorage()
 		mManager = NewMemoryManager(
 			mStorage,
 			setting.Config.MEMORY_COUNT_LIMIT,
 			setting.MEMORY_BLOCK_BUFFER_COUNT,
 			models.ModelType(setting.Config.MEMORY_MODEL),
 		)
+		go mManager.WriteOpListener()
 	})
 }
 

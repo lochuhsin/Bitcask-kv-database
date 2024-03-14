@@ -44,7 +44,6 @@ func NewCommitLogger() CommitLogger {
 	}
 }
 
-// or using channel ?????
 func (c *CommitLogger) Add(entry string) {
 	/**
 	 * format entry::version..

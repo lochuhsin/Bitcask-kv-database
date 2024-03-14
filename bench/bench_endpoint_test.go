@@ -3,6 +3,7 @@ package test
 import (
 	"os"
 	"rebitcask"
+	"rebitcask/internal/setting"
 	"testing"
 	"time"
 )
@@ -13,7 +14,7 @@ func setup() {
 
 func teardown() {
 	time.Sleep(time.Second * 3)
-	removeSegment()
+	os.RemoveAll(setting.Config.DATA_FOLDER_PATH)
 }
 
 func TestMain(m *testing.M) {

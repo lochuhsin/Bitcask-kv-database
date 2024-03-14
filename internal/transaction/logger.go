@@ -53,7 +53,6 @@ func (c *CommitLogger) Add(entry string) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	data := fmt.Sprintf("%v::%v%v", entry, strconv.Itoa(c.counter), setting.DATA_SEPARATOR)
-	fmt.Println(data)
 	n, err := c.writer.WriteString(data)
 	if n != len(data) {
 		panic("dirty commit log write")

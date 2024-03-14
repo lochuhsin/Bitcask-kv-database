@@ -39,41 +39,19 @@ func (m *MemoryManager) Get(key []byte) (dao.Entry, bool) {
 	return dao.Entry{}, false
 }
 
-/**
- * User ->
- */
-// Another kind of design
-//  func Set(entry) {
-// 	resp := chan struct{}{}
-//      tasks <- (entry, resp)
-//     <-resp
-//  }
-//  //RLock
-
-//  // scheduler main write loop
-//  go func () {
-// 	for task <-tasks {//Writes
-// 		//Lock()
-//        ...
-// 		resp <- struct{}{}
-// 	}
-//  }
-
-// called by user (endpoints)
-
 func (m *MemoryManager) Set(entry dao.Entry) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	// 1. set entry to memory
+	// set entry to memory
 	memory := m.bStorage.getCurrentBlock().Memory
 	memory.Set(entry)
-	// 2. check memory block condition if meets
+	// check memory block condition if meets
 	if memory.GetSize() >= m.entryCountLimit {
 		bid := m.bStorage.getCurrentBlockId()
-		// 3. add new memory block
+		// add new memory block
 		m.bStorage.createNewBlock(m.modelType)
-		// 4. add old block id to block queue for running tests
+		// add old block id to block queue for running tests
 		m.blockIdCh <- bid
 	}
 	return nil
@@ -102,9 +80,6 @@ func (m *MemoryManager) BulkRemoveMemoryBlock(ids []BlockId) {
 func (m *MemoryManager) GetMemoryBlock(id BlockId) *Block {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	// NOTE: only allow read access, no write access
-	// Implement block froze feature to avoid modification
-	// of block information
 	block, status := m.bStorage.getMemoryBlock(id)
 	if !status {
 		panic("Invalid operation while getting memory block: " + id)
@@ -115,3 +90,29 @@ func (m *MemoryManager) GetMemoryBlock(id BlockId) *Block {
 func (m *MemoryManager) GetBlockIdQueue() <-chan BlockId {
 	return m.blockIdCh
 }
+
+func (m *MemoryManager) GetTotalBlockCount() int {
+	return m.bStorage.getBlockCount()
+}
+
+/**
+ * User ->
+ */
+// Another kind of design
+//  func Set(entry) {
+// 	resp := chan struct{}{}
+//      tasks <- (entry, resp)
+//     <-resp
+//  }
+//  //RLock
+
+//  // scheduler main write loop
+//  go func () {
+// 	for task <-tasks {//Writes
+// 		//Lock()
+//        ...
+// 		resp <- struct{}{}
+// 	}
+//  }
+
+// called by user (endpoints)

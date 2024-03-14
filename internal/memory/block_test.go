@@ -1,26 +1,9 @@
 package memory
 
 import (
-	"os"
 	"rebitcask/internal/memory/models"
 	"testing"
 )
-
-var modelType models.ModelType
-
-func setup() {
-	modelType = models.ModelType("bst")
-}
-
-func teardown() {
-}
-
-func TestMain(m *testing.M) {
-	setup()
-	code := m.Run()
-	teardown()
-	os.Exit(code)
-}
 
 func TestInitMemoryStorage(t *testing.T) {
 	mBlockStorage := NewMemoryStorage()
@@ -35,7 +18,7 @@ func TestMemoryStorageBlockCount(t *testing.T) {
 	mBlockStorage := NewMemoryStorage()
 	count := 5
 	for i := 0; i < 5; i++ {
-		mBlockStorage.createNewBlock(modelType)
+		mBlockStorage.createNewBlock(models.ModelType("bst"))
 	}
 	if mBlockStorage.getBlockCount() != count {
 		t.Error("block count inconsistent")
@@ -47,7 +30,7 @@ func TestMemoryStorageBlockOrder(t *testing.T) {
 	count := 100
 	blockIds := []BlockId{}
 	for i := 0; i < count; i++ {
-		mBlockStorage.createNewBlock(modelType)
+		mBlockStorage.createNewBlock(models.ModelType("bst"))
 		blockId := mBlockStorage.getCurrentBlockId()
 		blockIds = append(blockIds, blockId)
 	}
@@ -64,7 +47,7 @@ func TestMemoryStorageRemoveBlock(t *testing.T) {
 	count := 100
 	removedBlocks := []BlockId{}
 	for i := 0; i < count; i++ {
-		mBlockStorage.createNewBlock(modelType)
+		mBlockStorage.createNewBlock(models.ModelType("bst"))
 		blockId := mBlockStorage.getCurrentBlockId()
 		removedBlocks = append(removedBlocks, blockId)
 	}

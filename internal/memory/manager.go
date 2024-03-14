@@ -12,7 +12,7 @@ import (
 type MemoryManager struct {
 	bStorage                 *blockStorage
 	activeBlock              *Block
-	blockQ                   chan BlockId
+	scheduleBlock            chan BlockId
 	setResponseQ             chan dao.Entry
 	setRequestQ              chan dao.Entry
 	bulkRemoveBlockResponseQ chan []BlockId
@@ -34,7 +34,7 @@ func NewMemoryManager(bStorage *blockStorage, entryCountLimit, blockIdChanSize i
 		mu:                       sync.RWMutex{},
 		entryCountLimit:          entryCountLimit,
 		modelType:                modelType,
-		blockQ:                   make(chan BlockId, blockIdChanSize),
+		scheduleBlock:            make(chan BlockId, blockIdChanSize),
 		setResponseQ:             make(chan dao.Entry),
 		setRequestQ:              make(chan dao.Entry),
 		bulkRemoveBlockResponseQ: make(chan []BlockId),
@@ -70,8 +70,8 @@ func (m *MemoryManager) GetBlock(id BlockId) *Block {
 	return nil
 }
 
-func (m *MemoryManager) GetBlockQueue() chan BlockId {
-	return m.blockQ
+func (m *MemoryManager) GetScheduleBlockQueue() chan BlockId {
+	return m.scheduleBlock
 }
 
 func (m *MemoryManager) SetRequestQ() chan dao.Entry {
@@ -107,7 +107,7 @@ func (m *MemoryManager) WriteOpListener() {
 				)
 				m.activeBlock = &newBlock
 				m.mu.Unlock()
-				m.blockQ <- processBlockId
+				m.scheduleBlock <- processBlockId
 			}
 			m.setResponseQ <- entry
 		case blockIds := <-m.bulkRemoveBlockRequestQ:

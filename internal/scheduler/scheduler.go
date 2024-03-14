@@ -22,7 +22,7 @@ func NewScheduler(mManager *memory.MemoryManager, sManager *segment.Manager) *Sc
 
 func (s *Scheduler) MemoryJobPool() {
 	maxWorkerCount := setting.MEMORY_CONVERT_WORKER_COUNT
-	jobQ := s.mManager.GetBlockQueue()
+	jobQ := s.mManager.GetScheduleBlockQueue()
 	wg := sync.WaitGroup{}
 	for {
 		// optimize this without recreating list all the time

@@ -60,8 +60,5 @@ func (c *CommitLogger) Add(entry string) {
 	if err != nil {
 		panic(err)
 	}
-	if err := c.writer.Flush(); err != nil {
-		panic(err)
-	}
 	c.counter++
 }

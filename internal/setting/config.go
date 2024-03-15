@@ -45,7 +45,7 @@ type config struct {
 	CLUSTER_SETUP_HOST       string
 	SERVER_ID                string // used for cluster register
 	MODE                     Mode
-	Peers                    PeerList
+	PEERS                    []ConnectionTuple
 }
 
 func NewDefaultConfiguration() config {
@@ -182,6 +182,6 @@ func SetMode() Option {
 // During after udp setup
 func SetPeerList(peers PeerList) Option {
 	return func(conf *config) {
-		conf.Peers = peers
+		conf.PEERS = peers.Peers
 	}
 }

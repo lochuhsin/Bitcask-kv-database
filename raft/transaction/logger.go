@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 	"rebitcask/internal/setting"
-	"rebitcask/internal/util"
 	"strconv"
 	"sync"
 
@@ -26,7 +25,8 @@ type CommitLogger struct {
 
 func NewCommitLogger() CommitLogger {
 	newFileId := uuid.New().String()
-	filePath := util.GetCommitLogFilePath(newFileId)
+	filePath := ""
+	panic("commit logger not implemented yet")
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
 	if err != nil {
 		panic(err)
@@ -51,6 +51,7 @@ func (c *CommitLogger) Add(entry string) {
 	 * */
 	c.mu.Lock()
 	defer c.mu.Unlock()
+	panic("log format not implemented")
 	data := fmt.Sprintf("%v::%v%v", entry, strconv.Itoa(c.counter), setting.DATA_SEPARATOR)
 	n, err := c.writer.WriteString(data)
 	if n != len(data) {

@@ -5,7 +5,6 @@ import (
 	"rebitcask/internal/scheduler"
 	"rebitcask/internal/segment"
 	"rebitcask/internal/setting"
-	"rebitcask/internal/transaction"
 )
 
 func Setup(envPaths ...string) {
@@ -18,5 +17,4 @@ func Setup(envPaths ...string) {
 	memory.InitMemoryManager()
 	segment.InitSegmentManager()
 	scheduler.InitScheduler()
-	transaction.InitCommitLogger()
 }

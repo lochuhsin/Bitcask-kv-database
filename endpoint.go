@@ -5,7 +5,6 @@ import (
 	"rebitcask/internal/memory"
 	"rebitcask/internal/segment"
 	"rebitcask/internal/setting"
-	"rebitcask/internal/transaction"
 	"rebitcask/internal/util"
 )
 
@@ -33,11 +32,6 @@ func Get(k string) (string, bool) {
 func Set(k string, v string) error {
 	manager := memory.GetMemoryManager()
 	entry := dao.InitEntry(util.StringToBytes(k), util.StringToBytes(v))
-	serialize, err := dao.Serialize(entry)
-	if err != nil {
-		panic(err)
-	}
-	transaction.GetCommitLogger().Add(serialize)
 
 	manager.SetRequestQ() <- entry
 	<-manager.SetResponseQ()
@@ -47,11 +41,6 @@ func Set(k string, v string) error {
 func Delete(k string) error {
 	manager := memory.GetMemoryManager()
 	entry := dao.InitTombEntry(util.StringToBytes(k))
-	entryB, err := dao.Serialize(entry)
-	if err != nil {
-		panic(err)
-	}
-	transaction.GetCommitLogger().Add(entryB)
 	manager.SetRequestQ() <- entry
 	<-manager.SetResponseQ()
 	return nil

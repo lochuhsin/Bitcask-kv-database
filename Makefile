@@ -1,6 +1,10 @@
 ########################################################
 # rebitcask
 
+.PHONY: gen_grpc
+gen_grpc:
+	protoc --go-grpc_out=. --go_out=. --go_opt=paths=source_relative --go-grpc_opt=paths=source_relative server/chorepb/*.proto server/rebitcaskpb/*.proto
+
 .PHONY: test
 test: # vanilla test
 	go test ./... -race -count=1 -v

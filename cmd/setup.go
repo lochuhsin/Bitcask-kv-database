@@ -7,6 +7,7 @@ import (
 	"rebitcask/api/core"
 	_ "rebitcask/docs"
 	"rebitcask/internal/setting"
+	"rebitcask/raft"
 	"rebitcask/server/rebitcaskpb"
 
 	"github.com/gin-gonic/gin"
@@ -31,11 +32,14 @@ func serverSetup() {
 
 	go grpcServerSetup(grpcL)
 	go httpServerSetup(httpL)
-	go AnonymousTCPSetup(tcpL)
+	go anonymousTCPSetup(tcpL)
 	mux.Serve()
 }
 
 func clusterSetup() {
+	/**
+	 * send and get all peers from discovery server
+	 */
 	msgCh := make(chan []byte, 1)
 	go udpServer(msgCh)
 
@@ -44,11 +48,16 @@ func clusterSetup() {
 	peerList := setting.PeerList{}
 	err := json.Unmarshal(buff, &peerList)
 	if err != nil {
-		logrus.Error("Unable to unmarshal data")
-		panic(err)
+		logrus.Error("Unable to unmarshal data, perhaps no peers ?")
+		logrus.Error(err)
 	}
 	option := setting.SetPeerList(peerList)
 	option(&setting.Config)
+
+	/**
+	 * setup raft node
+	 */
+	raft.InitializeRaftNode()
 }
 
 func httpServerSetup(l net.Listener) {
@@ -67,7 +76,7 @@ func grpcServerSetup(l net.Listener) {
 	s.Serve(l)
 }
 
-func AnonymousTCPSetup(l net.Listener) {
+func anonymousTCPSetup(l net.Listener) {
 	for {
 		conn, err := l.Accept()
 		if err != nil {

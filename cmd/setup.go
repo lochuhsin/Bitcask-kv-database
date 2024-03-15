@@ -7,7 +7,6 @@ import (
 	"rebitcask/api/core"
 	_ "rebitcask/docs"
 	"rebitcask/internal/setting"
-	"rebitcask/raft"
 	"rebitcask/server/rebitcaskpb"
 
 	"github.com/gin-gonic/gin"
@@ -57,7 +56,6 @@ func clusterSetup() {
 	/**
 	 * setup raft node
 	 */
-	raft.InitializeRaftNode()
 }
 
 func httpServerSetup(l net.Listener) {

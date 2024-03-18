@@ -140,10 +140,6 @@ func (s *Manager) Add(seg Segment) {
 	s.Unlock()
 }
 
-func (s *Manager) CompactionCondition() bool {
-	panic("not implemented yet")
-}
-
 func (s *Manager) Compaction() {
 	panic("not implemented yet")
 }

@@ -50,8 +50,8 @@ func (s *Scheduler) memoryWorker(id memory.BlockId, wg *sync.WaitGroup) {
 	defer wg.Done()
 	block := s.mManager.GetBlock(id) //Read
 	seg := memBlockToFile(block)
-	genSegmentMetadataFile(seg.Id, seg.Level)
-	genSegmentIndexFile(seg.Id, seg.GetPrimaryIndex())
+	createSegMetaFile(seg.Id, seg.Level)
+	createSegIndexFile(seg.Id, seg.GetPrimaryIndex())
 	s.sManager.Add(seg)
 }
 

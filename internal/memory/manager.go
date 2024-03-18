@@ -2,7 +2,6 @@ package memory
 
 import (
 	"rebitcask/internal/dao"
-	"rebitcask/internal/memory/models"
 	"sync"
 	"time"
 
@@ -19,10 +18,10 @@ type MemoryManager struct {
 	bulkRemoveBlockRequestQ  chan []BlockId
 	entryCountLimit          int
 	mu                       sync.RWMutex
-	modelType                models.ModelType
+	modelType                ModelType
 }
 
-func NewMemoryManager(bStorage *blockStorage, entryCountLimit, blockIdChanSize int, modelType models.ModelType) *MemoryManager {
+func NewMemoryManager(bStorage *blockStorage, entryCountLimit, blockIdChanSize int, modelType ModelType) *MemoryManager {
 	activeBlock := NewBlock(
 		time.Now().Unix(),
 		BlockId(uuid.NewString()),

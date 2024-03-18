@@ -12,14 +12,14 @@ type BlockId string
 type Block struct {
 	Timestamp int64
 	Id        BlockId
-	Memory    models.IMemory
+	Memory    IMemory
 	mu        sync.RWMutex
 }
 
-func NewBlock(timestamp int64, id BlockId, t models.ModelType) Block {
+func NewBlock(timestamp int64, id BlockId, t ModelType) Block {
 	return Block{
 		Id:        id,
-		Memory:    models.MemoryTypeSelector(t),
+		Memory:    MemoryTypeSelector(t),
 		Timestamp: timestamp,
 		mu:        sync.RWMutex{},
 	}
@@ -115,4 +115,24 @@ func (m *blockStorage) getAll() []*Block {
 		node = node.prev
 	}
 	return blocks
+}
+
+func MemoryTypeSelector(mType ModelType) IMemory {
+	var m IMemory = nil
+	switch mType {
+	case HASH:
+		m = models.NewHash()
+	case BST:
+		m = models.NewBinarySearchTree()
+
+	// TODO: implement these
+	// case memory.AVLT:
+	// 	m = memory.InitAvlTree()
+	// case memory.RBT:
+	// 	m = memory.InitRedBlackTree()
+
+	default:
+		panic("memory model not implemented error")
+	}
+	return m
 }

@@ -48,7 +48,7 @@ func memBlockToFile(memBlock *memory.Block) segment.Segment {
 	return segment
 }
 
-func genSegmentMetadataFile(sId string, level int) {
+func createSegMetaFile(sId string, level int) {
 	filePath := util.GetSegmentMetaDataFilePath(sId)
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777) //TODO: optimize the mode
 	if err != nil {
@@ -69,7 +69,7 @@ func genSegmentMetadataFile(sId string, level int) {
 	// immediately read, like Get operation
 }
 
-func genSegmentIndexFile(sId string, pIndex *segment.PrimaryIndex) {
+func createSegIndexFile(sId string, pIndex *segment.PrimaryIndex) {
 	filePath := util.GetSegmentIndexFilePath(sId)
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777) //TODO: optimize the mode
 	if err != nil {

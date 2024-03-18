@@ -86,7 +86,7 @@ func TestStorageSetGet(t *testing.T) {
 }
 
 func TestStorageSetDelete(t *testing.T) {
-	dataCount := setting.Config.MEMORY_COUNT_LIMIT*3 + 1
+	dataCount := setting.Config.MEMORY_COUNT_LIMIT*10 + 1
 
 	keys, vals := GenerateLowDuplicateRandom(dataCount)
 	for i, k := range keys {

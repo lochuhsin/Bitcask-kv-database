@@ -115,6 +115,7 @@ func (m *MemoryManager) WriteOpListener() {
 				m.bStorage.delete(id)
 			}
 			m.mu.Unlock()
+			m.bulkRemoveBlockResponseQ <- blockIds
 		}
 	}
 }

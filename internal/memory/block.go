@@ -117,6 +117,13 @@ func (m *blockStorage) getAll() []*Block {
 	return blocks
 }
 
+type IMemory interface {
+	Get([]byte) (dao.Entry, bool)
+	Set(dao.Entry) // if the memory is in frozen state, close set operation
+	GetSize() int
+	GetAll() []dao.Entry // Expected order by key from small to large
+}
+
 func MemoryTypeSelector(mType ModelType) IMemory {
 	var m IMemory = nil
 	switch mType {

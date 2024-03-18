@@ -22,18 +22,22 @@ func (o OffsetLen) Format() string {
 // contains the key offset in segment
 // physical position
 type PrimaryIndex struct {
-	OffsetMap map[string]OffsetLen
+	offset map[string]OffsetLen
 }
 
 func NewSegmentIndex(sid string) PrimaryIndex {
-	return PrimaryIndex{OffsetMap: map[string]OffsetLen{}}
+	return PrimaryIndex{offset: map[string]OffsetLen{}}
 }
 
 func (s *PrimaryIndex) Set(k []byte, offset, len int) {
-	s.OffsetMap[util.BytesToString(k)] = OffsetLen{offset, len}
+	s.offset[util.BytesToString(k)] = OffsetLen{offset, len}
 }
 
 func (s *PrimaryIndex) Get(k []byte) (OffsetLen, bool) {
-	offset, ok := s.OffsetMap[util.BytesToString(k)]
+	offset, ok := s.offset[util.BytesToString(k)]
 	return offset, ok
+}
+
+func (s *PrimaryIndex) GetAllIndex() map[string]OffsetLen {
+	return s.offset
 }

@@ -122,7 +122,7 @@ func NewSegmentManager() Manager {
 
 func (s *Manager) Add(seg Segment) {
 	s.Lock()
-
+	defer s.Unlock()
 	level := seg.Level
 
 	if level >= len(s.levelMap) {
@@ -137,7 +137,7 @@ func (s *Manager) Add(seg Segment) {
 	}
 
 	s.levelMap[level] = append(s.levelMap[level], seg)
-	s.Unlock()
+
 }
 
 func (s *Manager) Compaction() {

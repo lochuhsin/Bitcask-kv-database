@@ -79,7 +79,7 @@ func createSegIndexFile(sId string, pIndex *segment.PrimaryIndex) {
 
 	writer := bufio.NewWriter(file)
 
-	for key, val := range pIndex.OffsetMap {
+	for key, val := range pIndex.GetAllIndex() {
 		data := segmentIndexSerialize(key, val.Format())
 		_, err := writer.WriteString(data + setting.DATA_SEPARATOR)
 		if err != nil {

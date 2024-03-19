@@ -3,7 +3,6 @@ package memory
 import (
 	"errors"
 	"rebitcask/internal/dao"
-	"rebitcask/internal/memory/models"
 	"sync"
 )
 
@@ -51,7 +50,6 @@ type node struct {
 	next  *node
 	prev  *node
 }
-
 type blockStorage struct {
 	/**
 	 * TODO: ----------------------------------------------------------------
@@ -128,9 +126,9 @@ func MemoryTypeSelector(mType ModelType) IMemory {
 	var m IMemory = nil
 	switch mType {
 	case HASH:
-		m = models.NewHash()
+		m = NewHash()
 	case BST:
-		m = models.NewBinarySearchTree()
+		m = NewBinarySearchTree()
 
 	default:
 		panic("memory model not implemented error")

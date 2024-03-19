@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"sync"
 
 	"github.com/goccy/go-json"
 	"github.com/google/uuid"
@@ -14,7 +15,10 @@ import (
  * Every developer should be considered as a grown man that should not ever
  * change the config in runtime.
  */
-var Config config
+var (
+	Config config
+	cOnce  sync.Once
+)
 
 type Option func(*config)
 
@@ -184,4 +188,33 @@ func SetPeerList(peers PeerList) Option {
 	return func(conf *config) {
 		conf.PEERS = peers.Peers
 	}
+}
+
+func SetupConfig(envPaths ...string) {
+	cOnce.Do(
+		func() {
+			Config = NewConfiguration(
+				envPaths,
+				SetDataFolderPath(),
+				SetPort(),
+				SetMemoryCountLimit(),
+				SetMemoryModel(),
+				SetNilData(),
+				SetSegmentFileCountLimit(),
+				SetTombstone(),
+				SetDiscoveryHost(),
+				SetServerName(),
+				SetMode(),
+			)
+		},
+	)
+}
+
+func SetUpDirectory() {
+	segDir := fmt.Sprintf("%s%s", Config.DATA_FOLDER_PATH, SEGMENT_FILE_FOLDER)
+	indexDir := fmt.Sprintf("%s%s", Config.DATA_FOLDER_PATH, INDEX_FILE_FOLDER)
+	commitDir := fmt.Sprintf("%s%s", Config.DATA_FOLDER_PATH, COMMIT_LOG_FOLDER)
+	os.MkdirAll(segDir, os.ModePerm)
+	os.MkdirAll(indexDir, os.ModePerm)
+	os.MkdirAll(commitDir, os.ModePerm)
 }

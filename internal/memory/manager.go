@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type MemoryManager struct {
+type Manager struct {
 	bStorage                 *blockStorage
 	activeBlock              *Block
 	scheduleBlock            chan BlockId
@@ -21,13 +21,13 @@ type MemoryManager struct {
 	modelType                ModelType
 }
 
-func NewMemoryManager(bStorage *blockStorage, entryCountLimit, blockIdChanSize int, modelType ModelType) *MemoryManager {
+func NewMemoryManager(bStorage *blockStorage, entryCountLimit, blockIdChanSize int, modelType ModelType) *Manager {
 	activeBlock := NewBlock(
 		time.Now().Unix(),
 		BlockId(uuid.NewString()),
 		modelType,
 	)
-	return &MemoryManager{
+	return &Manager{
 		bStorage:                 bStorage,
 		activeBlock:              &activeBlock,
 		mu:                       sync.RWMutex{},
@@ -41,7 +41,7 @@ func NewMemoryManager(bStorage *blockStorage, entryCountLimit, blockIdChanSize i
 	}
 }
 
-func (m *MemoryManager) Get(key []byte) (dao.Entry, bool) {
+func (m *Manager) Get(key []byte) (dao.Entry, bool) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	// first search active block, second search history blocks
@@ -59,7 +59,7 @@ func (m *MemoryManager) Get(key []byte) (dao.Entry, bool) {
 	return dao.Entry{}, false
 }
 
-func (m *MemoryManager) GetBlock(id BlockId) *Block {
+func (m *Manager) GetBlock(id BlockId) *Block {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	block, status := m.bStorage.get(id)
@@ -69,28 +69,28 @@ func (m *MemoryManager) GetBlock(id BlockId) *Block {
 	return nil
 }
 
-func (m *MemoryManager) GetScheduleBlockQueue() chan BlockId {
+func (m *Manager) GetScheduleBlockQueue() chan BlockId {
 	return m.scheduleBlock
 }
 
-func (m *MemoryManager) SetRequestQ() chan dao.Entry {
+func (m *Manager) SetRequestQ() chan dao.Entry {
 	return m.setRequestQ
 }
 
-func (m *MemoryManager) SetResponseQ() chan dao.Entry {
+func (m *Manager) SetResponseQ() chan dao.Entry {
 	return m.setResponseQ
 }
 
-func (m *MemoryManager) BulkRemoveBlockRequestQ() chan []BlockId {
+func (m *Manager) BulkRemoveBlockRequestQ() chan []BlockId {
 	return m.bulkRemoveBlockRequestQ
 }
 
-func (m *MemoryManager) BulkRemoveBlockResponseQ() chan []BlockId {
+func (m *Manager) BulkRemoveBlockResponseQ() chan []BlockId {
 	return m.bulkRemoveBlockResponseQ
 }
 
 // Long running goroutine for listening write operations
-func (m *MemoryManager) WriteOpListener() {
+func (m *Manager) WriteOpListener() {
 	for {
 		select {
 		case entry := <-m.setRequestQ:

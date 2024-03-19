@@ -9,11 +9,11 @@ import (
 )
 
 type Scheduler struct {
-	mManager *memory.MemoryManager
+	mManager *memory.Manager
 	sManager *segment.Manager
 }
 
-func NewScheduler(mManager *memory.MemoryManager, sManager *segment.Manager) *Scheduler {
+func NewScheduler(mManager *memory.Manager, sManager *segment.Manager) *Scheduler {
 	return &Scheduler{
 		mManager: mManager,
 		sManager: sManager,

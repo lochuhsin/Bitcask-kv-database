@@ -13,7 +13,7 @@ func setup() {
 }
 
 func teardown() {
-	time.Sleep(time.Second * 100)
+	time.Sleep(time.Second * 3)
 	os.RemoveAll(setting.Config.DATA_FOLDER_PATH)
 }
 

@@ -54,7 +54,7 @@ compose-build:
 
 .PHONY: all_profile
 all_profile:
-	go test ./bench -run=none -bench=. -benchmem -benchtime=20s -memprofile=mem.pprof -cpuprofile=cpu.pprof -blockprofile=block.pprof
+	go test ./bench -run=none -bench=. -benchmem -benchtime=15s -memprofile=mem.pprof -cpuprofile=cpu.pprof -blockprofile=block.pprof
 
 .PHONY: cpu_profile
 cpu_profile:

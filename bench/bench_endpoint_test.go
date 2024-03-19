@@ -13,7 +13,7 @@ func setup() {
 }
 
 func teardown() {
-	time.Sleep(time.Second * 3)
+	time.Sleep(time.Second * 100)
 	os.RemoveAll(setting.Config.DATA_FOLDER_PATH)
 }
 
@@ -24,38 +24,75 @@ func TestMain(m *testing.M) {
 	os.Exit(code)
 }
 
-func BenchmarkCleanSearchStorageGet(b *testing.B) {
-	keys, _ := GenerateLowDuplicateRandom(b.N)
-	for _, k := range keys {
-		_, _ = rebitcask.Get(k)
+func BenchmarkEmptyGet_100(b *testing.B) {
+	keys, _ := GenerateLowDuplicateRandom(100)
+	benchmarkEmptyGet(keys, b)
+}
+
+func BenchmarkEmptyGet_1000(b *testing.B) {
+	keys, _ := GenerateLowDuplicateRandom(1000)
+	benchmarkEmptyGet(keys, b)
+}
+
+func BenchmarkEmptyGet_10000(b *testing.B) {
+	keys, _ := GenerateLowDuplicateRandom(10000)
+	benchmarkEmptyGet(keys, b)
+}
+
+func benchmarkEmptyGet(keys []string, b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		func() {
+			for _, k := range keys {
+				_, _ = rebitcask.Get(k)
+			}
+		}()
 	}
 }
 
-func BenchmarkStorageSet(b *testing.B) {
-	keys, vals := GenerateLowDuplicateRandom(b.N)
-	for i, k := range keys {
-		_ = rebitcask.Set(k, vals[i])
+func BenchmarkSet_100(b *testing.B) {
+	keys, vals := GenerateLowDuplicateRandom(100)
+	for i := 0; i < b.N; i++ {
+		benchmarkSet(keys, vals, b)
 	}
 }
 
-func BenchmarkStorageGet(b *testing.B) {
-	keys, _ := GenerateLowDuplicateRandom(b.N)
-	for _, k := range keys {
-		_, _ = rebitcask.Get(k)
+func BenchmarkSet_1000(b *testing.B) {
+	keys, vals := GenerateLowDuplicateRandom(1000)
+	for i := 0; i < b.N; i++ {
+		benchmarkSet(keys, vals, b)
 	}
 }
 
-func BenchmarkStorageDelete(b *testing.B) {
-	keys, vals := GenerateLowDuplicateRandom(b.N)
-	for i, k := range keys {
-		_ = rebitcask.Set(k, vals[i])
+func benchmarkSet(keys, vals []string, b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		func() {
+			for i, k := range keys {
+				_ = rebitcask.Set(k, vals[i])
+			}
+		}()
 	}
 }
 
-func BenchmarkStorageSetGet(b *testing.B) {
-	keys, vals := GenerateLowDuplicateRandom(b.N)
-	for i, k := range keys {
-		_ = rebitcask.Set(k, vals[i])
-		_, _ = rebitcask.Get(k)
+func BenchmarkDelete_100(b *testing.B) {
+	keys, vals := GenerateLowDuplicateRandom(100)
+	for i := 0; i < b.N; i++ {
+		benchmarkDelete(keys, vals, b)
+	}
+}
+
+func BenchmarkDelete_1000(b *testing.B) {
+	keys, vals := GenerateLowDuplicateRandom(1000)
+	for i := 0; i < b.N; i++ {
+		benchmarkDelete(keys, vals, b)
+	}
+}
+
+func benchmarkDelete(keys, vals []string, b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		func() {
+			for _, k := range keys {
+				_ = rebitcask.Delete(k)
+			}
+		}()
 	}
 }

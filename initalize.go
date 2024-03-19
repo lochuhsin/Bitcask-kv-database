@@ -1,9 +1,7 @@
 package rebitcask
 
 import (
-	"rebitcask/internal/memory"
-	"rebitcask/internal/scheduler"
-	"rebitcask/internal/segment"
+	"rebitcask/internal"
 	"rebitcask/internal/setting"
 )
 
@@ -14,7 +12,7 @@ func Setup(envPaths ...string) {
 	 */
 	setting.SetupConfig(envPaths...)
 	setting.SetUpDirectory()
-	memory.InitMemoryManager()
-	segment.InitSegmentManager()
-	scheduler.InitScheduler()
+	internal.InitMemoryManager()
+	internal.InitSegmentManager()
+	internal.InitScheduler()
 }

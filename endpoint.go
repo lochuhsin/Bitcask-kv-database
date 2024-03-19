@@ -1,9 +1,8 @@
 package rebitcask
 
 import (
+	"rebitcask/internal"
 	"rebitcask/internal/dao"
-	"rebitcask/internal/memory"
-	"rebitcask/internal/segment"
 	"rebitcask/internal/setting"
 	"rebitcask/internal/util"
 )
@@ -17,12 +16,12 @@ func Get(k string) (string, bool) {
 	 * Note: exists meaning that the key exists, and the value is not tombstone
 	 */
 	bytes := util.StringToBytes(k)
-	m, status := memory.GetMemoryManager().Get(bytes)
+	m, status := internal.GetMemoryManager().Get(bytes)
 	if status {
 		return checkTombstone(m)
 	}
 
-	s, status := segment.GetSegmentManager().GetValue(bytes)
+	s, status := internal.GetSegmentManager().GetValue(bytes)
 	if status {
 		return checkTombstone(s)
 	}
@@ -30,7 +29,7 @@ func Get(k string) (string, bool) {
 }
 
 func Set(k string, v string) error {
-	manager := memory.GetMemoryManager()
+	manager := internal.GetMemoryManager()
 	entry := dao.InitEntry(util.StringToBytes(k), util.StringToBytes(v))
 
 	manager.SetRequestQ() <- entry
@@ -39,7 +38,7 @@ func Set(k string, v string) error {
 }
 
 func Delete(k string) error {
-	manager := memory.GetMemoryManager()
+	manager := internal.GetMemoryManager()
 	entry := dao.InitTombEntry(util.StringToBytes(k))
 	manager.SetRequestQ() <- entry
 	<-manager.SetResponseQ()

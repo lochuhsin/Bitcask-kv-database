@@ -132,12 +132,6 @@ func MemoryTypeSelector(mType ModelType) IMemory {
 	case BST:
 		m = models.NewBinarySearchTree()
 
-	// TODO: implement these
-	// case memory.AVLT:
-	// 	m = memory.InitAvlTree()
-	// case memory.RBT:
-	// 	m = memory.InitRedBlackTree()
-
 	default:
 		panic("memory model not implemented error")
 	}

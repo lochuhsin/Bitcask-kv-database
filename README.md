@@ -5,7 +5,7 @@
     <img src="images/logo.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">Re Bitcask</h3>
+  <h3 align="center">Re Bitcask (Still working on raft protocol to use it as a cluster) </h3>
 
   <p align="center">
     The journey to re implement bitcask and turn into distributed kv database.
